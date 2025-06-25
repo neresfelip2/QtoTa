@@ -4,8 +4,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.login.LoginScreen
 import br.com.qtota.ui.screen.product_details.ProductDetailsScreen
@@ -25,6 +27,9 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
 
         composable(
             AppRoutes.ProductDetails.route,
+            arguments = listOf(
+                navArgument(AppRoutes.ProductDetails.ARG_PRODUCT_ID) { type = NavType.LongType }
+            ),
             enterTransition = { slideInHorizontally() },
             popEnterTransition = { null },
             popExitTransition = { slideOutHorizontally() }

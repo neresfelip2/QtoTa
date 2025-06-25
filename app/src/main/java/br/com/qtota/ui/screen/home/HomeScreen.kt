@@ -18,8 +18,6 @@ import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -59,12 +57,13 @@ import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
+import br.com.qtota.ui.components.ErrorComponent
+import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductList
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
-import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.GrayColor
 import kotlinx.coroutines.launch
 
@@ -134,7 +133,7 @@ private fun Content(
             Column {
                 SearchContent(false, navController, viewModel)
                 StoresTabs(storeTabsState)
-                MessageContent({CircularProgressIndicator(color = DefaultColor)}, "Carregando...")
+                LoadingComponent()
             }
         }
         is ListProductState.Success -> {
@@ -165,14 +164,7 @@ private fun Content(
             Column {
                 SearchContent(false, navController, viewModel)
                 StoresTabs(storeTabsState)
-                MessageContent({
-                    Icon(
-                        imageVector = Icons.Outlined.Warning,
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp),
-                        tint = ErrorColor
-                    )
-                }, listProductState.errorMessage, ErrorColor)
+                ErrorComponent(listProductState.errorMessage)
             }
         }
     }

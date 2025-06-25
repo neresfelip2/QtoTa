@@ -38,6 +38,8 @@ import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.utils.StringUtils.toDDMM
+import br.com.qtota.utils.StringUtils.toDistanceString
+import br.com.qtota.utils.StringUtils.toMonetaryString
 import kotlin.collections.forEach
 
 @Composable
@@ -55,7 +57,9 @@ internal fun ProductList(
                 Modifier
                     .padding(8.dp)
                     .clickable {
-                        navController.navigate(AppRoutes.ProductDetails.route)
+                        navController.navigate(
+                            AppRoutes.ProductDetails.productId(product.id)
+                        )
                     },
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -84,7 +88,7 @@ internal fun ProductList(
                         Text("Válido até ${product.expirationDate.toDDMM()}", color = Color.DarkGray)
                     }
                     Text(
-                        product.distance.distanceToString(),
+                        product.distance.toDistanceString(),
                         Modifier
                             .padding(8.dp)
                             .background(
@@ -112,7 +116,7 @@ internal fun ProductList(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "R$ ${product.currentValue}",
+                            product.currentValue.toMonetaryString(),
                             Modifier.padding(4.dp),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
@@ -123,7 +127,7 @@ internal fun ProductList(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(
-                                    "R$ $previousValue",
+                                    previousValue.toMonetaryString(),
                                     Modifier.padding(8.dp),
                                     color = Color.DarkGray,
                                     style = TextStyle(
@@ -197,15 +201,6 @@ internal fun ProductList(
         )
     }
 
-}
-
-private fun Int.distanceToString() : String {
-    val distance = this
-    return if(distance >= 1000) {
-        "${distance.toDouble()/1000}km"
-    } else {
-        "${distance}m"
-    }
 }
 
 private fun calculateDiscount(currentValue: Double, previousValue: Double): Int {

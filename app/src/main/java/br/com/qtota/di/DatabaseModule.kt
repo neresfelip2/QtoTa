@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import br.com.qtota.data.local.AppDatabase
 import br.com.qtota.data.local.dao.ProductDAO
-import br.com.qtota.data.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,11 +26,6 @@ object DatabaseModule {
     @Provides
     fun provideProductDAO(db: AppDatabase): ProductDAO {
         return db.productDAO()
-    }
-
-    @Provides
-    fun provideProductRepository(productDAO: ProductDAO): ProductRepository {
-        return ProductRepository(productDAO)
     }
 
 }
