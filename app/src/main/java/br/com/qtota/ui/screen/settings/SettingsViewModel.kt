@@ -42,7 +42,7 @@ class SettingsViewModel @Inject constructor(
                     "market://details?id=$appPackageName".toUri()
                 )
             )
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             context.startActivity(
                 Intent(
                     Intent.ACTION_VIEW,

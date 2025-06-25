@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
@@ -59,7 +59,7 @@ internal fun SettingsScreen(navController: NavHostController) {
             SettingsGroup(
                 {
                     if(isLogged) {
-                        SettingsButton("Logout", Icons.Outlined.ExitToApp, color = ErrorColor) {
+                        SettingsButton("Logout", Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
                             showDialogLogout = true
                         }
                     } else {

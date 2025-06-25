@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,7 +67,6 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.GrayColor
 import kotlinx.coroutines.launch
-import kotlin.collections.isNotEmpty
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
