@@ -1,6 +1,7 @@
 package br.com.qtota.ui.screen.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,16 +9,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -59,7 +61,6 @@ import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
-import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductList
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
@@ -108,9 +109,7 @@ internal fun HomeScreen(navController: NavHostController) {
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Scaffold(floatingActionButton = { ChatButton() }) {
-                        val storeTabsState by viewModel.storeTabsState.collectAsState()
-                        val mainState by viewModel.listProductState.collectAsState()
-                        Content(storeTabsState, mainState, navController, viewModel)
+                        Content(navController, viewModel)
                     }
                 }
             }
@@ -120,15 +119,50 @@ internal fun HomeScreen(navController: NavHostController) {
 
 @Composable
 private fun Content(
-    storeTabsState: List<String>,
-    listProductState: ListProductState,
     navController: NavHostController,
     viewModel: HomeViewModel,
 ) {
 
-    val savedProducts by viewModel.savedProducts.collectAsState()
+    val storeTabsState by viewModel.storeTabsState.collectAsState()
+    val listProductState by viewModel.productListState.collectAsState()
+    val loadingState by viewModel.loadingState.collectAsState()
 
-    when (listProductState) {
+    if(listProductState.isNotEmpty()) {
+
+        Log.i("teste", listProductState.toString())
+
+        LazyColumn {
+            item { SearchContent(navController, viewModel) }
+            item { StoresTabs(storeTabsState) }
+            items(listProductState) { product ->
+                ProductList(
+                    product = product,
+                    navController = navController,
+                    onHighlightedButtonClick = {
+                        viewModel.saveProduct(product)
+                    }
+                )
+            }
+            item {
+                if(loadingState) {
+                    CircularProgressIndicator()
+                } else {
+                    Button({
+                        viewModel.loadProducts()
+                    }) {
+                        Text("Carregar mais")
+                    }
+                }
+            }
+        }
+    } else {
+        when(loadingState) {
+            true -> LoadingComponent()
+            false -> ErrorComponent("Algo deu errado")
+        }
+    }
+
+    /*when (loadingState) {
         is ListProductState.Loading -> {
             Column {
                 SearchContent(false, navController, viewModel)
@@ -137,16 +171,24 @@ private fun Content(
             }
         }
         is ListProductState.Success -> {
-            if (listProductState.products.isNotEmpty()) {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    SearchContent(true, navController, viewModel)
-                    StoresTabs(storeTabsState)
-                    ProductList(
-                        products = listProductState.products,
-                        navController = navController,
-                        savedProducts = savedProducts,
-                        onHighlightedButtonClick = { viewModel.saveProduct(it) },
-                    )
+            val products = (loadingState as ListProductState.Success).products
+            if (products.isNotEmpty()) {
+                LazyColumn {
+                    item {
+                        SearchContent(true, navController, viewModel)
+                    }
+                    item {
+                        StoresTabs(storeTabsState)
+                    }
+                    items(products, { it.id }) { product ->
+                        ProductList(
+                            product = product,
+                            navController = navController,
+                            onHighlightedButtonClick = {
+                                viewModel.saveProduct(product)
+                            }
+                        )
+                    }
                 }
             } else {
                 Column {
@@ -164,14 +206,13 @@ private fun Content(
             Column {
                 SearchContent(false, navController, viewModel)
                 StoresTabs(storeTabsState)
-                ErrorComponent(listProductState.errorMessage)
             }
         }
-    }
+    }*/
 }
 
 @Composable
-private fun SearchContent(enabled: Boolean, navController: NavHostController, viewModel: HomeViewModel) {
+private fun SearchContent(navController: NavHostController, viewModel: HomeViewModel) {
     var text by remember { mutableStateOf("") }
 
     var showLoginDialog by remember { mutableStateOf(false) }
@@ -197,7 +238,6 @@ private fun SearchContent(enabled: Boolean, navController: NavHostController, vi
             ),
             shape = CircleShape,
             singleLine = true,
-            enabled = enabled,
             modifier = Modifier
                 .weight(1f)
                 .padding(8.dp),

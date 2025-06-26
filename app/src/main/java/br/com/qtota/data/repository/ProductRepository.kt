@@ -2,9 +2,12 @@ package br.com.qtota.data.repository
 
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.data.mapper.ProductMapper.toProduct
+import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
-import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.ui.screen.product_details.ProductDetail
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ProductRepository(
     private val apiService: APIService,
@@ -15,22 +18,43 @@ class ProductRepository(
         dao.insert(product)
     }
 
-    fun getAll() : Flow<List<Product>> {
-        return dao.getAll()
+    fun getSavedProducts() : Flow<List<Product>> {
+        return dao.getAll().map { it.onEach { product -> product.isSaved = true } }
     }
 
     suspend fun delete(product: Product) {
         dao.delete(product)
     }
 
-    suspend fun getProductById(id: Long) : Result<ProductResponse> {
+    suspend fun getProducts(): Result<List<Product>> {
+
+        return try {
+            val response = apiService.getProducts()
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    val products = body.map { it.toProduct() }
+                    Result.success(products)
+                } else {
+                    Result.failure(Exception("Corpo da resposta vazio"))
+                }
+            } else {
+                Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    }
+
+    suspend fun getProductById(id: Long) : Result<ProductDetail> {
 
         return try {
             val response = apiService.productDetail(id)
 
             if(response.isSuccessful) {
                 response.body()?.let {
-                    Result.success(it)
+                    Result.success(it.toProductDetail())
                 } ?: Result.failure(Exception("Corpo da resposta vazio"))
             } else {
                 Result.failure(

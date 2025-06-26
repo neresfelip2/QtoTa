@@ -1,6 +1,5 @@
 package br.com.qtota.ui.screen.product_details
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,7 +26,6 @@ class ProductDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val response = productRepository.getProductById(productId)
             val result = response.getOrNull()
-            Log.i("teste", "response: ${response.isSuccess} | result: $result")
             if(response.isSuccess && result != null) {
                 _productDetails.value = ProductState.Success(result)
             } else {

@@ -50,7 +50,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
-import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.product.StoreResponse
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
@@ -90,7 +89,7 @@ internal fun ProductDetailsScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductResponse) {
+private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail) {
     Column(Modifier
         .fillMaxSize()
         .padding(innerPadding)
@@ -105,9 +104,9 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductRespon
             contentScale = ContentScale.Crop
         )
         Spacer(Modifier.height(8.dp))
-        Text(product.productName, fontWeight = FontWeight.Bold)
+        Text(product.name, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(4.dp))
-        Text(product.productStore, color = Color.Gray)
+        Text(product.description, color = Color.Gray)
         Spacer(Modifier.height(16.dp))
         Column(
             Modifier

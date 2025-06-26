@@ -2,6 +2,7 @@ package br.com.qtota.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 
@@ -30,6 +31,13 @@ data class Product(
     val distance: Int,
 
     @ColumnInfo("expiration_date")
-    val expirationDate: LocalDate,
+    val expirationOffer: LocalDate,
 
-)
+) {
+    @Ignore
+    var isSaved: Boolean = false
+
+    override fun toString(): String {
+        return isSaved.toString()
+    }
+}

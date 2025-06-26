@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace 'br.com.qtota'
-    compileSdk 35
+    compileSdk 36
 
     buildFeatures {
         buildConfig true
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "br.com.qtota"
         minSdk 26
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
@@ -35,7 +35,7 @@ android {
         debug {
 
             // @TODO Url apontando para uma api simulada no próprio pc
-            buildConfigField "String", "API_URL", "\"http://192.168.1.6:3000\""
+            buildConfigField "String", "API_URL", "\"http://192.168.1.4:3000\""
         }
 
     }

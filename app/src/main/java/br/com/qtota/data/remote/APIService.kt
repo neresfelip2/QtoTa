@@ -14,6 +14,9 @@ interface APIService {
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
+    @GET("product")
+    suspend fun getProducts(): Response<List<ProductResponse>>
+
     @GET("product/{id}")
     suspend fun productDetail(@Path("id") id: Long): Response<ProductResponse>
 

@@ -15,7 +15,7 @@ class SavedOffersViewModel @Inject constructor(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
-    internal val savedProducts = productRepository.getAll().stateIn(
+    internal val savedProducts = productRepository.getSavedProducts().stateIn(
         viewModelScope,
         SharingStarted.Lazily,
         null

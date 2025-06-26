@@ -1,10 +1,9 @@
 package br.com.qtota.ui.screen.saved_offers
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -35,17 +34,12 @@ internal fun SavedOffersScreen(navController: NavHostController) {
 
         savedProducts?.let {
             if(it.isNotEmpty()) {
-                Column(
-                    Modifier
-                        .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    ProductList(
-                        products = it,
-                        navController = navController,
-                        savedProducts = it,
-                        onHighlightedButtonClick = { viewModel.deleteProduct(it) },
-                    )
+                LazyColumn(Modifier.padding(innerPadding)) {
+                    items(it) { product ->
+                        ProductList(product, navController) {
+                            viewModel.deleteProduct(product)
+                        }
+                    }
                 }
             } else {
                 MessageContent({
