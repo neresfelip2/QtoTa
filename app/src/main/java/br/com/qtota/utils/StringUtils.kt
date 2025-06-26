@@ -23,7 +23,7 @@ object StringUtils {
         return if(distance >= 1000) {
             "${distance.toDouble()/1000} km"
         } else {
-            "${distance} m"
+            "$distance m"
         }
     }
 
@@ -32,7 +32,7 @@ object StringUtils {
         return if(weight >= 1000) {
             "${weight.toDouble()/1000} kg"
         } else {
-            "${weight} g"
+            "$weight g"
         }
     }
 

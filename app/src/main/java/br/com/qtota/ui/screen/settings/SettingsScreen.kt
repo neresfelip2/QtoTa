@@ -2,6 +2,7 @@ package br.com.qtota.ui.screen.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,30 +57,28 @@ internal fun SettingsScreen(navController: NavHostController) {
                 .padding(innerPadding)
                 .padding(8.dp)) {
 
-            SettingsGroup(
-                {
-                    if(isLogged) {
-                        SettingsButton("Logout", Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
-                            showDialogLogout = true
-                        }
-                    } else {
-                        SettingsButton("Fazer login", Icons.Outlined.Person) {
-                            navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
-                        }
+            SettingsGroup {
+                if (isLogged) {
+                    SettingsButton("Logout", Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
+                        showDialogLogout = true
+                    }
+                } else {
+                    SettingsButton("Fazer login", Icons.Outlined.Person) {
+                        navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
                     }
                 }
-            )
-            SettingsGroup(
-                {
-                    SettingsButton("Ofertas salvas", Icons.Outlined.FavoriteBorder) {
-                        navController.navigate(AppRoutes.SavedOffers.route)
-                    }
+            }
+
+            SettingsGroup {
+                SettingsButton("Ofertas salvas", Icons.Outlined.FavoriteBorder) {
+                    navController.navigate(AppRoutes.SavedOffers.route)
                 }
-            )
-            SettingsGroup(
-                { SettingsButton("Avalie-nos", Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) } },
-                { SettingsButton("Sobre", Icons.Outlined.Info) {} },
-            )
+            }
+
+            SettingsGroup {
+                SettingsButton("Avalie-nos", Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
+                SettingsButton("Sobre",    Icons.Outlined.Info)     { /* … */ }
+            }
         }
     }
 
@@ -97,14 +96,16 @@ internal fun SettingsScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun SettingsGroup(vararg settingsButton: @Composable () -> Unit) {
+private fun SettingsGroup(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Column(
-        Modifier
+        modifier
             .padding(8.dp)
-            .background(Color.White, RoundedCornerShape(24.dp))
-    ) {
-        settingsButton.forEach { it() }
-    }
+            .background(Color.White, RoundedCornerShape(24.dp)),
+        content = content
+    )
 }
 
 @Composable
