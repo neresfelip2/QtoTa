@@ -29,7 +29,7 @@ class ProductRepository(
     suspend fun getProducts(): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProducts()
+            val response = apiService.getProduct()
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
