@@ -6,5 +6,6 @@ data class StoreResponse(
     val name: String,
     val distance: Int,
     val price: Double,
-    val date: LocalDate
+    val date: LocalDate,
+    val logo: String?
 )

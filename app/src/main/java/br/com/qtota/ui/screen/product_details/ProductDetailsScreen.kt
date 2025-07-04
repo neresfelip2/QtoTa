@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -61,6 +62,7 @@ import br.com.qtota.utils.StringUtils.stringDaysAfterNow
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
 import br.com.qtota.utils.StringUtils.toWeightString
+import coil.compose.AsyncImage
 
 @Composable
 internal fun ProductDetailsScreen(navController: NavHostController) {
@@ -239,6 +241,16 @@ private fun PricesContainer(stores: List<StoreResponse>) {
 
                 Column(Modifier.padding(start = 12.dp, bottom = 12.dp, end = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        it.logo?.let { logo ->
+                            AsyncImage(
+                                model = logo,
+                                contentDescription = "Logo",
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(MaterialTheme.shapes.small),
+                                contentScale = ContentScale.Inside
+                            )
+                        } ?:
                         Image(
                             painterResource(R.drawable.outline_photo_24),
                             null,

@@ -17,6 +17,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -41,6 +44,7 @@ import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.utils.StringUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import coil.compose.AsyncImage
 
 @Composable
 internal fun ProductList(
@@ -69,14 +73,26 @@ internal fun ProductList(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Outlined.ShoppingCart,
-                contentDescription = null,
-                tint = Color.LightGray,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(48.dp)
-            )
+            if(product.logo != null && product.logo.isNotEmpty()) {
+                AsyncImage(
+                    model = product.logo,
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(48.dp)
+                        .clip(MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Inside
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.ShoppingCart,
+                    contentDescription = null,
+                    tint = Color.LightGray,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .size(48.dp)
+                )
+            }
             Column(
                 Modifier
                     .padding(8.dp)

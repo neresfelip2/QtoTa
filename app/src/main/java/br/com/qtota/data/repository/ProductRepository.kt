@@ -1,11 +1,14 @@
 package br.com.qtota.data.repository
 
+import android.content.Context
+import android.net.Uri
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.ui.screen.product_details.ProductDetail
+import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -26,10 +29,10 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(): Result<List<Product>> {
+    suspend fun getProducts(page: Int): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProduct()
+            val response = apiService.getProduct(page)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -60,6 +63,33 @@ class ProductRepository(
                 Result.failure(
                     Exception("Erro ${response.code()}: ${response.message()}")
                 )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    }
+
+    suspend fun sendFlyer(imageUri: Uri, context: Context): Result<List<Product>> {
+
+        val multipartUri = Utils.uriToMultipart(
+            context = context,
+            uri = imageUri,
+            fieldName = "flyer"
+        )
+
+        return try {
+            val response = apiService.sendFlyer(multipartUri)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    val products = body.map { it.toProduct() }
+                    Result.success(products)
+                } else {
+                    Result.failure(Exception("Corpo da resposta vazio"))
+                }
+            } else {
+                Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

@@ -1,7 +1,6 @@
 package br.com.qtota.ui.screen.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -108,7 +107,7 @@ internal fun HomeScreen(navController: NavHostController) {
                 drawerContent = { DrawerContent() },
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Scaffold(floatingActionButton = { ChatButton() }) {
+                    Scaffold(/*floatingActionButton = { ChatButton() }*/) {
                         Content(navController, viewModel)
                     }
                 }
@@ -128,9 +127,6 @@ private fun Content(
     val loadingState by viewModel.loadingState.collectAsState()
 
     if(listProductState.isNotEmpty()) {
-
-        Log.i("teste", listProductState.toString())
-
         LazyColumn {
             item { SearchContent(navController, viewModel) }
             item { StoresTabs(storeTabsState) }
@@ -156,59 +152,17 @@ private fun Content(
             }
         }
     } else {
-        when(loadingState) {
-            true -> LoadingComponent()
-            false -> ErrorComponent("Algo deu errado")
+        Column(
+            Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            when (loadingState) {
+                true -> LoadingComponent()
+                false -> ErrorComponent("Algo deu errado")
+            }
         }
     }
-
-    /*when (loadingState) {
-        is ListProductState.Loading -> {
-            Column {
-                SearchContent(false, navController, viewModel)
-                StoresTabs(storeTabsState)
-                LoadingComponent()
-            }
-        }
-        is ListProductState.Success -> {
-            val products = (loadingState as ListProductState.Success).products
-            if (products.isNotEmpty()) {
-                LazyColumn {
-                    item {
-                        SearchContent(true, navController, viewModel)
-                    }
-                    item {
-                        StoresTabs(storeTabsState)
-                    }
-                    items(products, { it.id }) { product ->
-                        ProductList(
-                            product = product,
-                            navController = navController,
-                            onHighlightedButtonClick = {
-                                viewModel.saveProduct(product)
-                            }
-                        )
-                    }
-                }
-            } else {
-                Column {
-                    SearchContent(true, navController, viewModel)
-                    StoresTabs(storeTabsState)
-                    MessageContent({ Icon(
-                        painter = painterResource(R.drawable.ic_empty_shopping_cart),
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp),
-                    ) }, "Não há nada aqui")
-                }
-            }
-        }
-        is ListProductState.Error -> {
-            Column {
-                SearchContent(false, navController, viewModel)
-                StoresTabs(storeTabsState)
-            }
-        }
-    }*/
 }
 
 @Composable
@@ -276,7 +230,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
     }
 
     if(showSendFlyerDialog) {
-        SendFlyerDialog { showSendFlyerDialog = false }
+        SendFlyerDialog(viewModel) { showSendFlyerDialog = false }
     }
 
 }

@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,13 +50,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
+import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.qtota.R
+import br.com.qtota.ui.components.ErrorComponent
+import br.com.qtota.ui.components.LoadingComponent
+import br.com.qtota.ui.screen.home.FlyerState
+import br.com.qtota.ui.screen.home.HomeViewModel
 import br.com.qtota.ui.theme.DefaultColor
 import coil.compose.AsyncImage
 import java.io.File
 
 @Composable
-fun SendFlyerDialog(dismiss: () -> Unit) {
+fun SendFlyerDialog(viewModel: HomeViewModel, dismiss: () -> Unit) {
 
     var selectedUri by remember { mutableStateOf<UriSource?>(null) }
 
@@ -90,37 +96,52 @@ fun SendFlyerDialog(dismiss: () -> Unit) {
         ) {
 
             Column(Modifier.padding(16.dp)) {
-                if (selectedUri == null) {
-                    InitContainer(
-                        onClickFromCamera = {
-                            photoUri = createImageFileUri(context)
-                            takePictureLauncher.launch(photoUri!!)
-                        },
-                        onClickFromFileSystem = {
-                            openFilePicker(pickFileLauncher)
-                        }
-                    )
-                } else {
-                    SelectedContainer(
-                        selectedUri = selectedUri!!.uri,
-                        onEditButtonClick = {
-                            if(selectedUri!!.isFromCamera) {
+
+                val sendingState by viewModel.sendingFlyerState.collectAsState()
+
+                when(sendingState) {
+                    FlyerState.Error -> ErrorComponent("Algo de errado não está certo")
+                    FlyerState.Sending -> LoadingComponent()
+                    null -> if (selectedUri == null) {
+                        InitContainer(
+                            onClickFromCamera = {
                                 photoUri = createImageFileUri(context)
                                 takePictureLauncher.launch(photoUri!!)
-                            } else {
+                            },
+                            onClickFromFileSystem = {
                                 openFilePicker(pickFileLauncher)
                             }
-                        }
-                    )
-                }
+                        )
+                    } else {
 
-                TextButton(dismiss, Modifier.align(Alignment.End)) {
-                    Text(
-                        "Cancelar",
-                        color = DefaultColor,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 17.sp
-                    )
+                        val context = LocalContext.current
+
+                        SelectedContainer(
+                            selectedUri = selectedUri!!.uri,
+                            onEditButtonClick = {
+                                if(selectedUri!!.isFromCamera) {
+                                    photoUri = createImageFileUri(context)
+                                    takePictureLauncher.launch(photoUri!!)
+                                } else {
+                                    openFilePicker(pickFileLauncher)
+                                }
+                            },
+                            onSendButtonClick = {
+                                viewModel.sendFlyer(selectedUri!!.uri, context, dismiss)
+                            }
+                        )
+
+                        TextButton(dismiss, Modifier.align(Alignment.End)) {
+                            Text(
+                                "Cancelar",
+                                color = DefaultColor,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 17.sp
+                            )
+                        }
+
+                    }
+
                 }
 
             }
@@ -195,7 +216,7 @@ private fun DialogButton(
 }
 
 @Composable
-private fun ColumnScope.SelectedContainer(selectedUri: Uri, onEditButtonClick: () -> Unit) {
+private fun ColumnScope.SelectedContainer(selectedUri: Uri, onEditButtonClick: () -> Unit, onSendButtonClick: () -> Unit) {
 
     val context = LocalContext.current
 
@@ -204,7 +225,7 @@ private fun ColumnScope.SelectedContainer(selectedUri: Uri, onEditButtonClick: (
 
         if(pdfBitmaps == null) {
             Text("PDF Inválido", Modifier.padding(16.dp).align(Alignment.CenterHorizontally))
-            Buttons(false, onEditButtonClick)
+            Buttons(onEditButtonClick, null)
         } else {
             LazyColumn(Modifier.weight(1f, false)) {
                 items(pdfBitmaps) { bmp ->
@@ -218,7 +239,7 @@ private fun ColumnScope.SelectedContainer(selectedUri: Uri, onEditButtonClick: (
                     )
                 }
             }
-            Buttons(true, onEditButtonClick)
+            Buttons(onEditButtonClick, onSendButtonClick)
         }
     } else {
         AsyncImage(
@@ -230,20 +251,20 @@ private fun ColumnScope.SelectedContainer(selectedUri: Uri, onEditButtonClick: (
                 .clip(MaterialTheme.shapes.small),
             contentScale = ContentScale.Inside
         )
-        Buttons(true, onEditButtonClick)
+        Buttons(onEditButtonClick, onSendButtonClick)
     }
 
 }
 
 @Composable
-private fun Buttons(enableSendButton: Boolean, onEditButtonClick: () -> Unit) {
+private fun Buttons(onEditButtonClick: () -> Unit, onSendButtonClick: (() -> Unit)?) {
     Row {
         Button(
-            {},
+            onSendButtonClick ?: {},
             Modifier
                 .padding(16.dp)
                 .weight(1f),
-            enabled = enableSendButton,
+            enabled = onSendButtonClick != null,
             colors = ButtonDefaults.buttonColors(
                 containerColor = DefaultColor
             )
@@ -314,5 +335,5 @@ private fun Uri.isPdf(context: Context): Boolean {
 
 @Composable @Preview(showBackground = true)
 private fun SendFlyerDialogPreview() {
-    SendFlyerDialog { }
+    SendFlyerDialog(hiltViewModel()) { }
 }

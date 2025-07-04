@@ -1,11 +1,14 @@
 package br.com.qtota.ui.screen.home
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -19,6 +22,8 @@ class HomeViewModel @Inject constructor(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
+    private var page: Int = 0
+
     private val _storeTabsState = MutableStateFlow<List<String>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
@@ -28,16 +33,22 @@ class HomeViewModel @Inject constructor(
     private val _loadingState = MutableStateFlow(true)
     val loadingState = _loadingState.asStateFlow()
 
+    private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
+    val sendingFlyerState = _sendingFlyerState.asStateFlow()
+
     init {
         loadProducts()
     }
 
     internal fun loadProducts() {
         _loadingState.value = true
+        page++
         viewModelScope.launch {
-            val result = productRepository.getProducts().getOrNull()
+            val result = productRepository.getProducts(page).getOrNull()
             if(result != null) {
                 updateProductList(_productListState.value + result)
+            } else {
+                page--
             }
             _loadingState.value = false
         }
@@ -63,6 +74,21 @@ class HomeViewModel @Inject constructor(
                 .map { !it.isNullOrEmpty() }
                 .first()
             onResult(isLogged)
+        }
+    }
+
+    internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
+        viewModelScope.launch {
+            _sendingFlyerState.value = FlyerState.Sending
+            val result = productRepository.sendFlyer(imageUri, context).getOrNull()
+            delay(5_000)
+            if(result != null) {
+                updateProductList(result)
+                _sendingFlyerState.value = null
+                dismissDialog()
+            } else {
+                _sendingFlyerState.value = FlyerState.Error
+            }
         }
     }
 

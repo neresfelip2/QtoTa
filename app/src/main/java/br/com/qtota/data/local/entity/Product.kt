@@ -33,6 +33,9 @@ data class Product(
     @ColumnInfo("expiration_date")
     val expirationOffer: LocalDate,
 
+    @ColumnInfo("logo")
+    val logo: String?,
+
 ) {
     @Ignore
     var isSaved: Boolean = false

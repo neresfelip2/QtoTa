@@ -19,6 +19,7 @@ object ProductMapper {
             storeName = store.name,
             distance = store.distance,
             expirationOffer = LocalDate.now(),
+            logo = store.logo
         )
     }
 
