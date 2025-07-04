@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import br.com.qtota.ui.theme.ErrorColor
 
 @Composable
-internal fun ErrorComponent(message: String) {
+internal fun ErrorComponent(message: String, modifier: Modifier = Modifier) {
     MessageContent({
         Icon(
             imageVector = Icons.Outlined.Warning,
@@ -18,5 +18,5 @@ internal fun ErrorComponent(message: String) {
             modifier = Modifier.size(96.dp),
             tint = ErrorColor
         )
-    }, message, ErrorColor)
+    }, message, ErrorColor, modifier)
 }

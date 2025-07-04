@@ -22,6 +22,7 @@ class HomeViewModel @Inject constructor(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
+    private var storeName: String? = null
     private var page: Int = 0
 
     private val _storeTabsState = MutableStateFlow<List<String>>(listOf())
@@ -30,32 +31,96 @@ class HomeViewModel @Inject constructor(
     private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
     val productListState = _productListState.asStateFlow()
 
-    private val _loadingState = MutableStateFlow(true)
-    val loadingState = _loadingState.asStateFlow()
+    private val _loadScreenState = MutableStateFlow(true)
+    val loadScreenState = _loadScreenState.asStateFlow()
+
+    private val _loadListState = MutableStateFlow(false)
+    val loadListState = _loadListState.asStateFlow()
+
+    private val _loadPageState = MutableStateFlow(false)
+    val loadPageState = _loadPageState.asStateFlow()
 
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
     init {
-        loadProducts()
+        fetchProducts(
+            setLoading   = { _loadScreenState.value = it },
+            onSuccess    = { products ->
+                updateProductListAndStoreTabs(_productListState.value + products)
+            }
+        )
     }
 
-    internal fun loadProducts() {
-        _loadingState.value = true
-        page++
+    private fun fetchProducts(
+        store: String? = null,
+        resetPage: Boolean = true,
+        setLoading: (Boolean) -> Unit,
+        onSuccess: (List<Product>) -> Unit,
+        onError: () -> Unit = {}
+    ) {
+        setLoading(true)
+        if (resetPage) page = 1 else page++
+
         viewModelScope.launch {
-            val result = productRepository.getProducts(page).getOrNull()
-            if(result != null) {
-                updateProductList(_productListState.value + result)
+            delay(2_000L) // simula latência
+            val result = productRepository.getProducts(store, page).getOrNull()
+            if (result != null) {
+                onSuccess(result)
             } else {
                 page--
+                onError()
             }
-            _loadingState.value = false
+            setLoading(false)
         }
     }
 
-    private fun updateProductList(list: List<Product>) {
+    internal fun changeTab(store: String?) {
+        fetchProducts(
+            store        = store,
+            resetPage    = true,
+            setLoading   = { _loadListState.value = it },
+            onSuccess    = { firstPage ->
+                _productListState.value = firstPage.toMutableList()
+                this@HomeViewModel.storeName = store
+            }
+        )
+    }
+
+    internal fun loadMoreProducts() {
+        fetchProducts(
+            store        = storeName,
+            resetPage    = false,
+            setLoading   = { _loadPageState.value = it },
+            onSuccess    = { newPage ->
+                _productListState.value = (_productListState.value + newPage).toMutableList()
+            }
+        )
+    }
+
+    internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
+        viewModelScope.launch {
+            _sendingFlyerState.value = FlyerState.Sending
+            val result = productRepository.sendFlyer(imageUri, context).getOrNull()
+            delay(5_000)
+            if(result != null) {
+                updateProductListAndStoreTabs(result)
+                _sendingFlyerState.value = null
+                dismissDialog()
+            } else {
+                _sendingFlyerState.value = FlyerState.Error
+            }
+            page = 1
+        }
+    }
+
+    private fun updateProductListAndStoreTabs(list: List<Product>) {
+        _storeTabsState.value = getStoreTabs(list)
         _productListState.value = list.toMutableList()
+    }
+
+    private fun getStoreTabs(products: List<Product>) : List<String> {
+        return products.map { it.storeName }.distinct()
     }
 
     internal fun saveProduct(product: Product) {
@@ -74,21 +139,6 @@ class HomeViewModel @Inject constructor(
                 .map { !it.isNullOrEmpty() }
                 .first()
             onResult(isLogged)
-        }
-    }
-
-    internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
-        viewModelScope.launch {
-            _sendingFlyerState.value = FlyerState.Sending
-            val result = productRepository.sendFlyer(imageUri, context).getOrNull()
-            delay(5_000)
-            if(result != null) {
-                updateProductList(result)
-                _sendingFlyerState.value = null
-                dismissDialog()
-            } else {
-                _sendingFlyerState.value = FlyerState.Error
-            }
         }
     }
 

@@ -7,8 +7,12 @@ import java.time.LocalDate
 
 object ProductMapper {
 
-    fun ProductResponse.toProduct(): Product {
-        val store = this.stores.minBy { it.price }
+    fun ProductResponse.toProduct(storeName: String? = null): Product {
+        val store =
+            if(storeName == null)
+                this.stores.minBy { it.price }
+            else
+                this.stores.find { it.name == storeName }!!
 
         return Product(
             id = this.id,

@@ -29,14 +29,14 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(page: Int): Result<List<Product>> {
+    suspend fun getProducts(storeName: String? = null, page: Int): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProduct(page)
+            val response = apiService.getProduct(storeName, page)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    val products = body.map { it.toProduct() }
+                    val products = body.map { it.toProduct(storeName) }
                     Result.success(products)
                 } else {
                     Result.failure(Exception("Corpo da resposta vazio"))

@@ -13,8 +13,9 @@ import androidx.compose.ui.unit.dp
 import br.com.qtota.ui.theme.DefaultColor
 
 @Composable
-internal fun MessageContent(icon: @Composable () -> Unit, message: String, color: Color = DefaultColor) {
+internal fun MessageContent(icon: @Composable () -> Unit, message: String, color: Color = DefaultColor, modifier: Modifier = Modifier) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

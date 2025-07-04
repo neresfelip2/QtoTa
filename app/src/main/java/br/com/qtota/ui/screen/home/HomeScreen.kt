@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -124,45 +126,70 @@ private fun Content(
 
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
-    val loadingState by viewModel.loadingState.collectAsState()
 
-    if(listProductState.isNotEmpty()) {
+    val loadScreenState by viewModel.loadScreenState.collectAsState()
+    val loadListState by viewModel.loadListState.collectAsState()
+    val loadPageState by viewModel.loadPageState.collectAsState()
+
+    val emptyList = listProductState.isEmpty()
+
+    if (loadScreenState) {
+        LoadingComponent(Modifier.fillMaxSize())
+    } else {
         LazyColumn {
-            item { SearchContent(navController, viewModel) }
-            item { StoresTabs(storeTabsState) }
-            items(listProductState) { product ->
-                ProductList(
-                    product = product,
-                    navController = navController,
-                    onHighlightedButtonClick = {
-                        viewModel.saveProduct(product)
+
+            if(!emptyList) {
+                item { SearchContent(navController, viewModel) }
+                stickyHeader {
+                    StoresTabs(storeTabsState) { storeName ->
+                        viewModel.changeTab(storeName)
                     }
-                )
+                }
             }
-            item {
-                if(loadingState) {
-                    CircularProgressIndicator()
+
+            if(loadListState) {
+                item {
+                    LoadingComponent(Modifier.fillMaxSize())
+                }
+            } else {
+                if (!emptyList) {
+                    items(listProductState) { product ->
+                        ProductList(
+                            product = product,
+                            navController = navController,
+                            onHighlightedButtonClick = {
+                                viewModel.saveProduct(product)
+                            }
+                        )
+                    }
+
+                    item {
+                        Box(Modifier.fillMaxWidth()) {
+                            if (loadPageState) {
+                                CircularProgressIndicator(Modifier.align(Alignment.Center))
+                            } else {
+
+                                Button(
+                                    {
+                                        viewModel.loadMoreProducts()
+                                    },
+                                    Modifier.align(Alignment.Center)
+                                ) {
+                                    Text("Carregar mais")
+                                }
+                            }
+                        }
+                    }
+
                 } else {
-                    Button({
-                        viewModel.loadProducts()
-                    }) {
-                        Text("Carregar mais")
+                    item {
+                        ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
                     }
                 }
             }
         }
-    } else {
-        Column(
-            Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (loadingState) {
-                true -> LoadingComponent()
-                false -> ErrorComponent("Algo deu errado")
-            }
-        }
     }
+
 }
 
 @Composable
@@ -236,7 +263,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun StoresTabs(tabs: List<String>) {
+private fun StoresTabs(tabs: List<String>, onClickTab: (String?) -> Unit) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     ScrollableTabRow(
@@ -247,14 +274,17 @@ private fun StoresTabs(tabs: List<String>) {
     ) {
         Tab(
             modifier = if (selectedIndex == 0) Modifier
-                .padding(horizontal = 4.dp)
+                .padding(4.dp)
                 .clip(RoundedCornerShape(50))
                 .background(DefaultColor)
             else Modifier
-                .padding(horizontal = 4.dp)
+                .padding(4.dp)
                 .clip(RoundedCornerShape(50))
                 .background(GrayColor),
-            onClick = { selectedIndex = 0 },
+            onClick = {
+                selectedIndex = 0
+                onClickTab(null)
+            },
             selected = selectedIndex == 0,
             text = {
                 Text(text = "Todos", color = if (selectedIndex == 0) Color.White else DefaultColor)
@@ -265,15 +295,18 @@ private fun StoresTabs(tabs: List<String>) {
             val selected = index == (selectedIndex - 1)
             Tab(
                 modifier = if (selected) Modifier
-                    .padding(horizontal = 4.dp)
+                    .padding(4.dp)
                     .clip(RoundedCornerShape(50))
                     .background(DefaultColor)
                 else Modifier
-                    .padding(horizontal = 4.dp)
+                    .padding(4.dp)
                     .clip(RoundedCornerShape(50))
                     .background(GrayColor),
                 selected = selected,
-                onClick = { selectedIndex = index + 1 },
+                onClick = {
+                    selectedIndex = index + 1
+                    onClickTab(text)
+                },
                 text = {
                     Text(text = text, color = if (selected) Color.White else DefaultColor)
                 }
