@@ -24,6 +24,7 @@ object ProductMapper {
     }
 
     fun ProductResponse.toProductDetail() : ProductDetail {
+
         return ProductDetail(
             id = this.id,
             name = this.name,
@@ -34,7 +35,7 @@ object ProductMapper {
             type = this.type,
             origin = this.origin,
             expiration = this.expirationProduct,
-            stores = this.stores
+            stores = this.stores.sortedBy { it.price }
         )
     }
 

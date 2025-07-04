@@ -214,7 +214,7 @@ private fun ProductDetailsScreenPreview() {
 private fun PricesContainer(stores: List<StoreResponse>) {
     Column {
 
-        stores.forEach {
+        stores.forEachIndexed { index, store ->
 
             Column(
                 Modifier
@@ -225,23 +225,27 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                     )
             ) {
 
-                Text(
-                    "Melhor preço",
-                    Modifier
-                        .align(Alignment.End)
-                        .background(
-                            DefaultColor,
-                            RoundedCornerShape(topEnd = 16.dp)
-                        )
-                        .padding(4.dp),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                if(index == 0) {
+                    Text(
+                        "Melhor preço",
+                        Modifier
+                            .align(Alignment.End)
+                            .background(
+                                DefaultColor,
+                                RoundedCornerShape(topEnd = 16.dp)
+                            )
+                            .padding(4.dp),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                } else {
+                    Spacer(Modifier.height(12.dp))
+                }
 
                 Column(Modifier.padding(start = 12.dp, bottom = 12.dp, end = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        it.logo?.let { logo ->
+                        store.logo?.let { logo ->
                             AsyncImage(
                                 model = logo,
                                 contentDescription = "Logo",
@@ -259,7 +263,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                         Spacer(Modifier.width(4.dp))
                         Column(Modifier.weight(1f)) {
                             Text(
-                                it.name,
+                                store.name,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.DarkGray
                             )
@@ -272,11 +276,11 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                                     tint = Color.Gray
                                 )
                                 Spacer(Modifier.width(8.dp))
-                                Text(it.distance.toDistanceString(), color = Color.Gray, fontSize = 12.sp)
+                                Text(store.distance.toDistanceString(), color = Color.Gray, fontSize = 12.sp)
                             }
                         }
                         Text(
-                            it.price.toMonetaryString(),
+                            store.price.toMonetaryString(),
                             color = Color.DarkGray,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -293,7 +297,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                             tint = Color.Gray
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(it.date.stringDaysAfterNow(), fontSize = 12.sp, color = Color.Gray)
+                        Text(store.date.stringDaysAfterNow(), fontSize = 12.sp, color = Color.Gray)
                     }
                 }
             }
@@ -325,7 +329,9 @@ private fun DetailsContainer(weight: Int, type: String, origin: String, expirati
 @Composable
 private fun DetailRow(label: String, value: String) {
     Row(
-        Modifier.fillMaxWidth().padding(8.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label)
