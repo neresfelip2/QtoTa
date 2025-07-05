@@ -269,7 +269,7 @@ private fun Buttons(onEditButtonClick: () -> Unit, onSendButtonClick: (() -> Uni
                 containerColor = DefaultColor
             )
         ) {
-            Text("Enviar encarte")
+            Text("Enviar")
         }
         OutlinedButton(
             onEditButtonClick,
