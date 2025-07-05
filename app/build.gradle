@@ -35,7 +35,6 @@ android {
         debug {
 
             // @TODO Url apontando para uma api simulada no próprio pc
-            //buildConfigField "String", "API_URL", "\"https://685cb487769de2bf085d8436.mockapi.io/\""
             buildConfigField "String", "API_URL", "\"http://192.168.1.7/\""
         }
 
@@ -68,6 +67,7 @@ dependencies {
 
     // Hilt
     implementation libs.hilt.android
+    implementation libs.play.services.location
     ksp libs.hilt.compiler
     implementation libs.androidx.hilt.navigation.compose
 

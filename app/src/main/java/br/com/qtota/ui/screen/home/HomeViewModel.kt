@@ -1,12 +1,17 @@
 package br.com.qtota.ui.screen.home
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
     private var storeName: String? = null
@@ -43,16 +49,15 @@ class HomeViewModel @Inject constructor(
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
+    private val _location = MutableStateFlow<Location?>(null)
+    val location = _location.asStateFlow()
+
     init {
-        fetchProducts(
-            setLoading   = { _loadScreenState.value = it },
-            onSuccess    = { products ->
-                updateProductListAndStoreTabs(_productListState.value + products)
-            }
-        )
+        requestLocation()
     }
 
     private fun fetchProducts(
+        location: Location,
         store: String? = null,
         resetPage: Boolean = true,
         setLoading: (Boolean) -> Unit,
@@ -64,7 +69,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             delay(2_000L) // simula latência
-            val result = productRepository.getProducts(store, page).getOrNull()
+            val result = productRepository.getProducts(location, store, page).getOrNull()
             if (result != null) {
                 onSuccess(result)
             } else {
@@ -77,6 +82,7 @@ class HomeViewModel @Inject constructor(
 
     internal fun changeTab(store: String?) {
         fetchProducts(
+            location     = location.value!!,
             store        = store,
             resetPage    = true,
             setLoading   = { _loadListState.value = it },
@@ -89,6 +95,7 @@ class HomeViewModel @Inject constructor(
 
     internal fun loadMoreProducts() {
         fetchProducts(
+            location     = location.value!!,
             store        = storeName,
             resetPage    = false,
             setLoading   = { _loadPageState.value = it },
@@ -139,6 +146,29 @@ class HomeViewModel @Inject constructor(
                 .map { !it.isNullOrEmpty() }
                 .first()
             onResult(isLogged)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    internal fun requestLocation() {
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            CancellationTokenSource().token
+        ).addOnSuccessListener { location ->
+            if(location != null) {
+                fetchProducts(
+                    location = location,
+                    setLoading = { _loadScreenState.value = it },
+                    onSuccess = { products ->
+                        updateProductListAndStoreTabs(_productListState.value + products)
+                    }
+                )
+                _location.value = location
+            } else {
+                _loadScreenState.value = false
+            }
+        }.addOnFailureListener {
+            _loadScreenState.value = false
         }
     }
 

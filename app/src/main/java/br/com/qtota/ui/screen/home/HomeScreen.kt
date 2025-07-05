@@ -1,7 +1,11 @@
 package br.com.qtota.ui.screen.home
 
+import android.Manifest
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
@@ -36,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -62,6 +68,7 @@ import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
+import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductList
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
@@ -110,7 +117,24 @@ internal fun HomeScreen(navController: NavHostController) {
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Scaffold(/*floatingActionButton = { ChatButton() }*/) {
-                        Content(navController, viewModel)
+
+
+                        val launcher = rememberLauncherForActivityResult(
+                            ActivityResultContracts.RequestPermission()
+                        ) { granted ->
+                            if (granted) {
+                                viewModel.requestLocation()
+                            } else {
+                                // se quiser notificar no ViewModel, você pode expor outro state
+                            }
+                        }
+
+                        LaunchedEffect(Unit) {
+                            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
+
+                        Content(navController, viewModel, launcher)
+
                     }
                 }
             }
@@ -122,7 +146,10 @@ internal fun HomeScreen(navController: NavHostController) {
 private fun Content(
     navController: NavHostController,
     viewModel: HomeViewModel,
+    launcher: ManagedActivityResultLauncher<String, Boolean>,
 ) {
+
+    val location by viewModel.location.collectAsState()
 
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
@@ -136,54 +163,72 @@ private fun Content(
     if (loadScreenState) {
         LoadingComponent(Modifier.fillMaxSize())
     } else {
-        LazyColumn {
 
-            if(!emptyList) {
-                item { SearchContent(navController, viewModel) }
-                stickyHeader {
-                    StoresTabs(storeTabsState) { storeName ->
-                        viewModel.changeTab(storeName)
-                    }
+        if(location == null) {
+            Column(Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center)
+            {
+                MessageContent(
+                    { Icons.Outlined.LocationOn },
+                    "É necessário a localização"
+                )
+                Button({
+                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }) {
+                    Text("Tentar novamente")
                 }
             }
+        } else {
+            LazyColumn {
 
-            if(loadListState) {
-                item {
-                    LoadingComponent(Modifier.fillMaxSize())
-                }
-            } else {
                 if (!emptyList) {
-                    items(listProductState) { product ->
-                        ProductList(
-                            product = product,
-                            navController = navController,
-                            onHighlightedButtonClick = {
-                                viewModel.saveProduct(product)
-                            }
-                        )
+                    item { SearchContent(navController, viewModel) }
+                    stickyHeader {
+                        StoresTabs(storeTabsState) { storeName ->
+                            viewModel.changeTab(storeName)
+                        }
                     }
+                }
 
+                if (loadListState) {
                     item {
-                        Box(Modifier.fillMaxWidth()) {
-                            if (loadPageState) {
-                                CircularProgressIndicator(Modifier.align(Alignment.Center))
-                            } else {
+                        LoadingComponent(Modifier.fillMaxSize())
+                    }
+                } else {
+                    if (!emptyList) {
+                        items(listProductState) { product ->
+                            ProductList(
+                                product = product,
+                                navController = navController,
+                                onHighlightedButtonClick = {
+                                    viewModel.saveProduct(product)
+                                }
+                            )
+                        }
 
-                                Button(
-                                    {
-                                        viewModel.loadMoreProducts()
-                                    },
-                                    Modifier.align(Alignment.Center)
-                                ) {
-                                    Text("Carregar mais")
+                        item {
+                            Box(Modifier.fillMaxWidth()) {
+                                if (loadPageState) {
+                                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                                } else {
+
+                                    Button(
+                                        {
+                                            viewModel.loadMoreProducts()
+                                        },
+                                        Modifier.align(Alignment.Center)
+                                    ) {
+                                        Text("Carregar mais")
+                                    }
                                 }
                             }
                         }
-                    }
 
-                } else {
-                    item {
-                        ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
+                    } else {
+                        item {
+                            ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
+                        }
                     }
                 }
             }
@@ -352,3 +397,4 @@ private fun DrawerContent() {
 private fun HomeScreenPreview() {
     HomeScreen(rememberNavController())
 }
+

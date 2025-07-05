@@ -23,7 +23,7 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
             exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
         ) { LoginScreen(navController) }
 
-        composable(AppRoutes.Home.route) {HomeScreen(navController) }
+        composable(AppRoutes.Home.route) { HomeScreen(navController) }
 
         composable(
             AppRoutes.ProductDetails.route,

@@ -7,16 +7,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
-import androidx.navigation.compose.rememberNavController
-import br.com.qtota.ui.theme.QtoTaTheme
-import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.runtime.getValue
+import androidx.navigation.compose.rememberNavController
 import br.com.qtota.ui.navigation.AppNavHost
 import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.theme.QtoTaTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     private val viewModel: MainViewModel by viewModels()
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -32,4 +31,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
+
 }

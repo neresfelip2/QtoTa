@@ -19,7 +19,12 @@ interface APIService {
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
     @GET("product.php")
-    suspend fun getProduct(@Query("store") store: String?, @Query("page") page: Int): Response<List<ProductResponse>>
+    suspend fun getProduct(
+        @Query("lat") latitude: Double,
+        @Query("long") longitude: Double,
+        @Query("store") store: String?,
+        @Query("page") page: Int
+    ): Response<List<ProductResponse>>
 
     @GET("product.php/{id}")
     suspend fun productDetail(@Path("id") id: Long): Response<ProductResponse>

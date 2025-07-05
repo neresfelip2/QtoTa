@@ -1,6 +1,7 @@
 package br.com.qtota.data.repository
 
 import android.content.Context
+import android.location.Location
 import android.net.Uri
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
@@ -29,10 +30,10 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(storeName: String? = null, page: Int): Result<List<Product>> {
+    suspend fun getProducts(location: Location, storeName: String? = null, page: Int): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProduct(storeName, page)
+            val response = apiService.getProduct(location.latitude, location.longitude, storeName, page)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
