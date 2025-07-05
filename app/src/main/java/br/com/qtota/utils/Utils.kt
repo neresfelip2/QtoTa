@@ -9,6 +9,8 @@ import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
 import java.io.IOException
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 object Utils {
 
@@ -42,6 +44,11 @@ object Utils {
         }
 
         return MultipartBody.Part.createFormData(fieldName, fileName, requestBody)
+    }
+
+    fun LocalDate.toDaysRemaining() : Long {
+        val today = LocalDate.now()
+        return ChronoUnit.DAYS.between(today, this)
     }
 
 }

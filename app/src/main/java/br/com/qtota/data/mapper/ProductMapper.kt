@@ -8,22 +8,16 @@ import java.time.LocalDate
 object ProductMapper {
 
     fun ProductResponse.toProduct(storeName: String? = null): Product {
-        val store =
-            if(storeName == null)
-                this.stores.minBy { it.price }
-            else
-                this.stores.find { it.name == storeName }!!
-
         return Product(
             id = this.id,
-            name = this.name,
-            description = this.description,
-            currentValue = store.price,
+            name = this.name ?: "",
+            description = this.description ?: "",
+            currentValue = this.currentValue ?: 0.0,
             previousValue = null,
-            storeName = store.name,
-            distance = store.distance,
-            expirationOffer = LocalDate.now(),
-            logo = store.logo
+            storeName = this.storeName ?: "",
+            distance = this.distance ?: 0,
+            expirationOffer = this.expirationProduct ?: LocalDate.now(),
+            logo = this.logo
         )
     }
 
@@ -31,15 +25,15 @@ object ProductMapper {
 
         return ProductDetail(
             id = this.id,
-            name = this.name,
-            description = this.description,
-            bestPrice = this.stores.minOf { it.price },
-            highestPrice = this.stores.maxOf { it.price },
-            weight = this.weight,
-            type = this.type,
-            origin = this.origin,
-            expiration = this.expirationProduct,
-            stores = this.stores.sortedBy { it.price }
+            name = this.name ?: "",
+            description = this.description ?: "",
+            bestPrice = this.currentValue ?: 0.0,
+            highestPrice = 0.0,
+            weight = this.weight ?: 0,
+            type = this.type ?: "",
+            origin = this.origin ?: "",
+            expiration = this.expirationProduct ?: LocalDate.now(),
+            stores = listOf()
         )
     }
 

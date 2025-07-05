@@ -18,7 +18,7 @@ interface APIService {
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
-    @GET("product.php")
+    @GET("products")
     suspend fun getProduct(
         @Query("lat") latitude: Double,
         @Query("long") longitude: Double,
@@ -26,7 +26,7 @@ interface APIService {
         @Query("page") page: Int
     ): Response<List<ProductResponse>>
 
-    @GET("product.php/{id}")
+    @GET("products/{id}")
     suspend fun productDetail(@Path("id") id: Long): Response<ProductResponse>
 
     @Multipart

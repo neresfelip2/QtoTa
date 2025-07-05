@@ -62,6 +62,7 @@ import br.com.qtota.utils.StringUtils.stringDaysAfterNow
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
 import br.com.qtota.utils.StringUtils.toWeightString
+import br.com.qtota.utils.Utils.toDaysRemaining
 import coil.compose.AsyncImage
 
 @Composable
@@ -198,7 +199,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
                 weight = product.weight,
                 type = product.type,
                 origin = product.origin,
-                expiration = product.expiration
+                expiration = product.expiration.toDaysRemaining()
             )
         }
 
@@ -306,7 +307,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
 }
 
 @Composable
-private fun DetailsContainer(weight: Int, type: String, origin: String, expiration: Int) {
+private fun DetailsContainer(weight: Int, type: String, origin: String, expiration: Long) {
     Column(Modifier
         .background(
             Color.White,

@@ -35,7 +35,8 @@ android {
         debug {
 
             // @TODO Url apontando para uma api simulada no próprio pc
-            buildConfigField "String", "API_URL", "\"http://192.168.1.7/\""
+            //buildConfigField "String", "API_URL", "\"http://192.168.1.7/\""
+            buildConfigField "String", "API_URL", "\"https://backend-322226555661.us-east1.run.app/api/v1/\""
         }
 
     }
