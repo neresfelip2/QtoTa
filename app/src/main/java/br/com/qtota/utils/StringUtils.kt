@@ -21,7 +21,8 @@ object StringUtils {
     fun Int.toDistanceString(): String {
         val distance = this
         return if(distance >= 1000) {
-            "${distance.toDouble()/1000} km"
+            val distanceKm = String.format(Locale.getDefault(), "%.1f", (distance.toDouble() / 1000))
+            "$distanceKm km"
         } else {
             "$distance m"
         }
@@ -37,8 +38,12 @@ object StringUtils {
     }
 
     fun LocalDate.stringDaysAfterNow() : String {
-        val difference = ChronoUnit.DAYS.between(this, LocalDate.now())
-        return if(difference == 0L) "Hoje" else "$difference dias"
+        val difference = ChronoUnit.DAYS.between(LocalDate.now(), this) + 1
+
+        return if(difference == 0L) "Hoje"
+            else if(difference == 1L) "Amanhã"
+            else if(difference > 1L) "$difference dias"
+            else "Expirado"
     }
 
 }

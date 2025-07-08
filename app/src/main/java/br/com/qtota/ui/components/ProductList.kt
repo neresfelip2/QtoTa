@@ -1,14 +1,17 @@
 package br.com.qtota.ui.components
 
+import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -51,6 +54,7 @@ internal fun ProductList(
     product: Product,
     navController: NavHostController,
     onHighlightedButtonClick: (Product) -> Unit,
+    location: Location
 ) {
     var saveProduct by remember { mutableStateOf<Product?>(null) }
     var deleteProduct by remember { mutableStateOf<Product?>(null) }
@@ -60,7 +64,8 @@ internal fun ProductList(
             .padding(8.dp)
             .clickable {
                 navController.navigate(
-                    AppRoutes.ProductDetails.productId(product.id)
+                    AppRoutes.ProductDetails
+                        .productId(product.id, location)
                 )
             },
         colors = CardDefaults.cardColors(
@@ -98,7 +103,11 @@ internal fun ProductList(
                     .padding(8.dp)
                     .weight(1f)
             ) {
-                Text(product.storeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Row {
+                    Text(product.storeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(product.storeBranch, color = Color.Gray, fontSize = 12.sp, maxLines = 1)
+                }
                 Text("Válido até ${product.expirationOffer.toDDMM()}", color = Color.DarkGray)
             }
             Text(

@@ -23,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.MessageContent
-import br.com.qtota.ui.components.ProductList
 import br.com.qtota.ui.components.Toolbar
 
 @Composable
@@ -40,9 +39,9 @@ internal fun SavedOffersScreen(navController: NavHostController) {
             if(it.isNotEmpty()) {
                 LazyColumn(Modifier.padding(innerPadding)) {
                     items(it) { product ->
-                        ProductList(product, navController) {
+                        /*ProductList(product, navController = navController {
                             viewModel.deleteProduct(product)
-                        }
+                        }, location = )*/
                     }
                 }
             } else {

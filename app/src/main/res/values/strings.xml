@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QtoTá?</string>
+    <string name="request_location_label">É necessário a localização</string>
+    <string name="request_location_button">Permitir localização</string>
 </resources>

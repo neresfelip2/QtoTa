@@ -280,7 +280,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                             }
                         }
                         Text(
-                            store.price.toMonetaryString(),
+                            store.currentPrice.toMonetaryString(),
                             color = Color.DarkGray,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -297,7 +297,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                             tint = Color.Gray
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(store.date.stringDaysAfterNow(), fontSize = 12.sp, color = Color.Gray)
+                        Text(store.expirationOffer.stringDaysAfterNow(), fontSize = 12.sp, color = Color.Gray)
                     }
                 }
             }

@@ -41,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -55,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -89,11 +89,19 @@ internal fun HomeScreen(navController: NavHostController) {
         scope.launch { drawerState.close() }
     }
 
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            viewModel.requestLocation()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             Toolbar(
-                "QtoTá?",
+                stringResource(R.string.app_name),
                 backButtonEnabled = null,
                 Icons.Outlined.Notifications to {
                     scope.launch {
@@ -117,24 +125,7 @@ internal fun HomeScreen(navController: NavHostController) {
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Scaffold(/*floatingActionButton = { ChatButton() }*/) {
-
-
-                        val launcher = rememberLauncherForActivityResult(
-                            ActivityResultContracts.RequestPermission()
-                        ) { granted ->
-                            if (granted) {
-                                viewModel.requestLocation()
-                            } else {
-                                // se quiser notificar no ViewModel, você pode expor outro state
-                            }
-                        }
-
-                        LaunchedEffect(Unit) {
-                            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                        }
-
-                        Content(navController, viewModel, launcher)
-
+                        Content(navController, viewModel, locationPermissionLauncher)
                     }
                 }
             }
@@ -146,90 +137,89 @@ internal fun HomeScreen(navController: NavHostController) {
 private fun Content(
     navController: NavHostController,
     viewModel: HomeViewModel,
-    launcher: ManagedActivityResultLauncher<String, Boolean>,
+    locationPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
 ) {
 
+    val loadScreenState by viewModel.loadScreenState.collectAsState()
     val location by viewModel.location.collectAsState()
 
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
-
-    val loadScreenState by viewModel.loadScreenState.collectAsState()
     val loadListState by viewModel.loadListState.collectAsState()
     val loadPageState by viewModel.loadPageState.collectAsState()
 
-    val emptyList = listProductState.isEmpty()
-
     if (loadScreenState) {
         LoadingComponent(Modifier.fillMaxSize())
-    } else {
+        return
+    }
 
-        if(location == null) {
-            Column(Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center)
-            {
-                MessageContent(
-                    { Icons.Outlined.LocationOn },
-                    "É necessário a localização"
-                )
-                Button({
-                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }) {
-                    Text("Tentar novamente")
+    if(location == null) {
+        Column(Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center)
+        {
+            MessageContent(
+                { Icons.Outlined.LocationOn },
+                stringResource(R.string.request_location_label)
+            )
+            Button({
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }) {
+                Text(stringResource(R.string.request_location_button))
+            }
+        }
+        return
+    }
+
+    LazyColumn {
+
+        if (listProductState.isNotEmpty()) {
+            item { SearchContent(navController, viewModel) }
+            stickyHeader {
+                StoresTabs(storeTabsState) { storeName ->
+                    viewModel.changeTab(storeName)
                 }
             }
-        } else {
-            LazyColumn {
+        }
 
-                if (!emptyList) {
-                    item { SearchContent(navController, viewModel) }
-                    stickyHeader {
-                        StoresTabs(storeTabsState) { storeName ->
-                            viewModel.changeTab(storeName)
+        if (loadListState) {
+            item {
+                LoadingComponent(Modifier.fillMaxSize())
+            }
+        } else {
+            if (listProductState.isNotEmpty()) {
+                items(listProductState) { product ->
+                    ProductList(
+                        product = product,
+                        navController = navController,
+                        onHighlightedButtonClick = {
+                            viewModel.saveProduct(product)
+                        },
+                        location = location!!
+                    )
+                }
+
+                item {
+                    Box(Modifier.fillMaxWidth()) {
+                        if (loadPageState) {
+                            CircularProgressIndicator(Modifier.align(Alignment.Center))
+                        } else {
+
+                            Button(
+                                {
+                                    viewModel.loadMoreProducts()
+                                },
+                                Modifier.align(Alignment.Center)
+                            ) {
+                                Text("Carregar mais")
+                            }
                         }
                     }
                 }
 
-                if (loadListState) {
-                    item {
-                        LoadingComponent(Modifier.fillMaxSize())
-                    }
-                } else {
-                    if (!emptyList) {
-                        items(listProductState) { product ->
-                            ProductList(
-                                product = product,
-                                navController = navController,
-                                onHighlightedButtonClick = {
-                                    viewModel.saveProduct(product)
-                                }
-                            )
-                        }
-
-                        item {
-                            Box(Modifier.fillMaxWidth()) {
-                                if (loadPageState) {
-                                    CircularProgressIndicator(Modifier.align(Alignment.Center))
-                                } else {
-
-                                    Button(
-                                        {
-                                            viewModel.loadMoreProducts()
-                                        },
-                                        Modifier.align(Alignment.Center)
-                                    ) {
-                                        Text("Carregar mais")
-                                    }
-                                }
-                            }
-                        }
-
-                    } else {
-                        item {
-                            ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
-                        }
-                    }
+            } else {
+                item {
+                    ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
                 }
             }
         }
@@ -308,7 +298,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun StoresTabs(tabs: List<String>, onClickTab: (String?) -> Unit) {
+private fun StoresTabs(tabs: List<TabItem>, onClickTab: (TabItem?) -> Unit) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     ScrollableTabRow(
@@ -336,7 +326,7 @@ private fun StoresTabs(tabs: List<String>, onClickTab: (String?) -> Unit) {
             }
         )
 
-        tabs.forEachIndexed { index, text ->
+        tabs.forEachIndexed { index, tabItem ->
             val selected = index == (selectedIndex - 1)
             Tab(
                 modifier = if (selected) Modifier
@@ -350,10 +340,10 @@ private fun StoresTabs(tabs: List<String>, onClickTab: (String?) -> Unit) {
                 selected = selected,
                 onClick = {
                     selectedIndex = index + 1
-                    onClickTab(text)
+                    onClickTab(tabItem)
                 },
                 text = {
-                    Text(text = text, color = if (selected) Color.White else DefaultColor)
+                    Text(text = tabItem.storeName, color = if (selected) Color.White else DefaultColor)
                 }
             )
         }

@@ -3,6 +3,7 @@ package br.com.qtota.data.repository
 import android.content.Context
 import android.location.Location
 import android.net.Uri
+import android.util.Log
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
@@ -30,31 +31,34 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(location: Location, storeName: String? = null, page: Int): Result<List<Product>> {
+    suspend fun getProducts(location: Location, storeId: Long? = null, page: Int): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProduct(location.latitude, location.longitude, storeName, page)
+            val response = apiService.getProduct(location.latitude, location.longitude, storeId, page)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    val products = body.map { it.toProduct(storeName) }
+                    val products = body.map { it.toProduct(storeId) }
                     Result.success(products)
                 } else {
+                    Log.e(ProductRepository::class.simpleName, "Corpo da resposta vazio")
                     Result.failure(Exception("Corpo da resposta vazio"))
                 }
             } else {
+                Log.e(ProductRepository::class.simpleName, "Erro ${response.code()}: ${response.message()}")
                 Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
             }
         } catch (e: Exception) {
+            Log.e(ProductRepository::class.simpleName, e.toString())
             Result.failure(e)
         }
 
     }
 
-    suspend fun getProductById(id: Long) : Result<ProductDetail> {
+    suspend fun getProductById(id: Long, latitude: Double, longitude: Double) : Result<ProductDetail> {
 
         return try {
-            val response = apiService.productDetail(id)
+            val response = apiService.productDetail(id, latitude, longitude)
 
             if(response.isSuccessful) {
                 response.body()?.let {

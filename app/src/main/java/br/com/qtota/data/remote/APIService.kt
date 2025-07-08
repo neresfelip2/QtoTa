@@ -18,16 +18,20 @@ interface APIService {
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
-    @GET("product.php")
+    @GET("product")
     suspend fun getProduct(
         @Query("lat") latitude: Double,
-        @Query("long") longitude: Double,
-        @Query("store") store: String?,
-        @Query("page") page: Int
+        @Query("lon") longitude: Double,
+        @Query("id_store") storeId: Long?,
+        @Query("page") page: Int,
     ): Response<List<ProductResponse>>
 
-    @GET("product.php/{id}")
-    suspend fun productDetail(@Path("id") id: Long): Response<ProductResponse>
+    @GET("product/{id}")
+    suspend fun productDetail(
+        @Path("id") id: Long,
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ): Response<ProductResponse>
 
     @Multipart
     @POST("send-flyer.php")

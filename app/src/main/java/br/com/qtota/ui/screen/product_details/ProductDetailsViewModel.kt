@@ -18,13 +18,15 @@ class ProductDetailsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val productId: Long = savedStateHandle[AppRoutes.ProductDetails.ARG_PRODUCT_ID]!!
+    private val latitude: Double = savedStateHandle[AppRoutes.ProductDetails.ARG_LATITUDE]!!
+    private val longitude: Double = savedStateHandle[AppRoutes.ProductDetails.ARG_LONGITUDE]!!
 
     private val _productDetails = MutableStateFlow<ProductState>(ProductState.Loading)
     val productDetails = _productDetails.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val response = productRepository.getProductById(productId)
+            val response = productRepository.getProductById(productId, latitude, longitude)
             val result = response.getOrNull()
             if(response.isSuccess && result != null) {
                 _productDetails.value = ProductState.Success(result)

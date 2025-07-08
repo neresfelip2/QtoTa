@@ -13,7 +13,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -28,10 +27,10 @@ class HomeViewModel @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
-    private var storeName: String? = null
-    private var page: Int = 0
+    private var currentTab: TabItem? = null
+    private var currentPage: Int = 0
 
-    private val _storeTabsState = MutableStateFlow<List<String>>(listOf())
+    private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
     private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
@@ -58,37 +57,36 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchProducts(
         location: Location,
-        store: String? = null,
+        storeId: Long? = null,
         resetPage: Boolean = true,
         setLoading: (Boolean) -> Unit,
         onSuccess: (List<Product>) -> Unit,
         onError: () -> Unit = {}
     ) {
         setLoading(true)
-        if (resetPage) page = 1 else page++
+        if (resetPage) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            delay(2_000L) // simula latência
-            val result = productRepository.getProducts(location, store, page).getOrNull()
+            val result = productRepository.getProducts(location, storeId, currentPage).getOrNull()
             if (result != null) {
                 onSuccess(result)
             } else {
-                page--
+                currentPage--
                 onError()
             }
             setLoading(false)
         }
     }
 
-    internal fun changeTab(store: String?) {
+    internal fun changeTab(tabItem: TabItem?) {
         fetchProducts(
             location     = location.value!!,
-            store        = store,
+            storeId      = tabItem?.storeId,
             resetPage    = true,
             setLoading   = { _loadListState.value = it },
             onSuccess    = { firstPage ->
                 _productListState.value = firstPage.toMutableList()
-                this@HomeViewModel.storeName = store
+                this@HomeViewModel.currentTab = tabItem
             }
         )
     }
@@ -96,7 +94,7 @@ class HomeViewModel @Inject constructor(
     internal fun loadMoreProducts() {
         fetchProducts(
             location     = location.value!!,
-            store        = storeName,
+            storeId        = currentTab?.storeId,
             resetPage    = false,
             setLoading   = { _loadPageState.value = it },
             onSuccess    = { newPage ->
@@ -109,7 +107,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _sendingFlyerState.value = FlyerState.Sending
             val result = productRepository.sendFlyer(imageUri, context).getOrNull()
-            delay(5_000)
             if(result != null) {
                 updateProductListAndStoreTabs(result)
                 _sendingFlyerState.value = null
@@ -117,7 +114,7 @@ class HomeViewModel @Inject constructor(
             } else {
                 _sendingFlyerState.value = FlyerState.Error
             }
-            page = 1
+            currentPage = 1
         }
     }
 
@@ -126,8 +123,9 @@ class HomeViewModel @Inject constructor(
         _productListState.value = list.toMutableList()
     }
 
-    private fun getStoreTabs(products: List<Product>) : List<String> {
-        return products.map { it.storeName }.distinct()
+    private fun getStoreTabs(products: List<Product>) : List<TabItem> {
+        //return products.map { TabItem(it.storeId, it.storeName) }.distinct()
+        return emptyList()
     }
 
     internal fun saveProduct(product: Product) {

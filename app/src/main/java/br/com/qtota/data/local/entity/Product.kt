@@ -12,6 +12,9 @@ data class Product(
     @PrimaryKey
     val id: Long,
 
+    @ColumnInfo("id_store")
+    val storeId: Long,
+
     @ColumnInfo("name")
     val name: String,
 
@@ -27,6 +30,9 @@ data class Product(
     @ColumnInfo("store_name")
     val storeName: String,
 
+    @ColumnInfo("store_branch")
+    val storeBranch: String,
+
     @ColumnInfo("distance")
     val distance: Int,
 
@@ -36,7 +42,7 @@ data class Product(
     @ColumnInfo("logo")
     val logo: String?,
 
-) {
+    ) {
     @Ignore
     var isSaved: Boolean = false
 

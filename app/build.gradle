@@ -35,16 +35,16 @@ android {
         debug {
 
             // @TODO Url apontando para uma api simulada no próprio pc
-            buildConfigField "String", "API_URL", "\"http://192.168.1.7/\""
+            buildConfigField "String", "API_URL", "\"http://192.168.1.7:8000/\""
         }
 
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '11'
+    kotlin {
+        jvmToolchain(17)
     }
     buildFeatures {
         compose true
