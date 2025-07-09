@@ -7,7 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.remote.NearbyStoresResponse
+import br.com.qtota.data.remote.store_tabs.TabItem
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -28,29 +28,23 @@ class HomeViewModel @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
-    private var currentTab: NearbyStoresResponse? = null
+    private var currentTab: TabItem? = null
     private var currentPage: Int = 0
 
-    private val _storeTabsState = MutableStateFlow<List<NearbyStoresResponse>>(listOf())
+    private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
     private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
     val productListState = _productListState.asStateFlow()
 
-    private val _loadScreenState = MutableStateFlow(true)
-    val loadScreenState = _loadScreenState.asStateFlow()
-
-    private val _loadListState = MutableStateFlow(false)
-    val loadListState = _loadListState.asStateFlow()
-
-    private val _loadPageState = MutableStateFlow(false)
-    val loadPageState = _loadPageState.asStateFlow()
+    private val _loadState = MutableStateFlow(LoadState.LoadingScreen)
+    val loadListState = _loadState.asStateFlow()
 
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
-    private val _location = MutableStateFlow<Location?>(null)
-    val location = _location.asStateFlow()
+    private val _locationState = MutableStateFlow<Location?>(null)
+    val location = _locationState.asStateFlow()
 
     init {
         requestLocation()
@@ -59,46 +53,43 @@ class HomeViewModel @Inject constructor(
     private fun fetchProducts(
         location: Location,
         storeId: Long? = null,
-        resetPage: Boolean = true,
-        setLoading: (Boolean) -> Unit,
+        loadState: LoadState,
         onSuccess: (List<Product>) -> Unit,
-        onError: () -> Unit = {}
     ) {
-        setLoading(true)
-        if (resetPage) currentPage = 1 else currentPage++
+        _loadState.value = loadState
+        if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            val result = productRepository.getProducts(location, storeId, currentPage).getOrNull()
-            if (result != null) {
-                onSuccess(result)
-            } else {
+            val result =
+                productRepository.getProducts(location, storeId, currentPage).getOrNull()
+            if (result.isNullOrEmpty()) {
                 currentPage--
-                onError()
+                _loadState.value = LoadState.FinalList
+            } else {
+                onSuccess(result)
+                _loadState.value = LoadState.ReadyToLoad
             }
-            setLoading(false)
         }
     }
 
-    internal fun changeTab(tabItem: NearbyStoresResponse?) {
+    internal fun changeTab(tabItem: TabItem?) {
         fetchProducts(
             location     = location.value!!,
             storeId      = tabItem?.storeId,
-            resetPage    = true,
-            setLoading   = { _loadListState.value = it },
+            loadState = LoadState.LoadingAllList,
             onSuccess    = { firstPage ->
-                _productListState.value = firstPage.toMutableList()
                 this@HomeViewModel.currentTab = tabItem
+                _productListState.value = firstPage.toMutableList()
             }
         )
     }
 
     internal fun loadMoreProducts() {
         fetchProducts(
-            location     = location.value!!,
-            storeId        = currentTab?.storeId,
-            resetPage    = false,
-            setLoading   = { _loadPageState.value = it },
-            onSuccess    = { newPage ->
+            location      = location.value!!,
+            storeId       = currentTab?.storeId,
+            loadState = LoadState.LoadingMore,
+            onSuccess     = { newPage ->
                 _productListState.value = (_productListState.value + newPage).toMutableList()
             }
         )
@@ -109,7 +100,7 @@ class HomeViewModel @Inject constructor(
             _sendingFlyerState.value = FlyerState.Sending
             val result = productRepository.sendFlyer(imageUri, context).getOrNull()
             if(result != null) {
-                updateProductListAndStoreTabs(result)
+                _productListState.value = result.toMutableList()
                 _sendingFlyerState.value = null
                 dismissDialog()
             } else {
@@ -117,10 +108,6 @@ class HomeViewModel @Inject constructor(
             }
             currentPage = 1
         }
-    }
-
-    private fun updateProductListAndStoreTabs(list: List<Product>) {
-        _productListState.value = list.toMutableList()
     }
 
     private fun getStoreTabs(location: Location) {
@@ -151,23 +138,20 @@ class HomeViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     internal fun requestLocation() {
+        _loadState.value = LoadState.LoadingScreen
         fusedLocationClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             CancellationTokenSource().token
         ).addOnSuccessListener { location ->
             if(location != null) {
-                fetchProducts(
-                    location = location,
-                    setLoading = { _loadScreenState.value = it },
-                    onSuccess = { products ->
-                        updateProductListAndStoreTabs(_productListState.value + products)
-                    }
-                )
                 getStoreTabs(location)
-                _location.value = location
+                fetchProducts(location, null, LoadState.LoadingAllList) {
+                    _productListState.value = it.toMutableList()
+                }
+                _locationState.value = location
             }
         }.addOnFailureListener {
-            _loadScreenState.value = false
+            _loadState.value = LoadState.LocationError
         }
     }
 

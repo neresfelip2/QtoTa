@@ -1,8 +1,8 @@
-package br.com.qtota.data.remote
+package br.com.qtota.data.remote.store_tabs
 
 import com.google.gson.annotations.SerializedName
 
-data class NearbyStoresResponse(
+data class TabItem(
 
     @SerializedName("id_store")
     val storeId: Long,

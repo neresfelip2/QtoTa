@@ -3,7 +3,6 @@ package br.com.qtota.ui.screen.home
 import android.Manifest
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,7 +67,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
-import br.com.qtota.data.remote.NearbyStoresResponse
+import br.com.qtota.data.remote.store_tabs.TabItem
 import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
@@ -76,6 +78,8 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -89,14 +93,6 @@ internal fun HomeScreen(navController: NavHostController) {
 
     BackHandler(drawerState.isOpen) {
         scope.launch { drawerState.close() }
-    }
-
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            viewModel.requestLocation()
-        }
     }
 
     Scaffold(
@@ -127,7 +123,7 @@ internal fun HomeScreen(navController: NavHostController) {
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Scaffold(/*floatingActionButton = { ChatButton() }*/) {
-                        Content(navController, viewModel, locationPermissionLauncher)
+                        Content(navController, viewModel)
                     }
                 }
             }
@@ -139,23 +135,23 @@ internal fun HomeScreen(navController: NavHostController) {
 private fun Content(
     navController: NavHostController,
     viewModel: HomeViewModel,
-    locationPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
 ) {
 
-    val loadScreenState by viewModel.loadScreenState.collectAsState()
     val location by viewModel.location.collectAsState()
 
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
     val loadListState by viewModel.loadListState.collectAsState()
-    val loadPageState by viewModel.loadPageState.collectAsState()
 
-    if (loadScreenState) {
-        LoadingComponent(Modifier.fillMaxSize())
-        return
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            viewModel.requestLocation()
+        }
     }
 
-    if(location == null) {
+    if(loadListState == LoadState.LocationError) {
         Column(Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center)
@@ -173,57 +169,81 @@ private fun Content(
         return
     }
 
-    LazyColumn {
+    if (loadListState == LoadState.LoadingScreen) {
+        LoadingComponent(Modifier.fillMaxSize())
+        return
+    }
 
-        if (listProductState.isNotEmpty()) {
+    val listState = rememberLazyListState()
+    LaunchedEffect(listState, listProductState.size) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .filterNotNull()
+            .distinctUntilChanged()
+            .collect { lastVisible ->
+                if (lastVisible >= listProductState.size && (loadListState == LoadState.ReadyToLoad)) {
+                    viewModel.loadMoreProducts()
+                }
+            }
+    }
+
+    Column {
+        LazyColumn(state = listState) {
+
             item { SearchContent(navController, viewModel) }
             stickyHeader {
-                StoresTabs(storeTabsState) { storeName ->
+                StoreTabs(storeTabsState) { storeName ->
                     viewModel.changeTab(storeName)
                 }
             }
-        }
 
-        if (loadListState) {
-            item {
-                LoadingComponent(Modifier.fillMaxSize())
+            if (loadListState == LoadState.LoadingAllList) {
+                return@LazyColumn
             }
-        } else {
-            if (listProductState.isNotEmpty()) {
-                items(listProductState) { product ->
-                    ProductList(
-                        product = product,
-                        navController = navController,
-                        onHighlightedButtonClick = {
-                            viewModel.saveProduct(product)
-                        },
-                        location = location!!
-                    )
-                }
 
+            if (listProductState.isEmpty()) {
                 item {
-                    Box(Modifier.fillMaxWidth()) {
-                        if (loadPageState) {
-                            CircularProgressIndicator(Modifier.align(Alignment.Center))
-                        } else {
+                    ErrorComponent("Algo deu errado")
+                }
+                return@LazyColumn
+            }
 
-                            Button(
-                                {
-                                    viewModel.loadMoreProducts()
-                                },
-                                Modifier.align(Alignment.Center)
-                            ) {
-                                Text("Carregar mais")
-                            }
-                        }
+            items(listProductState) { product ->
+                ProductList(
+                    product = product,
+                    navController = navController,
+                    onHighlightedButtonClick = {
+                        viewModel.saveProduct(product)
+                    },
+                    location = location!!
+                )
+            }
+
+            if (loadListState == LoadState.LoadingMore) {
+                item {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
                 }
-
-            } else {
+            } else if (loadListState == LoadState.FinalList) {
                 item {
-                    ErrorComponent("Algo deu errado", Modifier.fillParentMaxSize())
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text("Sem mais produtos a exibir", Modifier.align(Alignment.Center))
+                    }
                 }
             }
+
+        }
+
+        if (loadListState == LoadState.LoadingAllList) {
+            LoadingComponent(Modifier.fillMaxSize())
         }
     }
 
@@ -300,7 +320,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun StoresTabs(tabs: List<NearbyStoresResponse>, onClickTab: (NearbyStoresResponse?) -> Unit) {
+private fun StoreTabs(tabs: List<TabItem>, onClickTab: (TabItem?) -> Unit) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     ScrollableTabRow(
@@ -309,47 +329,38 @@ private fun StoresTabs(tabs: List<NearbyStoresResponse>, onClickTab: (NearbyStor
         indicator = {},
         divider = {}
     ) {
-        Tab(
-            modifier = if (selectedIndex == 0) Modifier
-                .padding(4.dp)
-                .clip(RoundedCornerShape(50))
-                .background(DefaultColor)
-            else Modifier
-                .padding(4.dp)
-                .clip(RoundedCornerShape(50))
-                .background(GrayColor),
-            onClick = {
-                selectedIndex = 0
-                onClickTab(null)
-            },
-            selected = selectedIndex == 0,
-            text = {
-                Text(text = "Todos", color = if (selectedIndex == 0) Color.White else DefaultColor)
-            }
-        )
+
+        StoreTabsItem("Todos", selectedIndex == 0) {
+            selectedIndex = 0
+            onClickTab(null)
+        }
 
         tabs.forEachIndexed { index, tabItem ->
-            val selected = index == (selectedIndex - 1)
-            Tab(
-                modifier = if (selected) Modifier
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(DefaultColor)
-                else Modifier
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(GrayColor),
-                selected = selected,
-                onClick = {
-                    selectedIndex = index + 1
-                    onClickTab(tabItem)
-                },
-                text = {
-                    Text(text = tabItem.storeName, color = if (selected) Color.White else DefaultColor)
-                }
-            )
+            StoreTabsItem(tabItem.storeName, index == (selectedIndex - 1)) {
+                selectedIndex = index + 1
+                onClickTab(tabItem)
+            }
         }
     }
+}
+
+@Composable
+private fun StoreTabsItem(name: String, selected: Boolean, onClick: () -> Unit) {
+    Tab(
+        modifier = if (selected) Modifier
+            .padding(4.dp)
+            .clip(RoundedCornerShape(50))
+            .background(DefaultColor)
+        else Modifier
+            .padding(4.dp)
+            .clip(RoundedCornerShape(50))
+            .background(GrayColor),
+        onClick = onClick,
+        selected = selected,
+        text = {
+            Text(text = name, color = if (selected) Color.White else DefaultColor)
+        }
+    )
 }
 
 @Composable

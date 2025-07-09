@@ -9,7 +9,7 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
-import br.com.qtota.data.remote.NearbyStoresResponse
+import br.com.qtota.data.remote.store_tabs.TabItem
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +35,7 @@ class ProductRepository(
     suspend fun getProducts(location: Location, storeId: Long? = null, page: Int): Result<List<Product>> {
 
         return try {
-            val response = apiService.getProduct(location.latitude, location.longitude, storeId, page)
+            val response = apiService.getProduct(storeId, location.latitude, location.longitude, page)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -103,7 +103,7 @@ class ProductRepository(
 
     }
 
-    suspend fun getNearbyStores(location: Location) : List<NearbyStoresResponse> {
+    suspend fun getNearbyStores(location: Location) : List<TabItem> {
         val nearbyStores = apiService.nearbyStores(location.latitude, location.longitude)
         return nearbyStores.body() ?: emptyList()
     }
