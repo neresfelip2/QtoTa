@@ -15,9 +15,11 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +33,8 @@ class HomeViewModel @Inject constructor(
     private var currentTab: TabItem? = null
     private var currentPage: Int = 0
 
+    lateinit var location: Location
+
     private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
@@ -43,11 +47,47 @@ class HomeViewModel @Inject constructor(
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
-    private val _locationState = MutableStateFlow<Location?>(null)
-    val location = _locationState.asStateFlow()
+    private val savedProductsState = productRepository.getSavedProducts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
         requestLocation()
+    }
+
+    @SuppressLint("MissingPermission")
+    internal fun requestLocation() {
+        _loadState.value = LoadState.LoadingScreen
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+            .addOnSuccessListener { location ->
+                if(location != null) {
+                    getStoreTabs(location)
+                    this.location = location
+                    selectTab(null)
+                }
+            }.addOnFailureListener {
+                _loadState.value = LoadState.LocationError
+            }
+    }
+
+    internal fun loadMoreProducts() {
+        fetchProducts(
+            location      = location,
+            storeId       = currentTab?.storeId,
+            loadState = LoadState.LoadingMore)
+        { newPage ->
+            _productListState.value = (_productListState.value + newPage).toMutableList()
+        }
+    }
+
+    internal fun selectTab(tabItem: TabItem?) {
+        fetchProducts(
+            location     = location,
+            storeId      = tabItem?.storeId,
+            loadState = LoadState.LoadingAllList)
+        { firstPage ->
+            this@HomeViewModel.currentTab = tabItem
+            _productListState.value = firstPage.toMutableList()
+        }
     }
 
     private fun fetchProducts(
@@ -66,33 +106,16 @@ class HomeViewModel @Inject constructor(
                 currentPage--
                 _loadState.value = LoadState.FinalList
             } else {
-                onSuccess(result)
                 _loadState.value = LoadState.ReadyToLoad
+                savedProductsState.collect { savedProduct ->
+                    val savedIds = savedProduct.map { it.id }.toSet()
+                    result.forEach { product ->
+                        product.isSaved = product.id in savedIds
+                    }
+                    onSuccess(result)
+                }
             }
         }
-    }
-
-    internal fun changeTab(tabItem: TabItem?) {
-        fetchProducts(
-            location     = location.value!!,
-            storeId      = tabItem?.storeId,
-            loadState = LoadState.LoadingAllList,
-            onSuccess    = { firstPage ->
-                this@HomeViewModel.currentTab = tabItem
-                _productListState.value = firstPage.toMutableList()
-            }
-        )
-    }
-
-    internal fun loadMoreProducts() {
-        fetchProducts(
-            location      = location.value!!,
-            storeId       = currentTab?.storeId,
-            loadState = LoadState.LoadingMore,
-            onSuccess     = { newPage ->
-                _productListState.value = (_productListState.value + newPage).toMutableList()
-            }
-        )
     }
 
     internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
@@ -133,25 +156,6 @@ class HomeViewModel @Inject constructor(
                 .map { !it.isNullOrEmpty() }
                 .first()
             onResult(isLogged)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    internal fun requestLocation() {
-        _loadState.value = LoadState.LoadingScreen
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            CancellationTokenSource().token
-        ).addOnSuccessListener { location ->
-            if(location != null) {
-                getStoreTabs(location)
-                fetchProducts(location, null, LoadState.LoadingAllList) {
-                    _productListState.value = it.toMutableList()
-                }
-                _locationState.value = location
-            }
-        }.addOnFailureListener {
-            _loadState.value = LoadState.LocationError
         }
     }
 

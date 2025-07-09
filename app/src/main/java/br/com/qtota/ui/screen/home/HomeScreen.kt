@@ -137,8 +137,6 @@ private fun Content(
     viewModel: HomeViewModel,
 ) {
 
-    val location by viewModel.location.collectAsState()
-
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
     val loadListState by viewModel.loadListState.collectAsState()
@@ -192,7 +190,7 @@ private fun Content(
             item { SearchContent(navController, viewModel) }
             stickyHeader {
                 StoreTabs(storeTabsState) { storeName ->
-                    viewModel.changeTab(storeName)
+                    viewModel.selectTab(storeName)
                 }
             }
 
@@ -214,7 +212,7 @@ private fun Content(
                     onHighlightedButtonClick = {
                         viewModel.saveProduct(product)
                     },
-                    location = location!!
+                    location = viewModel.location
                 )
             }
 

@@ -1,8 +1,10 @@
 package br.com.qtota.data.local.entity
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 
@@ -43,10 +45,7 @@ data class Product(
     val logo: String?,
 
     ) {
-    @Ignore
-    var isSaved: Boolean = false
 
-    override fun toString(): String {
-        return isSaved.toString()
-    }
+    var isSaved by mutableStateOf(false)
+
 }

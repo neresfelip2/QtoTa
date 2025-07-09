@@ -24,8 +24,10 @@ class ProductRepository(
         dao.insert(product)
     }
 
-    fun getSavedProducts() : Flow<List<Product>> {
-        return dao.getAll().map { it.onEach { product -> product.isSaved = true } }
+    fun getSavedProducts(): Flow<List<Product>> {
+        return dao.getAll().map { productList ->
+            productList.onEach { it.isSaved = true }
+        }
     }
 
     suspend fun delete(product: Product) {
