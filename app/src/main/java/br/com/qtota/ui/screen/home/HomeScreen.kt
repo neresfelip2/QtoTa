@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -300,7 +301,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 
 @Composable
 private fun StoresTabs(tabs: List<NearbyStoresResponse>, onClickTab: (NearbyStoresResponse?) -> Unit) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     ScrollableTabRow(
         edgePadding = 16.dp,
