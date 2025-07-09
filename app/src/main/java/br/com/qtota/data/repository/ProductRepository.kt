@@ -9,6 +9,7 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
+import br.com.qtota.data.remote.NearbyStoresResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
@@ -100,6 +101,11 @@ class ProductRepository(
             Result.failure(e)
         }
 
+    }
+
+    suspend fun getNearbyStores(location: Location) : List<NearbyStoresResponse> {
+        val nearbyStores = apiService.nearbyStores(location.latitude, location.longitude)
+        return nearbyStores.body() ?: emptyList()
     }
 
 }

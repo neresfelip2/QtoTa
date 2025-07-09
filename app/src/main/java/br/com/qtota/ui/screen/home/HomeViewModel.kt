@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.data.remote.NearbyStoresResponse
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -27,10 +28,10 @@ class HomeViewModel @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
-    private var currentTab: TabItem? = null
+    private var currentTab: NearbyStoresResponse? = null
     private var currentPage: Int = 0
 
-    private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
+    private val _storeTabsState = MutableStateFlow<List<NearbyStoresResponse>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
     private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
@@ -78,7 +79,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    internal fun changeTab(tabItem: TabItem?) {
+    internal fun changeTab(tabItem: NearbyStoresResponse?) {
         fetchProducts(
             location     = location.value!!,
             storeId      = tabItem?.storeId,
@@ -119,13 +120,14 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateProductListAndStoreTabs(list: List<Product>) {
-        _storeTabsState.value = getStoreTabs(list)
         _productListState.value = list.toMutableList()
     }
 
-    private fun getStoreTabs(products: List<Product>) : List<TabItem> {
-        //return products.map { TabItem(it.storeId, it.storeName) }.distinct()
-        return emptyList()
+    private fun getStoreTabs(location: Location) {
+        viewModelScope.launch {
+            val tabs = productRepository.getNearbyStores(location)
+            _storeTabsState.value = tabs
+        }
     }
 
     internal fun saveProduct(product: Product) {
@@ -161,9 +163,8 @@ class HomeViewModel @Inject constructor(
                         updateProductListAndStoreTabs(_productListState.value + products)
                     }
                 )
+                getStoreTabs(location)
                 _location.value = location
-            } else {
-                _loadScreenState.value = false
             }
         }.addOnFailureListener {
             _loadScreenState.value = false

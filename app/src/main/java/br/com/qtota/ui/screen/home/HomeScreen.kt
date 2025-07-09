@@ -64,6 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
+import br.com.qtota.data.remote.NearbyStoresResponse
 import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
@@ -298,7 +299,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun StoresTabs(tabs: List<TabItem>, onClickTab: (TabItem?) -> Unit) {
+private fun StoresTabs(tabs: List<NearbyStoresResponse>, onClickTab: (NearbyStoresResponse?) -> Unit) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     ScrollableTabRow(

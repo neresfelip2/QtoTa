@@ -33,8 +33,14 @@ interface APIService {
         @Query("lon") longitude: Double,
     ): Response<ProductResponse>
 
+    @GET("product/nearby-stores")
+    suspend fun nearbyStores(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ): Response<List<NearbyStoresResponse>>
+
     @Multipart
-    @POST("send-flyer.php")
+    @POST("send-flyer")
     suspend fun sendFlyer(
         @Part flyer: MultipartBody.Part
     ): Response<List<ProductResponse>>

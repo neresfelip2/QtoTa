@@ -260,7 +260,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                             null,
                             Modifier.size(48.dp)
                         )
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(8.dp))
                         Column(Modifier.weight(1f)) {
                             Text(
                                 store.name,
