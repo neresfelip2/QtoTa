@@ -29,8 +29,6 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
             AppRoutes.ProductDetails.route,
             arguments = listOf(
                 navArgument(AppRoutes.ProductDetails.ARG_PRODUCT_ID) { type = NavType.LongType },
-                navArgument(AppRoutes.ProductDetails.ARG_LATITUDE) { type = NavType.FloatType },
-                navArgument(AppRoutes.ProductDetails.ARG_LONGITUDE) { type = NavType.FloatType }
             ),
             enterTransition = { slideInHorizontally() },
             popEnterTransition = { null },

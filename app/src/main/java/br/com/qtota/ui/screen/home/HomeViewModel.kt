@@ -8,11 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.store_tabs.TabItem
+import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,13 +25,11 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
-    private val fusedLocationClient: FusedLocationProviderClient
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private var currentTab: TabItem? = null
     private var currentPage: Int = 0
-
-    lateinit var location: Location
 
     private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
@@ -56,28 +52,36 @@ class HomeViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     internal fun requestLocation() {
-        _loadState.value = LoadState.LoadingScreen
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
-            .addOnSuccessListener { location ->
-                if(location != null) {
-                    getStoreTabs(location)
-                    fetchProducts(
-                        location     = location,
-                        storeId      = null,
-                        loadState = LoadState.LoadingScreen
-                    ) { firstPage ->
-                        _productListState.value = firstPage.toMutableList()
-                    }
-                    this.location = location
+        viewModelScope.launch {
+            locationRepository.loadStatus.collect { isLoading ->
+
+                if (isLoading) {
+                    _loadState.value = LoadState.LoadingScreen
+                    return@collect
                 }
-            }.addOnFailureListener {
-                _loadState.value = LoadState.LocationError
+
+                if (locationRepository.location == null) {
+                    _loadState.value = LoadState.LocationError
+                    return@collect
+                }
+
+                getStoreTabs(locationRepository.location!!)
+                fetchProducts(
+                    location = locationRepository.location!!,
+                    storeId = null,
+                    loadState = LoadState.LoadingScreen
+                ) { firstPage ->
+                    _productListState.value = firstPage.toMutableList()
+                }
+
             }
+        }
+        locationRepository.startLocationUpdates()
     }
 
     internal fun loadMoreProducts() {
         fetchProducts(
-            location      = location,
+            location      = locationRepository.location!!,
             storeId       = currentTab?.storeId,
             loadState = LoadState.LoadingMore)
         { newPage ->
@@ -87,7 +91,7 @@ class HomeViewModel @Inject constructor(
 
     internal fun selectTab(tabItem: TabItem?) {
         fetchProducts(
-            location     = location,
+            location     = locationRepository.location!!,
             storeId      = tabItem?.storeId,
             loadState = LoadState.LoadingAllList)
         { firstPage ->

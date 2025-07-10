@@ -1,6 +1,5 @@
 package br.com.qtota.ui.components
 
-import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -54,7 +53,6 @@ internal fun ProductList(
     product: Product,
     navController: NavHostController,
     onHighlightedButtonClick: (Product) -> Unit,
-    location: Location
 ) {
     var saveProduct by remember { mutableStateOf<Product?>(null) }
     var deleteProduct by remember { mutableStateOf<Product?>(null) }
@@ -65,7 +63,7 @@ internal fun ProductList(
             .clickable {
                 navController.navigate(
                     AppRoutes.ProductDetails
-                        .productId(product.id, location)
+                        .productId(product.id)
                 )
             },
         colors = CardDefaults.cardColors(

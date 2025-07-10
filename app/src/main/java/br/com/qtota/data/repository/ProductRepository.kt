@@ -43,9 +43,9 @@ class ProductRepository(
         }
     }
 
-    suspend fun getProductById(id: Long, latitude: Double, longitude: Double) : ProductDetail? {
+    suspend fun getProductById(id: Long, location: Location) : ProductDetail? {
         return performRequest({
-            apiService.productDetail(id, latitude, longitude)
+            apiService.productDetail(id, location.latitude, location.longitude)
         }) { productResponse ->
             productResponse.toProductDetail()
         }

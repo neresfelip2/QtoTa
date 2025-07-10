@@ -2,6 +2,7 @@ package br.com.qtota.ui.screen.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -145,8 +146,14 @@ private fun Content(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
+            Log.i("teste", "aqui")
             viewModel.requestLocation()
         }
+    }
+
+    if (loadListState == LoadState.LoadingScreen) {
+        LoadingComponent(Modifier.fillMaxSize())
+        return
     }
 
     if(loadListState == LoadState.LocationError) {
@@ -164,11 +171,6 @@ private fun Content(
                 Text(stringResource(R.string.request_location_button))
             }
         }
-        return
-    }
-
-    if (loadListState == LoadState.LoadingScreen) {
-        LoadingComponent(Modifier.fillMaxSize())
         return
     }
 
@@ -212,7 +214,6 @@ private fun Content(
                     onHighlightedButtonClick = {
                         viewModel.saveProduct(product)
                     },
-                    location = viewModel.location
                 )
             }
 

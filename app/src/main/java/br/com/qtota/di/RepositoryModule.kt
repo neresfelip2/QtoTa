@@ -26,6 +26,7 @@ object RepositoryModule {
     }
 
     @Provides
+    @Singleton
     fun provideProductRepository(apiService: APIService, productDAO: ProductDAO): ProductRepository {
         return ProductRepository(apiService, productDAO)
     }
