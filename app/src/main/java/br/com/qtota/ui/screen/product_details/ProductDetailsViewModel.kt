@@ -26,10 +26,9 @@ class ProductDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val response = productRepository.getProductById(productId, latitude, longitude)
-            val result = response.getOrNull()
-            if(response.isSuccess && result != null) {
-                _productDetails.value = ProductState.Success(result)
+            val productDetail = productRepository.getProductById(productId, latitude, longitude)
+            if(productDetail != null) {
+                _productDetails.value = ProductState.Success(productDetail)
             } else {
                 _productDetails.value = ProductState.Error("Algo deu errado")
             }

@@ -14,6 +14,7 @@ import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import retrofit2.Response
 
 class ProductRepository(
     private val apiService: APIService,
@@ -34,51 +35,32 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(location: Location, storeId: Long? = null, page: Int): Result<List<Product>> {
-        return try {
-            Log.d("ProductRepository", "Chamada apiService.getProduct.")
-            val response = apiService.getProduct(storeId, location.latitude, location.longitude, page)
-            Log.d("ProductRepository", "Após chamanda apiService.getProduct.")
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    val products = body.map { it.toProduct(storeId) }
-                    Result.success(products)
-                } else {
-                    Log.e("ProductRepository", "Corpo da resposta vazio")
-                    Result.failure(Exception("Corpo da resposta vazio"))
-                }
-            } else {
-                Log.e("ProductRepository", "Erro ${response.code()}: ${response.message()}")
-                Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
-            }
-        } catch (e: Exception) { // Captura qualquer outro erro inesperado
-            Log.e("ProductRepository", "Erro inesperado: ${e.message}", e)
-            Result.failure(e)
+    suspend fun getProducts(storeId: Long? = null, location: Location, page: Int): List<Product>? {
+        return performRequest({
+            apiService.getProduct(storeId, location.latitude, location.longitude, page)
+        }) { listProductsResponse ->
+            listProductsResponse.map { it.toProduct(storeId) }
         }
     }
 
-    suspend fun getProductById(id: Long, latitude: Double, longitude: Double) : Result<ProductDetail> {
-
-        return try {
-            val response = apiService.productDetail(id, latitude, longitude)
-
-            if(response.isSuccessful) {
-                response.body()?.let {
-                    Result.success(it.toProductDetail())
-                } ?: Result.failure(Exception("Corpo da resposta vazio"))
-            } else {
-                Result.failure(
-                    Exception("Erro ${response.code()}: ${response.message()}")
-                )
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun getProductById(id: Long, latitude: Double, longitude: Double) : ProductDetail? {
+        return performRequest({
+            apiService.productDetail(id, latitude, longitude)
+        }) { productResponse ->
+            productResponse.toProductDetail()
         }
 
     }
 
-    suspend fun sendFlyer(imageUri: Uri, context: Context): Result<List<Product>> {
+    suspend fun getNearbyStores(location: Location) : List<TabItem>? {
+        return performRequest({
+            apiService.nearbyStores(location.latitude, location.longitude)
+        }) { listNearbyStores ->
+            listNearbyStores
+        }
+    }
+
+    suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {
 
         val multipartUri = Utils.uriToMultipart(
             context = context,
@@ -86,28 +68,32 @@ class ProductRepository(
             fieldName = "flyer"
         )
 
+        return performRequest({
+            apiService.sendFlyer(multipartUri)
+        }) { listProductsResponse ->
+            listProductsResponse.map {it.toProduct()}
+        }
+    }
+
+    private suspend fun <RESPONSE, OBJ> performRequest(executeRequest: suspend () -> Response<RESPONSE>, executeMapper: (RESPONSE) -> OBJ) : OBJ? {
         return try {
-            val response = apiService.sendFlyer(multipartUri)
+            val response = executeRequest()
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    val products = body.map { it.toProduct() }
-                    Result.success(products)
+                    executeMapper(body)
                 } else {
-                    Result.failure(Exception("Corpo da resposta vazio"))
+                    Log.d(ProductRepository::class.simpleName, "${executeRequest.javaClass}: CORPO DA RESPOSTA VAZIO")
+                    null
                 }
             } else {
-                Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
+                Log.d(ProductRepository::class.simpleName, "${executeRequest.javaClass}: ERRO ${response.code()}: ${response.message()}")
+                null
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Log.d(ProductRepository::class.simpleName, "${executeRequest.javaClass}: ERRO ${e.message}")
+            null
         }
-
-    }
-
-    suspend fun getNearbyStores(location: Location) : List<TabItem> {
-        val nearbyStores = apiService.nearbyStores(location.latitude, location.longitude)
-        return nearbyStores.body() ?: emptyList()
     }
 
 }

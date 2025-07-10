@@ -61,7 +61,6 @@ class HomeViewModel @Inject constructor(
             .addOnSuccessListener { location ->
                 if(location != null) {
                     getStoreTabs(location)
-                    this.location = location
                     fetchProducts(
                         location     = location,
                         storeId      = null,
@@ -69,6 +68,7 @@ class HomeViewModel @Inject constructor(
                     ) { firstPage ->
                         _productListState.value = firstPage.toMutableList()
                     }
+                    this.location = location
                 }
             }.addOnFailureListener {
                 _loadState.value = LoadState.LocationError
@@ -106,35 +106,37 @@ class HomeViewModel @Inject constructor(
         if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            val result = productRepository.getProducts(location, storeId, currentPage)
-            if (result.isSuccess) {
-                val products = result.getOrNull()
-                if (products.isNullOrEmpty()) {
-                    currentPage--
-                    _loadState.value = LoadState.FinalList
-                } else {
-                    _loadState.value = LoadState.ReadyToLoad
-                    savedProductsState.collect { savedProduct ->
-                        val savedIds = savedProduct.map { it.id }.toSet()
-                        products.forEach { product ->
-                            product.isSaved = product.id in savedIds
-                        }
-                        onSuccess(products)
-                    }
-                }
-            } else {
+            val products = productRepository.getProducts(storeId, location, currentPage)
+
+            if(products == null) {
                 currentPage--
                 _loadState.value = LoadState.GetProductError
+                return@launch
             }
+
+            if (products.isEmpty()) {
+                currentPage--
+                _loadState.value = LoadState.FinalList
+            } else {
+                _loadState.value = LoadState.ReadyToLoad
+                savedProductsState.collect { savedProduct ->
+                    val savedIds = savedProduct.map { it.id }.toSet()
+                    products.forEach { product ->
+                        product.isSaved = product.id in savedIds
+                    }
+                    onSuccess(products)
+                }
+            }
+
         }
     }
 
     internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
         viewModelScope.launch {
             _sendingFlyerState.value = FlyerState.Sending
-            val result = productRepository.sendFlyer(imageUri, context).getOrNull()
-            if(result != null) {
-                _productListState.value = result.toMutableList()
+            val products = productRepository.sendFlyer(imageUri, context)
+            if(products != null) {
+                _productListState.value = products.toMutableList()
                 _sendingFlyerState.value = null
                 dismissDialog()
             } else {
@@ -147,7 +149,7 @@ class HomeViewModel @Inject constructor(
     private fun getStoreTabs(location: Location) {
         viewModelScope.launch {
             val tabs = productRepository.getNearbyStores(location)
-            _storeTabsState.value = tabs
+            _storeTabsState.value = tabs ?: listOf()
         }
     }
 
