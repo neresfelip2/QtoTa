@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 
 class ProductRepository(
     private val apiService: APIService,
-    private val dao: ProductDAO
+    private val dao: ProductDAO,
 ) {
 
     suspend fun insert(product: Product) {
@@ -35,27 +35,27 @@ class ProductRepository(
     }
 
     suspend fun getProducts(location: Location, storeId: Long? = null, page: Int): Result<List<Product>> {
-
         return try {
+            Log.d("ProductRepository", "Chamada apiService.getProduct.")
             val response = apiService.getProduct(storeId, location.latitude, location.longitude, page)
+            Log.d("ProductRepository", "Após chamanda apiService.getProduct.")
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
                     val products = body.map { it.toProduct(storeId) }
                     Result.success(products)
                 } else {
-                    Log.e(ProductRepository::class.simpleName, "Corpo da resposta vazio")
+                    Log.e("ProductRepository", "Corpo da resposta vazio")
                     Result.failure(Exception("Corpo da resposta vazio"))
                 }
             } else {
-                Log.e(ProductRepository::class.simpleName, "Erro ${response.code()}: ${response.message()}")
+                Log.e("ProductRepository", "Erro ${response.code()}: ${response.message()}")
                 Result.failure(Exception("Erro ${response.code()}: ${response.message()}"))
             }
-        } catch (e: Exception) {
-            Log.e(ProductRepository::class.simpleName, e.toString())
+        } catch (e: Exception) { // Captura qualquer outro erro inesperado
+            Log.e("ProductRepository", "Erro inesperado: ${e.message}", e)
             Result.failure(e)
         }
-
     }
 
     suspend fun getProductById(id: Long, latitude: Double, longitude: Double) : Result<ProductDetail> {

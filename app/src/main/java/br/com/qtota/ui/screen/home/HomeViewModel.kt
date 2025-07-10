@@ -62,7 +62,13 @@ class HomeViewModel @Inject constructor(
                 if(location != null) {
                     getStoreTabs(location)
                     this.location = location
-                    selectTab(null)
+                    fetchProducts(
+                        location     = location,
+                        storeId      = null,
+                        loadState = LoadState.LoadingScreen
+                    ) { firstPage ->
+                        _productListState.value = firstPage.toMutableList()
+                    }
                 }
             }.addOnFailureListener {
                 _loadState.value = LoadState.LocationError
@@ -100,20 +106,25 @@ class HomeViewModel @Inject constructor(
         if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            val result =
-                productRepository.getProducts(location, storeId, currentPage).getOrNull()
-            if (result.isNullOrEmpty()) {
-                currentPage--
-                _loadState.value = LoadState.FinalList
-            } else {
-                _loadState.value = LoadState.ReadyToLoad
-                savedProductsState.collect { savedProduct ->
-                    val savedIds = savedProduct.map { it.id }.toSet()
-                    result.forEach { product ->
-                        product.isSaved = product.id in savedIds
+            val result = productRepository.getProducts(location, storeId, currentPage)
+            if (result.isSuccess) {
+                val products = result.getOrNull()
+                if (products.isNullOrEmpty()) {
+                    currentPage--
+                    _loadState.value = LoadState.FinalList
+                } else {
+                    _loadState.value = LoadState.ReadyToLoad
+                    savedProductsState.collect { savedProduct ->
+                        val savedIds = savedProduct.map { it.id }.toSet()
+                        products.forEach { product ->
+                            product.isSaved = product.id in savedIds
+                        }
+                        onSuccess(products)
                     }
-                    onSuccess(result)
                 }
+            } else {
+                currentPage--
+                _loadState.value = LoadState.GetProductError
             }
         }
     }
