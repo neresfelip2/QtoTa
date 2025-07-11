@@ -21,7 +21,7 @@ class LocationRepository @Inject constructor(
     val loadStatus = _loadStatus.asStateFlow()
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    fun startLocationUpdates() {
+    internal fun startLocationUpdates() {
         _loadStatus.value = true
         fusedLocationProviderClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
