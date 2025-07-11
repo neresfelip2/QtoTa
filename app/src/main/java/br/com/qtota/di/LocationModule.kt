@@ -23,8 +23,8 @@ object LocationModule {
 
     @Provides
     @Singleton
-    fun provideLocationRepository(fusedLocationProviderClient: FusedLocationProviderClient): LocationRepository {
-        return LocationRepository(fusedLocationProviderClient)
+    fun provideLocationRepository(fusedLocationProviderClient: FusedLocationProviderClient, @ApplicationContext context: Context): LocationRepository {
+        return LocationRepository(fusedLocationProviderClient, context)
     }
 
 }

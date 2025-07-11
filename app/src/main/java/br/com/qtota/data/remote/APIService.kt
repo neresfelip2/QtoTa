@@ -2,6 +2,7 @@ package br.com.qtota.data.remote
 
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.product.PageResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store_tabs.StoreItem
 import okhttp3.MultipartBody
@@ -25,7 +26,7 @@ interface APIService {
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
         @Query("page") page: Int,
-    ): Response<List<ProductResponse>>
+    ): Response<PageResponse>
 
     @GET("product/{id}")
     suspend fun productDetail(

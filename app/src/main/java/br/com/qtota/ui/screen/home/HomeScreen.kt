@@ -2,7 +2,6 @@ package br.com.qtota.ui.screen.home
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,14 +10,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.LocationOn
@@ -33,12 +35,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -62,6 +64,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -144,12 +147,12 @@ private fun Content(
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
     val loadListState by viewModel.loadListState.collectAsState()
+    val localityNameState by viewModel.localityNameState.collectAsState()
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            Log.i("teste", "aqui")
             viewModel.requestLocation()
         }
     }
@@ -177,6 +180,11 @@ private fun Content(
         return
     }
 
+    if(loadListState == LoadState.GetProductError && listProductState.isEmpty()) {
+        ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
+        return
+    }
+
     val listState = rememberLazyListState()
     LaunchedEffect(listState, listProductState.size) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
@@ -192,7 +200,19 @@ private fun Content(
     Column {
         LazyColumn(state = listState) {
 
+            item {
+                Row(
+                    Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Outlined.LocationOn, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(localityNameState)
+                }
+            }
+
             item { SearchContent(navController, viewModel) }
+
             stickyHeader {
                 CategoryTabs(storeTabsState) { category ->
                     viewModel.selectTab(category)
@@ -200,13 +220,6 @@ private fun Content(
             }
 
             if (loadListState == LoadState.LoadingAllList) {
-                return@LazyColumn
-            }
-
-            if (listProductState.isEmpty()) {
-                item {
-                    ErrorComponent("Algo deu errado")
-                }
                 return@LazyColumn
             }
 
@@ -262,25 +275,24 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
         Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
+        TextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Pesquisar") },
-            placeholder = { Text("Escreva aqui...") },
+            placeholder = { Text("Pesquise um produto...") },
             leadingIcon = {
                 Icon(imageVector = Icons.Outlined.Search, contentDescription = null)
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = DefaultColor,
-                focusedLeadingIconColor = DefaultColor,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
                 focusedLabelColor = DefaultColor,
-                focusedPlaceholderColor = Color.LightGray
             ),
             shape = CircleShape,
             singleLine = true,
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            modifier = Modifier.weight(1f)
         )
 
         IconButton(
@@ -326,7 +338,7 @@ private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     ScrollableTabRow(
-        edgePadding = 0.dp,
+        edgePadding = 8.dp,
         selectedTabIndex = selectedIndex,
         indicator = {},
         divider = {}

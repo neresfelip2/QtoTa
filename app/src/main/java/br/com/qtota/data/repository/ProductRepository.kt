@@ -39,8 +39,8 @@ class ProductRepository(
     suspend fun getProducts(storeId: Long? = null, location: Location, page: Int): List<Product>? {
         return performRequest({
             apiService.getProduct(storeId, location.latitude, location.longitude, page)
-        }) { listProductsResponse ->
-            listProductsResponse.map { it.toProduct(storeId) }
+        }) { pageResponse ->
+            pageResponse.products.map { it.toProduct(storeId) }
         }
     }
 

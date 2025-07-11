@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
@@ -43,6 +44,9 @@ class HomeViewModel @Inject constructor(
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
+    private val _localityNameState = MutableStateFlow("Carregando...")
+    val localityNameState = _localityNameState.asStateFlow()
+
     private val savedProductsState = productRepository.getSavedProducts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
@@ -64,6 +68,9 @@ class HomeViewModel @Inject constructor(
                     _loadState.value = LoadState.LocationError
                     return@collect
                 }
+
+                val neighborhood = locationRepository.getNeighborhood(locationRepository.location!!)
+                _localityNameState.value = neighborhood ?: "Indisponível"
 
                 getCategoryTabs()
                 fetchProducts(
