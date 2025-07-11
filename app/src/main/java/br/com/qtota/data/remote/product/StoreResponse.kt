@@ -17,6 +17,9 @@ data class StoreResponse(
     @SerializedName("current_price")
     val currentPrice: Double,
 
+    @SerializedName("discount_percentage")
+    val discountPercentage: Int,
+
     @SerializedName("previous_price")
     val previousPrice: Double?,
 

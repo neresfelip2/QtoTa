@@ -7,12 +7,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,8 +25,8 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -44,7 +42,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,9 +80,8 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.defaultPadding
 import coil.compose.AsyncImage
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -129,7 +124,7 @@ internal fun HomeScreen(navController: NavHostController) {
                 drawerContent = { DrawerContent() },
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Scaffold(/*floatingActionButton = { ChatButton() }*/) {
+                    Scaffold/*(*floatingActionButton = { ChatButton() })*/ {
                         Content(navController, viewModel)
                     }
                 }
@@ -180,99 +175,80 @@ private fun Content(
         return
     }
 
-    if(loadListState == LoadState.GetProductError && listProductState.isEmpty()) {
+    if(loadListState == LoadState.ListProductError) {
         ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
         return
     }
 
-    val listState = rememberLazyListState()
-    LaunchedEffect(listState, listProductState.size) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .filterNotNull()
-            .distinctUntilChanged()
-            .collect { lastVisible ->
-                if (lastVisible >= listProductState.size && (loadListState == LoadState.ReadyToLoad)) {
-                    viewModel.loadMoreProducts()
-                }
-            }
-    }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
+    val listState = rememberLazyListState()
     Column {
         LazyColumn(state = listState) {
 
             item {
                 Row(
-                    Modifier.padding(8.dp),
+                    Modifier.padding(defaultPadding),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Outlined.LocationOn, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(localityNameState)
+                        Icon(Icons.Outlined.LocationOn, null)
+                        Spacer(Modifier.width(defaultPadding))
+                        Text(localityNameState)
                 }
             }
 
             item { SearchContent(navController, viewModel) }
 
-            stickyHeader {
-                CategoryTabs(storeTabsState) { category ->
+            item {
+                Text("Mais baratos na sua região",
+                    Modifier.padding(defaultPadding),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item {
+                CategoryTabs(storeTabsState, selectedIndex) { index, category ->
+                    selectedIndex = index
                     viewModel.selectTab(category)
                 }
             }
 
-            if (loadListState == LoadState.LoadingAllList) {
-                return@LazyColumn
-            }
-
-            items(listProductState) { product ->
-                ProductList(
-                    product = product,
-                    navController = navController,
-                    onHighlightedButtonClick = {
-                        viewModel.saveProduct(product)
-                    },
-                )
-            }
-
-            if (loadListState == LoadState.LoadingMore) {
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
+            if (loadListState == LoadState.LoadingList) {
+                item { LoadingComponent(Modifier.fillMaxSize()) }
+            } else if (listProductState.isNotEmpty()) {
+                items(listProductState) { product ->
+                    ProductList(
+                        product = product,
+                        navController = navController,
+                        onHighlightedButtonClick = {
+                            viewModel.saveProduct(product)
+                        },
+                    )
                 }
-            } else if (loadListState == LoadState.FinalList) {
+            } else {
                 item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text("Sem mais produtos a exibir", Modifier.align(Alignment.Center))
-                    }
+                    MessageContent(
+                        { Icons.Outlined.ShoppingCart },
+                        "Nenhum produto encontrado"
+                    )
                 }
             }
 
         }
 
-        if (loadListState == LoadState.LoadingAllList) {
-            LoadingComponent(Modifier.fillMaxSize())
-        }
     }
 
 }
 
 @Composable
 private fun SearchContent(navController: NavHostController, viewModel: HomeViewModel) {
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
 
     var showLoginDialog by remember { mutableStateOf(false) }
     var showSendFlyerDialog by remember { mutableStateOf(false) }
 
     Row(
-        Modifier.padding(8.dp),
+        Modifier.padding(defaultPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
@@ -295,6 +271,8 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
             modifier = Modifier.weight(1f)
         )
 
+        Spacer(Modifier.width(defaultPadding))
+
         IconButton(
             {
                 viewModel.checkIfLogged { isLogged ->
@@ -305,7 +283,6 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
                     }
                 }
             },
-            Modifier.padding(8.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.Send,
@@ -334,31 +311,27 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -> Unit) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+private fun CategoryTabs(tabs: List<CategoryItem>, selectedIndex: Int, onClickTab: (Int, CategoryItem?) -> Unit) {
 
     ScrollableTabRow(
-        edgePadding = 8.dp,
+        edgePadding = defaultPadding,
         selectedTabIndex = selectedIndex,
         indicator = {},
-        divider = {}
+        divider = {},
     ) {
 
         StoreTabsItem("Todos", null, selectedIndex == 0) {
-            selectedIndex = 0
-            onClickTab(null)
+            onClickTab(0, null)
         }
 
         tabs.forEachIndexed { index, category ->
             StoreTabsItem(category.name, category.urlIcon, index == (selectedIndex - 1)) {
-                selectedIndex = index + 1
-                onClickTab(category)
+                onClickTab(index + 1, category)
             }
         }
 
         StoreTabsItem("Outros", null, selectedIndex == tabs.size + 1) {
-            selectedIndex = tabs.size + 1
-            onClickTab(null)
+            onClickTab(tabs.size + 1, null)
         }
 
     }
@@ -368,7 +341,7 @@ private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -
 private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onClick: () -> Unit) {
     Tab(
         modifier = Modifier
-            .padding(3.dp)
+            .padding(4.dp)
             .clip(CircleShape)
             .background(if (selected) DefaultColor else GrayColor),
         selectedContentColor = Color.White,
@@ -424,7 +397,7 @@ private fun DrawerContent() {
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(defaultPadding)
     ) {
         Text("Notificações", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         HorizontalDivider()

@@ -32,17 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.mapper.ProductMapper.calculateDiscount
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
@@ -59,7 +57,7 @@ internal fun ProductList(
 
     Card(
         Modifier
-            .padding(8.dp)
+            .padding(defaultPadding)
             .clickable {
                 navController.navigate(
                     AppRoutes.ProductDetails
@@ -133,17 +131,38 @@ internal fun ProductList(
                 color = Color.DarkGray
             )
             Row(
-                Modifier.padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    product.currentValue.toMonetaryString(),
+                    product.currentPrice.toMonetaryString(),
                     Modifier.padding(4.dp),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF007700)
                 )
-                product.previousValue?.let { previousBestPrice ->
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "${product.discountPercentage}%",
+                        Modifier
+                            .background(
+                                shape = RoundedCornerShape(8.dp),
+                                color = DefaultColor
+                            )
+                            .padding(8.dp, 4.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                    Text(
+                        "Abaixo da média",
+                        fontSize = 12.sp
+                    )
+                }
+                /*product.previousPrice?.let { previousBestPrice ->
                     Row(Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween) {
@@ -169,7 +188,7 @@ internal fun ProductList(
                             color = Color.White,
                         )
                     }
-                }
+                }*/
             }
             Row(
                 Modifier.fillMaxWidth(),

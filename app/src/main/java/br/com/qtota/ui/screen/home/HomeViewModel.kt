@@ -30,7 +30,6 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var currentTab: CategoryItem? = null
-    private var currentPage: Int = 0
 
     private val _storeTabsState = MutableStateFlow<List<CategoryItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
@@ -51,13 +50,8 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
-        requestLocation()
-    }
-
-    @SuppressLint("MissingPermission")
-    internal fun requestLocation() {
         viewModelScope.launch {
-            locationRepository.loadStatus.collect { isLoading ->
+            locationRepository.loadLocationStatus.collect { isLoading ->
 
                 if (isLoading) {
                     _loadState.value = LoadState.LoadingScreen
@@ -83,24 +77,19 @@ class HomeViewModel @Inject constructor(
 
             }
         }
-        locationRepository.startLocationUpdates()
+        requestLocation()
     }
 
-    internal fun loadMoreProducts() {
-        fetchProducts(
-            location      = locationRepository.location!!,
-            categoryId       = currentTab?.id,
-            loadState = LoadState.LoadingMore)
-        { newPage ->
-            _productListState.value = (_productListState.value + newPage).toMutableList()
-        }
+    @SuppressLint("MissingPermission")
+    internal fun requestLocation() {
+        locationRepository.startLocationUpdates()
     }
 
     internal fun selectTab(category: CategoryItem?) {
         fetchProducts(
             location     = locationRepository.location!!,
             categoryId      = category?.id,
-            loadState = LoadState.LoadingAllList)
+            loadState = LoadState.LoadingList)
         { firstPage ->
             this@HomeViewModel.currentTab = category
             _productListState.value = firstPage.toMutableList()
@@ -109,34 +98,27 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchProducts(
         location: Location,
-        categoryId: Long? = null,
+        categoryId: Int? = null,
         loadState: LoadState,
         onSuccess: (List<Product>) -> Unit,
     ) {
         _loadState.value = loadState
-        if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            val products = productRepository.getProducts(categoryId, location, currentPage)
+            val products = productRepository.getProducts(categoryId, location)
 
             if(products == null) {
-                currentPage--
-                _loadState.value = LoadState.GetProductError
+                _loadState.value = LoadState.ListProductError
                 return@launch
             }
 
-            if (products.isEmpty()) {
-                currentPage--
-                _loadState.value = LoadState.FinalList
-            } else {
-                _loadState.value = LoadState.ReadyToLoad
-                savedProductsState.collect { savedProduct ->
-                    val savedIds = savedProduct.map { it.id }.toSet()
-                    products.forEach { product ->
-                        product.isSaved = product.id in savedIds
-                    }
-                    onSuccess(products)
+            savedProductsState.collect { savedProduct ->
+                val savedIds = savedProduct.map { it.id }.toSet()
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
                 }
+                onSuccess(products)
+                _loadState.value = LoadState.Ready
             }
 
         }
@@ -153,7 +135,7 @@ class HomeViewModel @Inject constructor(
             } else {
                 _sendingFlyerState.value = FlyerState.Error
             }
-            currentPage = 1
+            //currentPage = 1
         }
     }
 

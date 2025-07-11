@@ -36,11 +36,11 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(storeId: Long? = null, location: Location, page: Int): List<Product>? {
+    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 10): List<Product>? {
         return performRequest({
-            apiService.getProduct(storeId, location.latitude, location.longitude, page)
+            apiService.getProduct(categoryId, location.latitude, location.longitude, page, limit)
         }) { pageResponse ->
-            pageResponse.products.map { it.toProduct(storeId) }
+            pageResponse.products.map { it.toProduct() }
         }
     }
 
