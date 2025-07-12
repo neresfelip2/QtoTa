@@ -1,8 +1,8 @@
-package br.com.qtota.data.remote
+package br.com.qtota.data.remote.home_response
 
 import com.google.gson.annotations.SerializedName
 
-data class CategoryItem(
+data class CategoryResponse(
 
     @SerializedName("id")
     val id: Int,

@@ -9,8 +9,8 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
-import br.com.qtota.data.remote.CategoryItem
-import br.com.qtota.data.remote.store_tabs.StoreItem
+import br.com.qtota.data.remote.home_response.HomeResponse
+import br.com.qtota.ui.UIState
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
@@ -36,11 +36,26 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 4): List<Product>? {
+    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 5): List<Product>? {
         return performRequest({
-            apiService.getProduct(categoryId, location.latitude, location.longitude, page, limit)
-        }) { pageResponse ->
-            pageResponse.products.map { it.toProduct() }
+            apiService.getProducts(categoryId, location.latitude, location.longitude, page, limit)
+        }) { listProductResponse ->
+            listProductResponse.map { it.toProduct() }
+        }
+    }
+
+    suspend fun getHome(latitude: Double, longitude: Double) : UIState<HomeResponse>? {
+        return performRequest({
+            apiService.getHome(latitude, longitude)
+        }) { homeResponse ->
+
+            UIState.Success(
+                data = HomeResponse(
+                    categories = homeResponse.categories,
+                    products = homeResponse.products,
+                    nearbyStores = homeResponse.nearbyStores
+                )
+            )
         }
     }
 
@@ -51,22 +66,6 @@ class ProductRepository(
             productResponse.toProductDetail()
         }
 
-    }
-
-    suspend fun getCategories() : List<CategoryItem>? {
-        return performRequest(
-            { apiService.getCategories() }
-        ) { listCategories ->
-            listCategories
-        }
-    }
-
-    suspend fun getNearbyStores(location: Location) : List<StoreItem>? {
-        return performRequest({
-            apiService.nearbyStores(location.latitude, location.longitude)
-        }) { listNearbyStores ->
-            listNearbyStores
-        }
     }
 
     suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {

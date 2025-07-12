@@ -1,10 +1,9 @@
 package br.com.qtota.data.remote
 
+import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
-import br.com.qtota.data.remote.product.PageResponse
 import br.com.qtota.data.remote.product.ProductResponse
-import br.com.qtota.data.remote.store_tabs.StoreItem
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -20,14 +19,21 @@ interface APIService {
     @POST("login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
+    @GET("home")
+    suspend fun getHome(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ) : Response<HomeResponse>
+
+
     @GET("product")
-    suspend fun getProduct(
+    suspend fun getProducts(
         @Query("id_category") categoryId: Int?,
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
         @Query("page") page: Int,
         @Query("limit") limit: Int
-    ): Response<PageResponse>
+    ): Response<List<ProductResponse>>
 
     @GET("product/{id}")
     suspend fun productDetail(
@@ -35,15 +41,6 @@ interface APIService {
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
     ): Response<ProductResponse>
-
-    @GET("product/categories")
-    suspend fun getCategories(): Response<List<CategoryItem>>
-
-    @GET("product/nearby-stores")
-    suspend fun nearbyStores(
-        @Query("lat") latitude: Double,
-        @Query("lon") longitude: Double,
-    ): Response<List<StoreItem>>
 
     @Multipart
     @POST("send-flyer")
