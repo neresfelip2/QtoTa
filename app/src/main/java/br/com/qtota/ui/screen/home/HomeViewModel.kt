@@ -41,7 +41,7 @@ class HomeViewModel @Inject constructor(
     private val _productListState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
     val productListState = _productListState.asStateFlow()
 
-    private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
+    private val _sendingFlyerState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
     private val _localityNameState = MutableStateFlow("Carregando...")
@@ -52,7 +52,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            locationRepository.loadLocationStatus.collect { isLoading ->
+            locationRepository.loadStatus.collect { isLoading ->
 
                 if (isLoading) {
                     _locationUiState.value = UIState.Loading
@@ -81,6 +81,32 @@ class HomeViewModel @Inject constructor(
         locationRepository.startLocationUpdates()
     }
 
+    private fun fetchHome(location: Location) {
+
+        viewModelScope.launch {
+            val result = productRepository.getHome(location.latitude, location.longitude)
+
+            if(result == null) {
+                _homeUiState.value = UIState.Error("")
+                return@launch
+            }
+
+            _homeUiState.value = UIState.Success(result)
+            _productListState.value = UIState.Success(result.products.map { it.toProduct() })
+
+            /*savedProductsState.collect { savedProduct ->
+                val products = (result as UIState.Success<HomeResponse>).data.products.map { it.toProduct() }
+                val savedIds = savedProduct.map { it.id }.toSet()
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
+                }
+
+                _productListState.value = UIState.Success(products)
+            }*/
+
+        }
+    }
+
     internal fun selectTab(category: CategoryResponse?) {
         _productListState.value = UIState.Loading
 
@@ -104,45 +130,17 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun fetchHome(location: Location) {
-
-        viewModelScope.launch {
-            val result = productRepository.getHome(location.latitude, location.longitude)
-
-            if(result == null) {
-                _homeUiState.value = UIState.Error("")
-                return@launch
-            }
-
-            _homeUiState.value = result
-            _productListState.value = UIState.Success((result as UIState.Success<HomeResponse>).data.products.map { it.toProduct() })
-
-            /*savedProductsState.collect { savedProduct ->
-                val products = (result as UIState.Success<HomeResponse>).data.products.map { it.toProduct() }
-                val savedIds = savedProduct.map { it.id }.toSet()
-                products.forEach { product ->
-                    product.isSaved = product.id in savedIds
-                }
-
-                _productListState.value = UIState.Success(products)
-            }*/
-
-        }
-    }
-
     internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
-        /*viewModelScope.launch {
-            _sendingFlyerState.value = FlyerState.Sending
+        viewModelScope.launch {
+            _sendingFlyerState.value = UIState.Loading
             val products = productRepository.sendFlyer(imageUri, context)
             if(products != null) {
-                _productListState.value = products.toMutableList()
-                _sendingFlyerState.value = null
+                _sendingFlyerState.value = UIState.Success(products)
                 dismissDialog()
             } else {
-                _sendingFlyerState.value = FlyerState.Error
+                _sendingFlyerState.value = UIState.Error("")
             }
-            //currentPage = 1
-        }*/
+        }
     }
 
     internal fun saveProduct(product: Product) {

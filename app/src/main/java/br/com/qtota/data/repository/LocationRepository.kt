@@ -23,8 +23,9 @@ class LocationRepository @Inject constructor(
 ) {
 
     var location: Location? = null
+
     private val _loadStatus = MutableStateFlow(true)
-    val loadLocationStatus = _loadStatus.asStateFlow()
+    val loadStatus = _loadStatus.asStateFlow()
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     internal fun startLocationUpdates() {

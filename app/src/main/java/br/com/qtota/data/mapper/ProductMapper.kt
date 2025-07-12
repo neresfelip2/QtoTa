@@ -9,7 +9,6 @@ object ProductMapper {
 
     fun ProductResponse.toProduct(): Product {
         val store = this.stores.minBy { it.currentPrice }
-
         return Product(
             id = this.id,
             storeId = store.id,
@@ -27,7 +26,6 @@ object ProductMapper {
     }
 
     fun ProductResponse.toProductDetail() : ProductDetail {
-
         return ProductDetail(
             id = this.id,
             name = this.name,
@@ -40,11 +38,6 @@ object ProductMapper {
             expiration = this.expirationProduct,
             stores = this.stores.sortedBy { it.currentPrice }
         )
-    }
-
-    fun Product.calculatePricesDifference(): Int {
-        if(this.previousPrice == null) return 0
-        return (100 - 100 * (this.currentPrice / this.previousPrice)).toInt()
     }
 
 }
