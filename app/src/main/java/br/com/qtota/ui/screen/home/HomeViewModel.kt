@@ -89,7 +89,7 @@ class HomeViewModel @Inject constructor(
         fetchProducts(
             location     = locationRepository.location!!,
             categoryId      = category?.id,
-            loadState = LoadState.LoadingList)
+            loadState = LoadState.LoadingProductList)
         { firstPage ->
             this@HomeViewModel.currentTab = category
             _productListState.value = firstPage.toMutableList()

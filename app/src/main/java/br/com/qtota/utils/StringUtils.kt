@@ -14,7 +14,7 @@ object StringUtils {
     }
 
     fun Double.toMonetaryString(): String {
-        val formato = NumberFormat.getCurrencyInstance(Locale.getDefault())
+        val formato = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"))
         return formato.format(this)
     }
 

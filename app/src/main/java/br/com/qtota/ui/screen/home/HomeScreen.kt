@@ -7,14 +7,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,6 +32,9 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -37,6 +45,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -187,13 +196,16 @@ private fun Content(
         LazyColumn(state = listState) {
 
             item {
-                Row(
-                    Modifier.padding(defaultPadding),
-                    verticalAlignment = Alignment.CenterVertically
+                TextButton ( {},
+                    Modifier.padding(horizontal = defaultPadding).padding(top = defaultPadding),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = DefaultColor,
+                        containerColor = Color.Transparent
+                    )
                 ) {
-                        Icon(Icons.Outlined.LocationOn, null)
-                        Spacer(Modifier.width(defaultPadding))
-                        Text(localityNameState)
+                    Icon(Icons.Outlined.LocationOn, null, tint = DefaultColor)
+                    Spacer(Modifier.width(8.dp))
+                    Text(localityNameState, fontWeight = FontWeight.Bold, color = DefaultColor, fontSize = 16.sp)
                 }
             }
 
@@ -202,7 +214,8 @@ private fun Content(
             item {
                 Text("Mais baratos na sua região",
                     Modifier.padding(defaultPadding),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
                 )
             }
 
@@ -213,7 +226,7 @@ private fun Content(
                 }
             }
 
-            if (loadListState == LoadState.LoadingList) {
+            if (loadListState == LoadState.LoadingProductList) {
                 item { LoadingComponent(Modifier.fillMaxSize()) }
             } else if (listProductState.isNotEmpty()) {
                 items(listProductState) { product ->
@@ -221,16 +234,98 @@ private fun Content(
                         product = product,
                         navController = navController,
                         onHighlightedButtonClick = {
-                            viewModel.saveProduct(product)
+                            viewModel.saveProduct(it)
                         },
                     )
                 }
+                item {
+                    Box(Modifier.fillMaxWidth()) {
+                        TextButton(
+                            onClick = { /*…*/ },
+                            Modifier.align(Alignment.Center),
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = DefaultColor,
+                                containerColor = Color.Transparent
+                            )
+                        ) {
+                            Text("Ver mais ofertas", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+                    }
+                }
             } else {
                 item {
-                    MessageContent(
-                        { Icons.Outlined.ShoppingCart },
-                        "Nenhum produto encontrado"
+                    MessageContent({
+                        Icon(
+                            Icons.Outlined.ShoppingCart,
+                            null,
+                            Modifier.size(128.dp),
+                            tint = Color(0x59187270)
+                        )
+                    },
+                        "Nenhum produto encontrado",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
                     )
+                }
+            }
+
+            item {
+                Text("Lojas mais próximas",
+                    Modifier.padding(defaultPadding),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
+                )
+            }
+
+            item {
+                LazyRow(contentPadding = PaddingValues(8.dp)) {
+                    items(10) {
+                        Card({},
+                            Modifier.padding(8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White
+                            )
+                        ) {
+                            Column(
+                                Modifier.padding(defaultPadding),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                /*AsyncImage(
+                                    model = "",
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop
+                                )*/
+                                Icon(
+                                    painterResource(R.drawable.outline_store_24), null,
+                                    Modifier.size(96.dp),
+                                    tint = Color.LightGray
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text("Loja ${it + 1}", fontSize = 14.sp, maxLines = 2)
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center) {
+                    TextButton(onClick = { /*…*/ },
+                        Modifier.padding(horizontal = defaultPadding),
+                        colors = ButtonDefaults.buttonColors(contentColor = DefaultColor, containerColor = Color.Transparent)
+                    ) {
+                        Text("Ver mais lojas", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
+                    TextButton(onClick = { /*…*/ },
+                        Modifier
+                            .padding(horizontal = defaultPadding)
+                            .padding(bottom = defaultPadding),
+                        colors = ButtonDefaults.buttonColors(contentColor = DefaultColor, containerColor = Color.Transparent)
+                    ) {
+                        Text("Ver mapa", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
                 }
             }
 
@@ -264,6 +359,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedLabelColor = DefaultColor,
+                unfocusedPlaceholderColor = Color.Gray
             ),
             shape = CircleShape,
             singleLine = true,

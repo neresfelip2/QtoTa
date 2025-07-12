@@ -36,7 +36,7 @@ class ProductRepository(
         dao.delete(product)
     }
 
-    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 10): List<Product>? {
+    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 4): List<Product>? {
         return performRequest({
             apiService.getProduct(categoryId, location.latitude, location.longitude, page, limit)
         }) { pageResponse ->
