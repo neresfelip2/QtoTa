@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,9 +51,6 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.qtota.R
-import br.com.qtota.ui.components.ErrorComponent
-import br.com.qtota.ui.components.LoadingComponent
-import br.com.qtota.ui.screen.home.FlyerState
 import br.com.qtota.ui.screen.home.HomeViewModel
 import br.com.qtota.ui.theme.DefaultColor
 import coil.compose.AsyncImage
@@ -99,9 +95,9 @@ fun SendFlyerDialog(viewModel: HomeViewModel, dismiss: () -> Unit) {
 
                 val sendingState by viewModel.sendingFlyerState.collectAsState()
 
-                when(sendingState) {
-                    FlyerState.Error -> ErrorComponent("Algo de errado não está certo")
-                    FlyerState.Sending -> LoadingComponent()
+                /*when(sendingState) {
+                    UIState.Error -> ErrorComponent("Algo de errado não está certo")
+                    UIState.Loading -> LoadingComponent()
                     null -> if (selectedUri == null) {
                         InitContainer(
                             onClickFromCamera = {
@@ -142,7 +138,7 @@ fun SendFlyerDialog(viewModel: HomeViewModel, dismiss: () -> Unit) {
 
                     }
 
-                }
+                }*/
 
             }
 

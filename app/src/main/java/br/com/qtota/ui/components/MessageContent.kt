@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import br.com.qtota.ui.theme.DefaultColor
 
 @Composable
@@ -23,7 +24,8 @@ internal fun MessageContent(icon: @Composable () -> Unit, message: String, color
         Spacer(Modifier.height(16.dp))
         Text(
             message,
-            color = color
+            color = color,
+            fontSize = 14.sp
         )
     }
 }

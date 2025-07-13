@@ -23,6 +23,7 @@ class LocationRepository @Inject constructor(
 ) {
 
     var location: Location? = null
+
     private val _loadStatus = MutableStateFlow(true)
     val loadStatus = _loadStatus.asStateFlow()
 

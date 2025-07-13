@@ -2,4 +2,6 @@
     <string name="app_name">QtoTá?</string>
     <string name="request_location_label">É necessário a localização</string>
     <string name="request_location_button">Permitir localização</string>
+    <string name="not_product_found">Nenhum produto encontrado</string>
+    <string name="not_store_found">Nenhuma loja encontrada</string>
 </resources>

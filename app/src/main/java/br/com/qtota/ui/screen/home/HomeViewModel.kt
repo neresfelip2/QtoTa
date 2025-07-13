@@ -7,20 +7,23 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.remote.CategoryItem
+import br.com.qtota.data.mapper.ProductMapper.toProduct
+import br.com.qtota.data.remote.home_response.CategoryResponse
+import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
+import br.com.qtota.ui.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -29,19 +32,16 @@ class HomeViewModel @Inject constructor(
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
-    private var currentTab: CategoryItem? = null
-    private var currentPage: Int = 0
+    private val _locationUiState = MutableStateFlow<UIState<Location>>(UIState.Loading)
+    val locationUiState = _locationUiState.asStateFlow()
 
-    private val _storeTabsState = MutableStateFlow<List<CategoryItem>>(listOf())
-    val storeTabsState = _storeTabsState.asStateFlow()
+    private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
+    val homeUIState = _homeUiState.asStateFlow()
 
-    private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
+    private val _productListState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
     val productListState = _productListState.asStateFlow()
 
-    private val _loadState = MutableStateFlow(LoadState.LoadingScreen)
-    val loadListState = _loadState.asStateFlow()
-
-    private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
+    private val _sendingFlyerState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
     private val _localityNameState = MutableStateFlow("Carregando...")
@@ -51,92 +51,80 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
+        viewModelScope.launch {
+            locationRepository.loadStatus.collectLatest { isLoading ->
+
+                if (isLoading) {
+                    _locationUiState.value = UIState.Loading
+                    return@collectLatest
+                }
+
+                if (locationRepository.location == null) {
+                    _locationUiState.value = UIState.Error("Localização não encontrada")
+                    return@collectLatest
+                }
+
+                _locationUiState.value = UIState.Success(locationRepository.location!!)
+
+                val neighborhood = locationRepository.getNeighborhood(locationRepository.location!!)
+                _localityNameState.value = neighborhood ?: "Indisponível"
+
+                fetchHome(locationRepository.location!!)
+
+            }
+        }
         requestLocation()
     }
 
     @SuppressLint("MissingPermission")
     internal fun requestLocation() {
-        viewModelScope.launch {
-            locationRepository.loadStatus.collect { isLoading ->
-
-                if (isLoading) {
-                    _loadState.value = LoadState.LoadingScreen
-                    return@collect
-                }
-
-                if (locationRepository.location == null) {
-                    _loadState.value = LoadState.LocationError
-                    return@collect
-                }
-
-                val neighborhood = locationRepository.getNeighborhood(locationRepository.location!!)
-                _localityNameState.value = neighborhood ?: "Indisponível"
-
-                getCategoryTabs()
-                fetchProducts(
-                    location = locationRepository.location!!,
-                    categoryId = null,
-                    loadState = LoadState.LoadingScreen
-                ) { firstPage ->
-                    _productListState.value = firstPage.toMutableList()
-                }
-
-            }
-        }
         locationRepository.startLocationUpdates()
     }
 
-    internal fun loadMoreProducts() {
-        fetchProducts(
-            location      = locationRepository.location!!,
-            categoryId       = currentTab?.id,
-            loadState = LoadState.LoadingMore)
-        { newPage ->
-            _productListState.value = (_productListState.value + newPage).toMutableList()
-        }
-    }
-
-    internal fun selectTab(category: CategoryItem?) {
-        fetchProducts(
-            location     = locationRepository.location!!,
-            categoryId      = category?.id,
-            loadState = LoadState.LoadingAllList)
-        { firstPage ->
-            this@HomeViewModel.currentTab = category
-            _productListState.value = firstPage.toMutableList()
-        }
-    }
-
-    private fun fetchProducts(
-        location: Location,
-        categoryId: Long? = null,
-        loadState: LoadState,
-        onSuccess: (List<Product>) -> Unit,
-    ) {
-        _loadState.value = loadState
-        if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
+    private fun fetchHome(location: Location) {
 
         viewModelScope.launch {
-            val products = productRepository.getProducts(categoryId, location, currentPage)
+            val result = productRepository.getHome(location.latitude, location.longitude)
 
-            if(products == null) {
-                currentPage--
-                _loadState.value = LoadState.GetProductError
+            if(result == null) {
+                _homeUiState.value = UIState.Error("")
                 return@launch
             }
 
-            if (products.isEmpty()) {
-                currentPage--
-                _loadState.value = LoadState.FinalList
-            } else {
-                _loadState.value = LoadState.ReadyToLoad
-                savedProductsState.collect { savedProduct ->
-                    val savedIds = savedProduct.map { it.id }.toSet()
-                    products.forEach { product ->
-                        product.isSaved = product.id in savedIds
-                    }
-                    onSuccess(products)
+            _homeUiState.value = UIState.Success(result)
+            _productListState.value = UIState.Success(result.products.map { it.toProduct() })
+
+            savedProductsState.collectLatest { savedProduct ->
+                val savedIds = savedProduct.map { it.id }.toSet()
+                val products = (_productListState.value as UIState.Success).data
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
                 }
+                _productListState.value = UIState.Success(products)
+            }
+
+        }
+    }
+
+    internal fun selectTab(category: CategoryResponse?) {
+        _productListState.value = UIState.Loading
+
+        viewModelScope.launch {
+            val products = productRepository.getProducts(category?.id, locationRepository.location!!)
+
+            if(products == null) {
+                _productListState.value = UIState.Error("")
+                return@launch
+            }
+
+            _productListState.value = UIState.Success(products)
+            savedProductsState.collectLatest { savedProduct ->
+                val savedIds = savedProduct.map { it.id }.toSet()
+                val products = (_productListState.value as UIState.Success).data
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
+                }
+                _productListState.value = UIState.Success(products)
             }
 
         }
@@ -144,23 +132,14 @@ class HomeViewModel @Inject constructor(
 
     internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
         viewModelScope.launch {
-            _sendingFlyerState.value = FlyerState.Sending
+            _sendingFlyerState.value = UIState.Loading
             val products = productRepository.sendFlyer(imageUri, context)
             if(products != null) {
-                _productListState.value = products.toMutableList()
-                _sendingFlyerState.value = null
+                _sendingFlyerState.value = UIState.Success(products)
                 dismissDialog()
             } else {
-                _sendingFlyerState.value = FlyerState.Error
+                _sendingFlyerState.value = UIState.Error("")
             }
-            currentPage = 1
-        }
-    }
-
-    private fun getCategoryTabs() {
-        viewModelScope.launch {
-            val tabs = productRepository.getCategories()
-            _storeTabsState.value = tabs ?: listOf()
         }
     }
 

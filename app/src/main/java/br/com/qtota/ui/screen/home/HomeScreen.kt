@@ -9,14 +9,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,8 +30,11 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -39,12 +45,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,7 +59,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,8 +78,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
-import br.com.qtota.data.remote.CategoryItem
+import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.ui.SendFlyerDialog
+import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
@@ -84,9 +90,8 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.defaultPadding
 import coil.compose.AsyncImage
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -129,12 +134,26 @@ internal fun HomeScreen(navController: NavHostController) {
                 drawerContent = { DrawerContent() },
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Scaffold(/*floatingActionButton = { ChatButton() }*/) {
-                        Content(navController, viewModel)
+                    Scaffold/*(*floatingActionButton = { ChatButton() })*/ {
+                        LocationStateHandler(navController, viewModel)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LocationStateHandler(
+    navController: NavHostController,
+    viewModel: HomeViewModel,
+) {
+    val locationUIState by viewModel.locationUiState.collectAsState()
+
+    when(locationUIState) {
+        is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
+        is UIState.Error -> RequestLocationComponent(viewModel)
+        is UIState.Success -> Content(navController, viewModel)
     }
 }
 
@@ -144,11 +163,225 @@ private fun Content(
     viewModel: HomeViewModel,
 ) {
 
-    val storeTabsState by viewModel.storeTabsState.collectAsState()
-    val listProductState by viewModel.productListState.collectAsState()
-    val loadListState by viewModel.loadListState.collectAsState()
+    val homeUIState by viewModel.homeUIState.collectAsState()
+    val productListState by viewModel.productListState.collectAsState()
     val localityNameState by viewModel.localityNameState.collectAsState()
 
+    when (homeUIState) {
+        is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
+        is UIState.Error -> ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
+        is UIState.Success -> {
+
+            val data = (homeUIState as UIState.Success).data
+
+            var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+            val listState = rememberLazyListState()
+
+            Column {
+                LazyColumn(state = listState) {
+
+                    item {
+                        TextButton(
+                            {},
+                            Modifier
+                                .padding(horizontal = defaultPadding)
+                                .padding(top = defaultPadding),
+                            colors = ButtonDefaults.buttonColors(
+                                contentColor = DefaultColor,
+                                containerColor = Color.Transparent
+                            )
+                        ) {
+                            Icon(Icons.Outlined.LocationOn, null, tint = DefaultColor)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                localityNameState,
+                                fontWeight = FontWeight.Bold,
+                                color = DefaultColor,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+
+                    item { SearchContent(navController, viewModel) }
+
+                    item {
+                        Text(
+                            "Mais baratos na sua região",
+                            Modifier.padding(defaultPadding),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.DarkGray
+                        )
+                    }
+
+                    item {
+                        CategoryTabs(data.categories, selectedIndex) { index, category ->
+                            selectedIndex = index
+                            viewModel.selectTab(category)
+                        }
+                    }
+
+                    when (productListState) {
+                        is UIState.Loading -> item {
+                            LoadingComponent(
+                                Modifier.fillMaxWidth().padding(32.dp)
+                            )
+                        }
+                        is UIState.Error -> item {
+                            ErrorComponent(
+                                (productListState as UIState.Error).description,
+                                Modifier.fillMaxWidth().padding(32.dp)
+                            )
+                        }
+                        is UIState.Success -> {
+                            val products = (productListState as UIState.Success).data
+                            if (products.isEmpty()) {
+                                item {
+                                    MessageContent(
+                                        {
+                                            Icon(
+                                                Icons.Outlined.ShoppingCart,
+                                                null,
+                                                Modifier.size(128.dp),
+                                                tint = Color(0x59187270)
+                                            )
+                                        },
+                                        stringResource(R.string.not_product_found),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(32.dp),
+                                    )
+                                }
+                            } else {
+                                items(products) { product ->
+                                    ProductList(
+                                        product = product,
+                                        navController = navController,
+                                        onHighlightedButtonClick = {
+                                            viewModel.saveProduct(it)
+                                        },
+                                    )
+                                }
+                                item {
+                                    Box(Modifier.fillMaxWidth()) {
+                                        TextButton(
+                                            onClick = { /*…*/ },
+                                            Modifier.align(Alignment.Center),
+                                            colors = ButtonDefaults.buttonColors(
+                                                contentColor = DefaultColor,
+                                                containerColor = Color.Transparent
+                                            )
+                                        ) {
+                                            Text(
+                                                "Ver mais ofertas",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            "Lojas mais próximas",
+                            Modifier.padding(defaultPadding),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.DarkGray
+                        )
+                    }
+
+                    item {
+
+                        if(data.nearbyStores.isEmpty()) {
+                            MessageContent({
+                                Icon(painterResource(R.drawable.outline_store_24), null,
+                                    Modifier.size(128.dp),
+                                    tint = Color(0x59187270)
+                                )
+                            }, stringResource(R.string.not_store_found),
+                                modifier = Modifier.fillMaxWidth().padding(32.dp)
+                            )
+                            return@item
+                        }
+
+                        LazyRow(contentPadding = PaddingValues(8.dp)) {
+                            items(data.nearbyStores) { store ->
+                                Card(
+                                    {},
+                                    Modifier.padding(8.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color.White
+                                    )
+                                ) {
+                                    Column(
+                                        Modifier.padding(defaultPadding),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        store.logo?.let {
+                                            AsyncImage(
+                                                model = it,
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Inside,
+                                                modifier = Modifier.size(96.dp),
+                                            )
+                                        } ?: Icon(
+                                            painterResource(R.drawable.outline_store_24), null,
+                                            Modifier.size(96.dp),
+                                            tint = Color.LightGray
+                                        )
+                                        Spacer(Modifier.height(2.dp))
+                                        Text(store.name, fontSize = 14.sp, maxLines = 2)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            TextButton(
+                                onClick = { /*…*/ },
+                                Modifier.padding(horizontal = defaultPadding),
+                                colors = ButtonDefaults.buttonColors(
+                                    contentColor = DefaultColor,
+                                    containerColor = Color.Transparent
+                                )
+                            ) {
+                                Text(
+                                    "Ver mais lojas",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+                            TextButton(
+                                onClick = { /*…*/ },
+                                Modifier
+                                    .padding(horizontal = defaultPadding)
+                                    .padding(bottom = defaultPadding),
+                                colors = ButtonDefaults.buttonColors(
+                                    contentColor = DefaultColor,
+                                    containerColor = Color.Transparent
+                                )
+                            ) {
+                                Text("Ver mapa", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+private fun RequestLocationComponent(viewModel: HomeViewModel) {
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -157,122 +390,34 @@ private fun Content(
         }
     }
 
-    if (loadListState == LoadState.LoadingScreen) {
-        LoadingComponent(Modifier.fillMaxSize())
-        return
-    }
-
-    if(loadListState == LoadState.LocationError) {
-        Column(Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center)
-        {
-            MessageContent(
-                { Icons.Outlined.LocationOn },
-                stringResource(R.string.request_location_label)
-            )
-            Button({
-                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }) {
-                Text(stringResource(R.string.request_location_button))
-            }
-        }
-        return
-    }
-
-    if(loadListState == LoadState.GetProductError && listProductState.isEmpty()) {
-        ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
-        return
-    }
-
-    val listState = rememberLazyListState()
-    LaunchedEffect(listState, listProductState.size) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .filterNotNull()
-            .distinctUntilChanged()
-            .collect { lastVisible ->
-                if (lastVisible >= listProductState.size && (loadListState == LoadState.ReadyToLoad)) {
-                    viewModel.loadMoreProducts()
-                }
-            }
-    }
-
-    Column {
-        LazyColumn(state = listState) {
-
-            item {
-                Row(
-                    Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Outlined.LocationOn, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(localityNameState)
-                }
-            }
-
-            item { SearchContent(navController, viewModel) }
-
-            stickyHeader {
-                CategoryTabs(storeTabsState) { category ->
-                    viewModel.selectTab(category)
-                }
-            }
-
-            if (loadListState == LoadState.LoadingAllList) {
-                return@LazyColumn
-            }
-
-            items(listProductState) { product ->
-                ProductList(
-                    product = product,
-                    navController = navController,
-                    onHighlightedButtonClick = {
-                        viewModel.saveProduct(product)
-                    },
-                )
-            }
-
-            if (loadListState == LoadState.LoadingMore) {
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
-                }
-            } else if (loadListState == LoadState.FinalList) {
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text("Sem mais produtos a exibir", Modifier.align(Alignment.Center))
-                    }
-                }
-            }
-
-        }
-
-        if (loadListState == LoadState.LoadingAllList) {
-            LoadingComponent(Modifier.fillMaxSize())
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    )
+    {
+        MessageContent(
+            { Icons.Outlined.LocationOn },
+            stringResource(R.string.request_location_label)
+        )
+        Spacer(Modifier.height(defaultPadding))
+        Button({
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }) {
+            Text(stringResource(R.string.request_location_button))
         }
     }
-
 }
 
 @Composable
 private fun SearchContent(navController: NavHostController, viewModel: HomeViewModel) {
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
 
     var showLoginDialog by remember { mutableStateOf(false) }
     var showSendFlyerDialog by remember { mutableStateOf(false) }
 
     Row(
-        Modifier.padding(8.dp),
+        Modifier.padding(defaultPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
@@ -288,12 +433,15 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedLabelColor = DefaultColor,
+                unfocusedPlaceholderColor = Color.Gray
             ),
             shape = CircleShape,
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier.weight(1f)
         )
+
+        Spacer(Modifier.width(defaultPadding))
 
         IconButton(
             {
@@ -305,7 +453,6 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
                     }
                 }
             },
-            Modifier.padding(8.dp)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.Send,
@@ -334,31 +481,23 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -> Unit) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+private fun CategoryTabs(tabs: List<CategoryResponse>, selectedIndex: Int, onClickTab: (Int, CategoryResponse?) -> Unit) {
 
     ScrollableTabRow(
-        edgePadding = 8.dp,
+        edgePadding = defaultPadding,
         selectedTabIndex = selectedIndex,
         indicator = {},
-        divider = {}
+        divider = {},
     ) {
 
         StoreTabsItem("Todos", null, selectedIndex == 0) {
-            selectedIndex = 0
-            onClickTab(null)
+            onClickTab(0, null)
         }
 
         tabs.forEachIndexed { index, category ->
             StoreTabsItem(category.name, category.urlIcon, index == (selectedIndex - 1)) {
-                selectedIndex = index + 1
-                onClickTab(category)
+                onClickTab(index + 1, category)
             }
-        }
-
-        StoreTabsItem("Outros", null, selectedIndex == tabs.size + 1) {
-            selectedIndex = tabs.size + 1
-            onClickTab(null)
         }
 
     }
@@ -368,7 +507,7 @@ private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -
 private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onClick: () -> Unit) {
     Tab(
         modifier = Modifier
-            .padding(3.dp)
+            .padding(4.dp)
             .clip(CircleShape)
             .background(if (selected) DefaultColor else GrayColor),
         selectedContentColor = Color.White,
@@ -424,7 +563,7 @@ private fun DrawerContent() {
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(defaultPadding)
     ) {
         Text("Notificações", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         HorizontalDivider()

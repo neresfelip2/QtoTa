@@ -24,10 +24,13 @@ data class Product(
     val description: String,
 
     @ColumnInfo("current_value")
-    val currentValue: Double,
+    val currentPrice: Double,
+
+    @ColumnInfo("discount_percentage")
+    val discountPercentage: Int,
 
     @ColumnInfo("previous_value")
-    val previousValue: Double?,
+    val previousPrice: Double?,
 
     @ColumnInfo("store_name")
     val storeName: String,

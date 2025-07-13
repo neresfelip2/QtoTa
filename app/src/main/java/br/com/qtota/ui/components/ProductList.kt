@@ -32,18 +32,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.mapper.ProductMapper.calculateDiscount
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
-import br.com.qtota.utils.StringUtils.toDDMM
+import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
 import coil.compose.AsyncImage
@@ -59,7 +57,7 @@ internal fun ProductList(
 
     Card(
         Modifier
-            .padding(8.dp)
+            .padding(defaultPadding)
             .clickable {
                 navController.navigate(
                     AppRoutes.ProductDetails
@@ -73,7 +71,7 @@ internal fun ProductList(
         Row(
             Modifier
                 .background(GrayColor)
-                .padding(8.dp),
+                .padding(defaultPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if(product.logo != null && product.logo.isNotEmpty()) {
@@ -81,7 +79,6 @@ internal fun ProductList(
                     model = product.logo,
                     contentDescription = "Logo",
                     modifier = Modifier
-                        .padding(8.dp)
                         .size(48.dp)
                         .clip(MaterialTheme.shapes.small),
                     contentScale = ContentScale.Inside
@@ -96,80 +93,66 @@ internal fun ProductList(
                         .size(48.dp)
                 )
             }
-            Column(
-                Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            ) {
-                Row {
-                    Text(product.storeName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Text(product.storeBranch, color = Color.Gray, fontSize = 12.sp, maxLines = 1)
-                }
-                Text("Válido até ${product.expirationOffer.toDDMM()}", color = Color.DarkGray)
+            Spacer(Modifier.width(defaultPadding))
+            Column(Modifier.weight(1f)) {
+                Text(product.storeName, color = Color.DarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(product.storeBranch, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
             }
+            Spacer(Modifier.width(defaultPadding))
             Text(
                 product.distance.toDistanceString(),
                 Modifier
-                    .padding(8.dp)
                     .background(
                         shape = RoundedCornerShape(8.dp),
                         color = Color(0xFFD3E2FD)
                     )
-                    .padding(8.dp),
-                color = Color(0xFF0015DF)
+                    .padding(4.dp),
+                color = Color(0xFF0015DF),
+                fontSize = 14.sp
             )
         }
-        Column(Modifier.padding(8.dp)) {
+
+        Column(Modifier.padding(defaultPadding)) {
             Text(
                 product.name,
-                Modifier.padding(4.dp),
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = Color.DarkGray
             )
             Text(
                 product.description,
-                Modifier.padding(4.dp),
-                color = Color.DarkGray
+                color = Color.Gray,
+                fontSize = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Row(
-                Modifier.padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    product.currentValue.toMonetaryString(),
+                    product.currentPrice.toMonetaryString(),
                     Modifier.padding(4.dp),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF007700)
                 )
-                product.previousValue?.let { previousBestPrice ->
-                    Row(Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(
-                            previousBestPrice.toMonetaryString(),
-                            Modifier.padding(8.dp),
-                            color = Color.DarkGray,
-                            style = TextStyle(
-                                textDecoration = TextDecoration.LineThrough
-                            )
-                        )
 
-                        Text(
-                            "${product.calculateDiscount()}% OFF",
-                            Modifier
-                                .padding(4.dp)
-                                .background(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = DefaultColor
-                                )
-                                .padding(8.dp, 4.dp),
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                Text(
+                    "${product.discountPercentage}% abaixo da média",
+                    Modifier
+                        .background(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFFFF883C)
                         )
-                    }
-                }
+                        .padding(8.dp, 4.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = Color.White,
+                )
             }
             Row(
                 Modifier.fillMaxWidth(),
