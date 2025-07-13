@@ -1,19 +1,25 @@
 package br.com.qtota.data.repository
 
 import android.Manifest
+import android.content.Context
+import android.location.Geocoder
 import android.location.Location
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.io.IOException
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LocationRepository @Inject constructor(
-    private val fusedLocationProviderClient: FusedLocationProviderClient
+    private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val context: Context
 ) {
 
     var location: Location? = null
@@ -21,7 +27,7 @@ class LocationRepository @Inject constructor(
     val loadStatus = _loadStatus.asStateFlow()
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    fun startLocationUpdates() {
+    internal fun startLocationUpdates() {
         _loadStatus.value = true
         fusedLocationProviderClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
@@ -31,6 +37,22 @@ class LocationRepository @Inject constructor(
                 this.location = result.result
             }
             _loadStatus.value = false
+        }
+    }
+
+    internal fun getNeighborhood(location: Location): String? {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                address.subLocality ?: address.locality
+            } else {
+                null
+            }
+        } catch (e: IOException) {
+            Log.d("LocationRepository", "Erro ao obter bairro: ${e.message}")
+            null
         }
     }
 

@@ -7,7 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.remote.store_tabs.TabItem
+import br.com.qtota.data.remote.CategoryItem
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.UserRepository
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
@@ -28,10 +29,10 @@ class HomeViewModel @Inject constructor(
     private val locationRepository: LocationRepository
 ) : ViewModel() {
 
-    private var currentTab: TabItem? = null
+    private var currentTab: CategoryItem? = null
     private var currentPage: Int = 0
 
-    private val _storeTabsState = MutableStateFlow<List<TabItem>>(listOf())
+    private val _storeTabsState = MutableStateFlow<List<CategoryItem>>(listOf())
     val storeTabsState = _storeTabsState.asStateFlow()
 
     private val _productListState = MutableStateFlow<MutableList<Product>>(mutableListOf())
@@ -42,6 +43,9 @@ class HomeViewModel @Inject constructor(
 
     private val _sendingFlyerState = MutableStateFlow<FlyerState?>(null)
     val sendingFlyerState = _sendingFlyerState.asStateFlow()
+
+    private val _localityNameState = MutableStateFlow("Carregando...")
+    val localityNameState = _localityNameState.asStateFlow()
 
     private val savedProductsState = productRepository.getSavedProducts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -65,10 +69,13 @@ class HomeViewModel @Inject constructor(
                     return@collect
                 }
 
-                getStoreTabs(locationRepository.location!!)
+                val neighborhood = locationRepository.getNeighborhood(locationRepository.location!!)
+                _localityNameState.value = neighborhood ?: "Indisponível"
+
+                getCategoryTabs()
                 fetchProducts(
                     location = locationRepository.location!!,
-                    storeId = null,
+                    categoryId = null,
                     loadState = LoadState.LoadingScreen
                 ) { firstPage ->
                     _productListState.value = firstPage.toMutableList()
@@ -82,27 +89,27 @@ class HomeViewModel @Inject constructor(
     internal fun loadMoreProducts() {
         fetchProducts(
             location      = locationRepository.location!!,
-            storeId       = currentTab?.storeId,
+            categoryId       = currentTab?.id,
             loadState = LoadState.LoadingMore)
         { newPage ->
             _productListState.value = (_productListState.value + newPage).toMutableList()
         }
     }
 
-    internal fun selectTab(tabItem: TabItem?) {
+    internal fun selectTab(category: CategoryItem?) {
         fetchProducts(
             location     = locationRepository.location!!,
-            storeId      = tabItem?.storeId,
+            categoryId      = category?.id,
             loadState = LoadState.LoadingAllList)
         { firstPage ->
-            this@HomeViewModel.currentTab = tabItem
+            this@HomeViewModel.currentTab = category
             _productListState.value = firstPage.toMutableList()
         }
     }
 
     private fun fetchProducts(
         location: Location,
-        storeId: Long? = null,
+        categoryId: Long? = null,
         loadState: LoadState,
         onSuccess: (List<Product>) -> Unit,
     ) {
@@ -110,7 +117,7 @@ class HomeViewModel @Inject constructor(
         if (loadState == LoadState.LoadingAllList) currentPage = 1 else currentPage++
 
         viewModelScope.launch {
-            val products = productRepository.getProducts(storeId, location, currentPage)
+            val products = productRepository.getProducts(categoryId, location, currentPage)
 
             if(products == null) {
                 currentPage--
@@ -150,9 +157,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getStoreTabs(location: Location) {
+    private fun getCategoryTabs() {
         viewModelScope.launch {
-            val tabs = productRepository.getNearbyStores(location)
+            val tabs = productRepository.getCategories()
             _storeTabsState.value = tabs ?: listOf()
         }
     }

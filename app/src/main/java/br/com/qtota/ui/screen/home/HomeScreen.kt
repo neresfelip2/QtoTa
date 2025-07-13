@@ -2,7 +2,6 @@ package br.com.qtota.ui.screen.home
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,14 +10,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.LocationOn
@@ -33,12 +35,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,10 +58,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -68,7 +73,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
-import br.com.qtota.data.remote.store_tabs.TabItem
+import br.com.qtota.data.remote.CategoryItem
 import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
@@ -79,6 +84,7 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
+import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -141,12 +147,12 @@ private fun Content(
     val storeTabsState by viewModel.storeTabsState.collectAsState()
     val listProductState by viewModel.productListState.collectAsState()
     val loadListState by viewModel.loadListState.collectAsState()
+    val localityNameState by viewModel.localityNameState.collectAsState()
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            Log.i("teste", "aqui")
             viewModel.requestLocation()
         }
     }
@@ -174,6 +180,11 @@ private fun Content(
         return
     }
 
+    if(loadListState == LoadState.GetProductError && listProductState.isEmpty()) {
+        ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
+        return
+    }
+
     val listState = rememberLazyListState()
     LaunchedEffect(listState, listProductState.size) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
@@ -189,21 +200,26 @@ private fun Content(
     Column {
         LazyColumn(state = listState) {
 
+            item {
+                Row(
+                    Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Outlined.LocationOn, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(localityNameState)
+                }
+            }
+
             item { SearchContent(navController, viewModel) }
+
             stickyHeader {
-                StoreTabs(storeTabsState) { storeName ->
-                    viewModel.selectTab(storeName)
+                CategoryTabs(storeTabsState) { category ->
+                    viewModel.selectTab(category)
                 }
             }
 
             if (loadListState == LoadState.LoadingAllList) {
-                return@LazyColumn
-            }
-
-            if (listProductState.isEmpty()) {
-                item {
-                    ErrorComponent("Algo deu errado")
-                }
                 return@LazyColumn
             }
 
@@ -259,25 +275,24 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
         Modifier.padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
+        TextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Pesquisar") },
-            placeholder = { Text("Escreva aqui...") },
+            placeholder = { Text("Pesquise um produto...") },
             leadingIcon = {
                 Icon(imageVector = Icons.Outlined.Search, contentDescription = null)
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = DefaultColor,
-                focusedLeadingIconColor = DefaultColor,
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
                 focusedLabelColor = DefaultColor,
-                focusedPlaceholderColor = Color.LightGray
             ),
             shape = CircleShape,
             singleLine = true,
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            modifier = Modifier.weight(1f)
         )
 
         IconButton(
@@ -319,45 +334,69 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 }
 
 @Composable
-private fun StoreTabs(tabs: List<TabItem>, onClickTab: (TabItem?) -> Unit) {
+private fun CategoryTabs(tabs: List<CategoryItem>, onClickTab: (CategoryItem?) -> Unit) {
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     ScrollableTabRow(
-        edgePadding = 16.dp,
+        edgePadding = 8.dp,
         selectedTabIndex = selectedIndex,
         indicator = {},
         divider = {}
     ) {
 
-        StoreTabsItem("Todos", selectedIndex == 0) {
+        StoreTabsItem("Todos", null, selectedIndex == 0) {
             selectedIndex = 0
             onClickTab(null)
         }
 
-        tabs.forEachIndexed { index, tabItem ->
-            StoreTabsItem(tabItem.storeName, index == (selectedIndex - 1)) {
+        tabs.forEachIndexed { index, category ->
+            StoreTabsItem(category.name, category.urlIcon, index == (selectedIndex - 1)) {
                 selectedIndex = index + 1
-                onClickTab(tabItem)
+                onClickTab(category)
             }
         }
+
+        StoreTabsItem("Outros", null, selectedIndex == tabs.size + 1) {
+            selectedIndex = tabs.size + 1
+            onClickTab(null)
+        }
+
     }
 }
 
 @Composable
-private fun StoreTabsItem(name: String, selected: Boolean, onClick: () -> Unit) {
+private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onClick: () -> Unit) {
     Tab(
-        modifier = if (selected) Modifier
-            .padding(4.dp)
-            .clip(RoundedCornerShape(50))
-            .background(DefaultColor)
-        else Modifier
-            .padding(4.dp)
-            .clip(RoundedCornerShape(50))
-            .background(GrayColor),
+        modifier = Modifier
+            .padding(3.dp)
+            .clip(CircleShape)
+            .background(if (selected) DefaultColor else GrayColor),
+        selectedContentColor = Color.White,
+        unselectedContentColor = DefaultColor,
         onClick = onClick,
         selected = selected,
+        icon = {
+            urlIcon?.let {
+                AsyncImage(
+                    modifier = Modifier.size(24.dp),
+                    model = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    colorFilter = ColorFilter.tint(if (selected) Color.White else DefaultColor)
+                )
+            } ?: Icon(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(R.drawable.outline_category_24),
+                contentDescription = null,
+            )
+        },
         text = {
-            Text(text = name, color = if (selected) Color.White else DefaultColor)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = name,
+                    fontSize = 12.sp,
+                )
+            }
         }
     )
 }

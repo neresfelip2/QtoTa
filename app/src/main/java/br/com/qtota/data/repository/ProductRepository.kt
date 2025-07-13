@@ -9,7 +9,8 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
-import br.com.qtota.data.remote.store_tabs.TabItem
+import br.com.qtota.data.remote.CategoryItem
+import br.com.qtota.data.remote.store_tabs.StoreItem
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
@@ -38,8 +39,8 @@ class ProductRepository(
     suspend fun getProducts(storeId: Long? = null, location: Location, page: Int): List<Product>? {
         return performRequest({
             apiService.getProduct(storeId, location.latitude, location.longitude, page)
-        }) { listProductsResponse ->
-            listProductsResponse.map { it.toProduct(storeId) }
+        }) { pageResponse ->
+            pageResponse.products.map { it.toProduct(storeId) }
         }
     }
 
@@ -52,7 +53,15 @@ class ProductRepository(
 
     }
 
-    suspend fun getNearbyStores(location: Location) : List<TabItem>? {
+    suspend fun getCategories() : List<CategoryItem>? {
+        return performRequest(
+            { apiService.getCategories() }
+        ) { listCategories ->
+            listCategories
+        }
+    }
+
+    suspend fun getNearbyStores(location: Location) : List<StoreItem>? {
         return performRequest({
             apiService.nearbyStores(location.latitude, location.longitude)
         }) { listNearbyStores ->

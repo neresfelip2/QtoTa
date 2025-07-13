@@ -2,8 +2,9 @@ package br.com.qtota.data.remote
 
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.product.PageResponse
 import br.com.qtota.data.remote.product.ProductResponse
-import br.com.qtota.data.remote.store_tabs.TabItem
+import br.com.qtota.data.remote.store_tabs.StoreItem
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -25,7 +26,7 @@ interface APIService {
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
         @Query("page") page: Int,
-    ): Response<List<ProductResponse>>
+    ): Response<PageResponse>
 
     @GET("product/{id}")
     suspend fun productDetail(
@@ -34,11 +35,14 @@ interface APIService {
         @Query("lon") longitude: Double,
     ): Response<ProductResponse>
 
+    @GET("product/categories")
+    suspend fun getCategories(): Response<List<CategoryItem>>
+
     @GET("product/nearby-stores")
     suspend fun nearbyStores(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
-    ): Response<List<TabItem>>
+    ): Response<List<StoreItem>>
 
     @Multipart
     @POST("send-flyer")
