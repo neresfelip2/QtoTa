@@ -12,11 +12,13 @@ object StringUtils {
 
     fun Double.toMonetaryString(): String {
         val formato = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"))
+
         return formato.format(this)
     }
 
     fun Int.toDistanceString(): String {
         val distance = this
+
         return if(distance >= 1000) {
             val distanceKm = String.format(Locale.getDefault(), "%.1f", (distance.toDouble() / 1000))
             "$distanceKm km"
@@ -26,13 +28,13 @@ object StringUtils {
     }
 
     fun Int.toMeasureString(measureType: MeasureType) : String {
-
+        val measure = this
         val (thousandUnit, unit) = when(measureType) {
             MeasureType.WEIGHT -> Pair("kg", "g")
             MeasureType.VOLUME -> Pair("L", "mL")
             MeasureType.LENGTH -> Pair("m", "cm")
         }
-        val measure = this
+
         return if(measure >= 1000) {
             "${measure.toDouble()/1000} $thousandUnit"
         } else {
