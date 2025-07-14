@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Share
@@ -52,6 +53,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.product.StoreResponse
+import br.com.qtota.ui.UIState
+import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.Toolbar
@@ -68,24 +71,69 @@ import coil.compose.AsyncImage
 internal fun ProductDetailsScreen(navController: NavHostController) {
 
     val viewModel: ProductDetailsViewModel = hiltViewModel()
+
+    val savedProductState by viewModel.savedProductState.collectAsState()
     val productState by viewModel.productDetails.collectAsState()
+
+    var showSaveProductDialog by remember { mutableStateOf(false) }
+    var showDeleteProductDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             Toolbar(
                 title = null,
                 backButtonEnabled = navController,
-                Pair(Icons.Outlined.FavoriteBorder) {},
-                Pair(Icons.Outlined.Share) {}
+                *if (savedProductState is UIState.Success) {
+                    arrayOf(
+                        if ((savedProductState as UIState.Success).data)
+                            Icons.Outlined.Favorite to { showDeleteProductDialog = true }
+                        else
+                            Icons.Outlined.FavoriteBorder to { showSaveProductDialog = true },
+
+                        Icons.Outlined.Share to { }
+                    )
+                } else {
+                    arrayOf()
+                }
             )
         }
     ) { innerPadding ->
 
         when(productState) {
-            is ProductState.Loading -> LoadingComponent()
-            is ProductState.Error -> ErrorComponent((productState as ProductState.Error).message)
-            is ProductState.Success -> ContainerSuccess(innerPadding, (productState as ProductState.Success).productDetail)
+            is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
+            is UIState.Error -> ErrorComponent(
+                (productState as UIState.Error).description,
+                Modifier.fillMaxSize()
+            )
+            is UIState.Success -> ContainerSuccess(innerPadding, (productState as UIState.Success).data)
         }
+
+        if(showSaveProductDialog) {
+            ConfirmDialog(
+                text = "Deseja salvar este produto?",
+                onConfirm = {
+                    viewModel.saveProduct()
+                    showSaveProductDialog = false
+                },
+                onDismiss = {
+                    showSaveProductDialog = false
+                }
+            )
+        }
+
+        if(showDeleteProductDialog) {
+            ConfirmDialog(
+                text = "Deseja remover este produto dos salvos?",
+                onConfirm = {
+                    viewModel.deleteProduct()
+                    showDeleteProductDialog = false
+                },
+                onDismiss = {
+                    showDeleteProductDialog = false
+                }
+            )
+        }
+
 
     }
 }

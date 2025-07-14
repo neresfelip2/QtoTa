@@ -1,4 +1,4 @@
-package br.com.qtota.ui
+package br.com.qtota.ui.screen.home
 
 import android.content.Context
 import android.content.Intent
@@ -51,7 +51,6 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.qtota.R
-import br.com.qtota.ui.screen.home.HomeViewModel
 import br.com.qtota.ui.theme.DefaultColor
 import coil.compose.AsyncImage
 import java.io.File

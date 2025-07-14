@@ -79,7 +79,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
-import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
