@@ -32,12 +32,35 @@ object ProductMapper {
             description = this.description,
             bestPrice = this.stores.minOf { it.currentPrice },
             highestPrice = this.stores.maxOf { it.currentPrice },
-            weight = this.weight,
+            weight = this.measure,
             type = this.type,
+            measureType = this.measureType,
             origin = this.origin,
             expiration = this.expirationProduct,
+            urlImage = this.urlImage,
             stores = this.stores.sortedBy { it.currentPrice }
         )
+    }
+
+    fun ProductDetail.toProduct() : Product {
+
+        val store = this.stores[0]
+
+        return Product(
+            id = this.id,
+            storeId = store.id,
+            name = this.name,
+            description = this.description,
+            currentPrice = store.currentPrice,
+            discountPercentage = store.discountPercentage,
+            previousPrice = store.previousPrice,
+            storeName = store.name,
+            storeBranch = store.branch,
+            distance = store.distance,
+            expirationOffer = store.expirationOffer,
+            logo = store.logo
+        )
+
     }
 
 }

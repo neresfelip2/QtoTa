@@ -1,5 +1,0 @@
-package br.com.qtota.ui.screen.home
-
-enum class LoadState {
-    LoadingScreen, LoadingProductList, ListProductError, LocationError, Ready
-}

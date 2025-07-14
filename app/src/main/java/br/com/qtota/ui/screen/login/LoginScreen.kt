@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -103,7 +104,7 @@ internal fun LoginScreen(navController: NavHostController) {
                     viewModel.navigateToNextScreen(navController)
                 },
                 colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
-            ) { Text("Continuar sem login") }
+            ) { Text(stringResource(R.string.continue_without_logging_in)) }
 
         }
 
@@ -133,8 +134,8 @@ private fun LoginContainer(viewModel: LoginViewModel, newRegister: () -> Unit) {
         viewModel.submitLogin()
     }
     Row {
-        TextClickable(text = "Esqueci minha senha") {}
-        TextClickable(text = "Novo cadastro", color = DefaultColorDark, onClick = newRegister)
+        TextClickable(text = stringResource(R.string.i_forgot_my_password)) {}
+        TextClickable(text = stringResource(R.string.new_register), color = DefaultColorDark, onClick = newRegister)
     }
 }
 
@@ -145,12 +146,12 @@ private fun ColumnScope.NewRegisterContainer(viewModel: LoginViewModel, cancelRe
 
     EmailField { email = it }
     PasswordField {}
-    PasswordField("Confirme sua senha") {}
+    PasswordField(stringResource(R.string.confirme_your_password)) {}
     Spacer(Modifier.padding(vertical = 8.dp))
     SubmitButton {}
     TextClickable(
         modifier = Modifier.align(Alignment.End),
-        text = "Cancelar",
+        text = stringResource(R.string.cancel),
         color = DefaultColorDark,
         onClick = cancelRegister
     )
@@ -167,8 +168,8 @@ private fun EmailField(isError: Boolean = false, textState: (String) -> Unit) {
             text = it
             textState(text)
         },
-        label = { Text("E-mail") },
-        placeholder = { Text("Escreva aqui...") },
+        label = { Text(stringResource(R.string.email)) },
+        placeholder = { Text(stringResource(R.string.type_in_here)) },
         leadingIcon = { Icon(Icons.Outlined.Person, null) },
         shape = CircleShape,
         singleLine = true,
@@ -177,7 +178,7 @@ private fun EmailField(isError: Boolean = false, textState: (String) -> Unit) {
 
     if (isError) {
         Text(
-            text = "E-mail inválido",
+            text = stringResource(R.string.invalid_email),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
@@ -186,7 +187,7 @@ private fun EmailField(isError: Boolean = false, textState: (String) -> Unit) {
 }
 
 @Composable
-private fun PasswordField(label: String = "Senha", isError: Boolean = false, passwordState: (String) -> Unit) {
+private fun PasswordField(label: String = stringResource(R.string.password), isError: Boolean = false, passwordState: (String) -> Unit) {
     var passwordText by remember { mutableStateOf("") }
     var visible by remember { mutableStateOf(false) }
 
@@ -197,7 +198,7 @@ private fun PasswordField(label: String = "Senha", isError: Boolean = false, pas
             passwordState(it)
         },
         label = { Text(label) },
-        placeholder = { Text("Escreva aqui...") },
+        placeholder = { Text(stringResource(R.string.type_in_here)) },
         leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
         trailingIcon = {
             val image = if (visible) {
@@ -224,7 +225,7 @@ private fun PasswordField(label: String = "Senha", isError: Boolean = false, pas
 
     if (isError) {
         Text(
-            text = "A senha deve ter no mínimo 6 caracteres",
+            text = stringResource(R.string.password_character_limit_message),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
@@ -250,7 +251,7 @@ private fun SubmitButton(submit: () -> Unit) {
         submit,
         colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
     ) {
-        Text("Entrar")
+        Text(stringResource(R.string.submit))
     }
 }
 
@@ -264,7 +265,7 @@ private fun LoadingDialog() {
             Column(Modifier.padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator()
-                Text("Fazendo login...")
+                Text(stringResource(R.string.logging_in))
             }
         }
     }

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,7 +57,7 @@ internal fun SavedOffersScreen(navController: NavHostController) {
                             contentDescription = null,
                             modifier = Modifier.size(96.dp)
                         )
-                    }, "Não há nada aqui", Color.Gray)
+                    }, stringResource(R.string.empty_product_list_message), Color.Gray)
                 }
             }
         }

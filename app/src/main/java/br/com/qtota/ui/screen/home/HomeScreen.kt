@@ -37,7 +37,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
@@ -79,7 +78,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
-import br.com.qtota.ui.SendFlyerDialog
 import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
@@ -169,7 +167,7 @@ private fun Content(
 
     when (homeUIState) {
         is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
-        is UIState.Error -> ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
+        is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
         is UIState.Success -> {
 
             val data = (homeUIState as UIState.Success).data
@@ -206,7 +204,7 @@ private fun Content(
 
                     item {
                         Text(
-                            "Mais baratos na sua região",
+                            stringResource(R.string.cheapests_in_your_area),
                             Modifier.padding(defaultPadding),
                             fontWeight = FontWeight.Bold,
                             color = Color.DarkGray
@@ -223,13 +221,17 @@ private fun Content(
                     when (productListState) {
                         is UIState.Loading -> item {
                             LoadingComponent(
-                                Modifier.fillMaxWidth().padding(32.dp)
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp)
                             )
                         }
                         is UIState.Error -> item {
                             ErrorComponent(
                                 (productListState as UIState.Error).description,
-                                Modifier.fillMaxWidth().padding(32.dp)
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp)
                             )
                         }
                         is UIState.Success -> {
@@ -301,7 +303,9 @@ private fun Content(
                                     tint = Color(0x59187270)
                                 )
                             }, stringResource(R.string.not_store_found),
-                                modifier = Modifier.fillMaxWidth().padding(32.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp)
                             )
                             return@item
                         }
@@ -353,7 +357,7 @@ private fun Content(
                                 )
                             ) {
                                 Text(
-                                    "Ver mais lojas",
+                                    stringResource(R.string.see_more_stores),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
@@ -368,7 +372,7 @@ private fun Content(
                                     containerColor = Color.Transparent
                                 )
                             ) {
-                                Text("Ver mapa", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(stringResource(R.string.see_maps), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             }
                         }
                     }
@@ -423,7 +427,7 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
         TextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = { Text("Pesquise um produto...") },
+            placeholder = { Text(stringResource(R.string.search_products)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Outlined.Search, contentDescription = null)
             },
@@ -464,13 +468,13 @@ private fun SearchContent(navController: NavHostController, viewModel: HomeViewM
 
     if(showLoginDialog) {
         ConfirmDialog(
-            text = "Para enviar um encarte, é necessário fazer login",
+            text = stringResource(R.string.send_flyer_dialog),
             onDismiss = { showLoginDialog = false },
             onConfirm = {
                 showLoginDialog = false
                 navController.navigate(AppRoutes.Login.route)
             },
-            confirmText = "Fazer login"
+            confirmText = stringResource(R.string.log_in)
         )
     }
 
@@ -490,7 +494,7 @@ private fun CategoryTabs(tabs: List<CategoryResponse>, selectedIndex: Int, onCli
         divider = {},
     ) {
 
-        StoreTabsItem("Todos", null, selectedIndex == 0) {
+        StoreTabsItem(stringResource(R.string.all), null, selectedIndex == 0) {
             onClickTab(0, null)
         }
 
@@ -565,10 +569,10 @@ private fun DrawerContent() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(defaultPadding)
     ) {
-        Text("Notificações", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        /*Text("Notificações", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         HorizontalDivider()
         Text("Você tem 3 cupons pendentes")
-        Text("Nova oferta: 20% OFF")
+        Text("Nova oferta: 20% OFF")*/
     }
 }
 

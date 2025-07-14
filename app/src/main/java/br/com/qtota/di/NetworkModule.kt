@@ -2,7 +2,9 @@ package br.com.qtota.di
 
 import br.com.qtota.BuildConfig
 import br.com.qtota.data.remote.APIService
-import br.com.qtota.data.remote.LocalDateAdapter
+import br.com.qtota.data.remote.adapters.LocalDateAdapter
+import br.com.qtota.data.remote.adapters.MeasureTypeAdapter
+import br.com.qtota.data.remote.product.MeasureType
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -60,6 +62,7 @@ object NetworkModule {
     fun provideGsonTypeAdapter(): Gson {
         return GsonBuilder()
             .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
+            .registerTypeAdapter(MeasureType::class.java, MeasureTypeAdapter())
             .create()
     }
 
