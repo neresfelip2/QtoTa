@@ -1,5 +1,6 @@
 package br.com.qtota.ui.screen.product_details
 
+import br.com.qtota.data.remote.product.MeasureType
 import br.com.qtota.data.remote.product.StoreResponse
 
 data class ProductDetail(
@@ -10,6 +11,7 @@ data class ProductDetail(
     val highestPrice: Double,
     val weight: Int,
     val type: String,
+    val measureType: MeasureType,
     val origin: String,
     val expiration: Int,
     val stores: List<StoreResponse>

@@ -13,8 +13,11 @@ data class ProductResponse(
     @SerializedName("description")
     val description: String,
 
-    @SerializedName("weight")
-    val weight: Int,
+    @SerializedName("measure")
+    val measure: Int,
+
+    @SerializedName("measure_type")
+    val measureType: MeasureType,
 
     @SerializedName("type")
     val type: String,

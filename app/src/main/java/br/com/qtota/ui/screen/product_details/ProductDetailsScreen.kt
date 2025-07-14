@@ -52,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
+import br.com.qtota.data.remote.product.MeasureType
 import br.com.qtota.data.remote.product.StoreResponse
 import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.ConfirmDialog
@@ -63,8 +64,8 @@ import br.com.qtota.ui.theme.GradientBackground
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.utils.StringUtils.stringDaysAfterNow
 import br.com.qtota.utils.StringUtils.toDistanceString
+import br.com.qtota.utils.StringUtils.toMeasureString
 import br.com.qtota.utils.StringUtils.toMonetaryString
-import br.com.qtota.utils.StringUtils.toWeightString
 import coil.compose.AsyncImage
 
 @Composable
@@ -243,8 +244,9 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
         when(selectedTab) {
             Tab.TAB_PRICES -> PricesContainer(product.stores)
             Tab.TAB_DETAILS -> DetailsContainer(
-                weight = product.weight,
+                measure = product.weight,
                 type = product.type,
+                measureType = product.measureType,
                 origin = product.origin,
                 expiration = product.expiration
             )
@@ -354,7 +356,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
 }
 
 @Composable
-private fun DetailsContainer(weight: Int, type: String, origin: String, expiration: Int) {
+private fun DetailsContainer(measure: Int, measureType: MeasureType, type: String, origin: String, expiration: Int) {
     Column(Modifier
         .background(
             Color.White,
@@ -364,7 +366,7 @@ private fun DetailsContainer(weight: Int, type: String, origin: String, expirati
     ) {
         Text("Informações", fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
-        DetailRow("Peso", weight.toWeightString())
+        DetailRow(measureType.label,measure.toMeasureString(measureType))
         HorizontalDivider()
         DetailRow("Tipo", type)
         HorizontalDivider()

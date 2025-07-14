@@ -1,5 +1,6 @@
 package br.com.qtota.utils
 
+import br.com.qtota.data.remote.product.MeasureType
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -28,12 +29,18 @@ object StringUtils {
         }
     }
 
-    fun Int.toWeightString() : String {
-        val weight = this
-        return if(weight >= 1000) {
-            "${weight.toDouble()/1000} kg"
+    fun Int.toMeasureString(measureType: MeasureType) : String {
+
+        val unit = when(measureType) {
+            MeasureType.WEIGHT -> Pair("kg", "g")
+            MeasureType.VOLUME -> Pair("L", "mL")
+            MeasureType.LENGTH -> Pair("m", "cm")
+        }
+        val measure = this
+        return if(measure >= 1000) {
+            "${measure.toDouble()/1000} ${unit.first}"
         } else {
-            "$weight g"
+            "$measure ${unit.second}"
         }
     }
 

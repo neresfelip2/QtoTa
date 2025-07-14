@@ -32,8 +32,9 @@ object ProductMapper {
             description = this.description,
             bestPrice = this.stores.minOf { it.currentPrice },
             highestPrice = this.stores.maxOf { it.currentPrice },
-            weight = this.weight,
+            weight = this.measure,
             type = this.type,
+            measureType = this.measureType,
             origin = this.origin,
             expiration = this.expirationProduct,
             stores = this.stores.sortedBy { it.currentPrice }
