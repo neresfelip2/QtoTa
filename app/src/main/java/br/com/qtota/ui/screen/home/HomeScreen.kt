@@ -81,7 +81,7 @@ import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
-import br.com.qtota.ui.components.ProductList
+import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
@@ -178,8 +178,7 @@ private fun Content(
 
                 item {
                     LocationComponent(localityNameState,
-                        Modifier.padding(start = defaultPadding)
-                            .padding(top = defaultPadding)
+                        Modifier.padding(start = defaultPadding, top = defaultPadding)
                     )
                 }
 
@@ -230,7 +229,7 @@ private fun Content(
                                             tint = Color(0x59187270)
                                         )
                                     },
-                                    stringResource(R.string.not_product_found),
+                                    stringResource(R.string.any_product_found),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(32.dp),
@@ -238,12 +237,13 @@ private fun Content(
                             }
                         } else {
                             items(products) { product ->
-                                ProductList(
+                                ProductListItem(
                                     product = product,
                                     navController = navController,
                                     onHighlightedButtonClick = {
                                         viewModel.saveProduct(it)
                                     },
+                                    modifier = Modifier.padding(defaultPadding)
                                 )
                             }
                             item {

@@ -47,18 +47,17 @@ import br.com.qtota.utils.StringUtils.toMonetaryString
 import coil.compose.AsyncImage
 
 @Composable
-internal fun ProductList(
+internal fun ProductListItem(
     product: Product,
     navController: NavHostController,
     onHighlightedButtonClick: (Product) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var saveProduct by remember { mutableStateOf<Product?>(null) }
     var deleteProduct by remember { mutableStateOf<Product?>(null) }
 
     Card(
-        Modifier
-            .padding(defaultPadding)
-            .clickable {
+        modifier.clickable {
                 navController.navigate(
                     AppRoutes.ProductDetails
                         .productId(product.id)

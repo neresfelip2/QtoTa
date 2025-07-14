@@ -25,7 +25,7 @@
     <string name="logout">Logout</string>
     <string name="logout_dialog_message">Deseja fazer logout?</string>
     <string name="new_register">Novo cadastro</string>
-    <string name="not_product_found">Nenhum produto encontrado</string>
+    <string name="any_product_found">Nenhum produto encontrado</string>
     <string name="not_store_found">Nenhuma loja encontrada</string>
     <string name="origin">Origem</string>
     <string name="password">Senha</string>
