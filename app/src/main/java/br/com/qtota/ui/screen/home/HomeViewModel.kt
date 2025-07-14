@@ -65,9 +65,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 _locationUiState.value = UIState.Success(locationRepository.location!!)
-
-                val neighborhood = locationRepository.getNeighborhood(locationRepository.location!!)
-                _localityNameState.value = neighborhood ?: "Indisponível"
+                _localityNameState.value = locationRepository.getNeighborhood()
 
                 fetchHome(locationRepository.location!!)
 

@@ -41,19 +41,19 @@ class LocationRepository @Inject constructor(
         }
     }
 
-    internal fun getNeighborhood(location: Location): String? {
+    internal fun getNeighborhood(): String {
         val geocoder = Geocoder(context, Locale.getDefault())
         return try {
-            val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            val addresses = geocoder.getFromLocation(location!!.latitude, location!!.longitude, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
                 address.subLocality ?: address.locality
             } else {
-                null
+                "Indisponível"
             }
         } catch (e: IOException) {
             Log.d("LocationRepository", "Erro ao obter bairro: ${e.message}")
-            null
+            "Indisponível"
         }
     }
 

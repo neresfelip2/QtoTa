@@ -2,9 +2,10 @@ package br.com.qtota.ui.navigation
 
 sealed class AppRoutes(val route: String) {
     object Login: AppRoutes("login")
-    object Home : AppRoutes("home")
+    object Home: AppRoutes("home")
+    object ListProduct: AppRoutes("list_product")
     object Settings: AppRoutes("settings")
-    object ProductDetails : AppRoutes("product_details/{productId}") {
+    object ProductDetails: AppRoutes("product_details/{productId}") {
 
         internal const val ARG_PRODUCT_ID = "productId"
 
