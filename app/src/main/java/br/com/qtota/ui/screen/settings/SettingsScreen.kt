@@ -27,11 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
@@ -59,32 +61,32 @@ internal fun SettingsScreen(navController: NavHostController) {
 
             SettingsGroup {
                 if (isLogged) {
-                    SettingsButton("Logout", Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
+                    SettingsButton(stringResource(R.string.logout), Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
                         showDialogLogout = true
                     }
                 } else {
-                    SettingsButton("Fazer login", Icons.Outlined.Person) {
+                    SettingsButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
                         navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
                     }
                 }
             }
 
             SettingsGroup {
-                SettingsButton("Ofertas salvas", Icons.Outlined.FavoriteBorder) {
+                SettingsButton(stringResource(R.string.saved_offers), Icons.Outlined.FavoriteBorder) {
                     navController.navigate(AppRoutes.SavedOffers.route)
                 }
             }
 
             SettingsGroup {
-                SettingsButton("Avalie-nos", Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
-                SettingsButton("Sobre",    Icons.Outlined.Info)     { /* … */ }
+                SettingsButton(stringResource(R.string.rate_us), Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
+                SettingsButton(stringResource(R.string.about),    Icons.Outlined.Info)     { /* … */ }
             }
         }
     }
 
     if (showDialogLogout) {
         ConfirmDialog (
-            text = "Deseja fazer logout?",
+            text = stringResource(R.string.logout_dialog_message),
             onDismiss = { showDialogLogout = false },
             onConfirm = {
                 viewModel.logout()

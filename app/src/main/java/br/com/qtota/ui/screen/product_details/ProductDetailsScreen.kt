@@ -43,7 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -111,7 +113,7 @@ internal fun ProductDetailsScreen(navController: NavHostController) {
 
         if(showSaveProductDialog) {
             ConfirmDialog(
-                text = "Deseja salvar este produto?",
+                text = stringResource(R.string.save_product_dialog),
                 onConfirm = {
                     viewModel.saveProduct()
                     showSaveProductDialog = false
@@ -124,7 +126,7 @@ internal fun ProductDetailsScreen(navController: NavHostController) {
 
         if(showDeleteProductDialog) {
             ConfirmDialog(
-                text = "Deseja remover este produto dos salvos?",
+                text = stringResource(R.string.delete_product_dialog),
                 onConfirm = {
                     viewModel.deleteProduct()
                     showDeleteProductDialog = false
@@ -170,11 +172,11 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
         ) {
             Row {
                 Column(Modifier.weight(1f)) {
-                    Text("Melhor preço:", color = Color.White)
+                    Text(stringResource(R.string.best_price), color = Color.White)
                     Text(product.bestPrice.toMonetaryString(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Column {
-                    Text("Variação:", Modifier.align(Alignment.End), color = Color.White)
+                    Text(stringResource(R.string.variation), Modifier.align(Alignment.End), color = Color.White)
                     Text("${product.bestPrice.toMonetaryString()} - ${product.highestPrice.toMonetaryString()}", color = Color.White)
                 }
             }
@@ -188,7 +190,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
                 ),
                 border = BorderStroke(1.dp, Color.White)
             ) {
-                Text("Criar alerta de preço")
+                Text(stringResource(R.string.create_price_alert))
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -215,7 +217,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
                 selected = selectedTab == Tab.TAB_PRICES,
                 onClick = { selectedTab = Tab.TAB_PRICES },
                 text = {
-                    Text(text = "Preços", color = if (selectedTab == Tab.TAB_PRICES) Color.White else DefaultColor)
+                    Text(text = stringResource(R.string.prices), color = if (selectedTab == Tab.TAB_PRICES) Color.White else DefaultColor)
                 }
             )
 
@@ -233,7 +235,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
                 selected = selectedTab == Tab.TAB_DETAILS,
                 onClick = { selectedTab = Tab.TAB_DETAILS },
                 text = {
-                    Text(text = "Detalhes", color = if (selectedTab == Tab.TAB_DETAILS) Color.White else DefaultColor)
+                    Text(text = stringResource(R.string.details), color = if (selectedTab == Tab.TAB_DETAILS) Color.White else DefaultColor)
                 }
             )
 
@@ -277,7 +279,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
 
                 if(index == 0) {
                     Text(
-                        "Melhor preço",
+                        stringResource(R.string.best_price),
                         Modifier
                             .align(Alignment.End)
                             .background(
@@ -347,7 +349,7 @@ private fun PricesContainer(stores: List<StoreResponse>) {
                             tint = Color.Gray
                         )
                         Spacer(Modifier.width(4.dp))
-                        Text(store.expirationOffer.stringDaysAfterNow(), fontSize = 12.sp, color = Color.Gray)
+                        Text(store.expirationOffer.stringDaysAfterNow(LocalContext.current), fontSize = 12.sp, color = Color.Gray)
                     }
                 }
             }
@@ -364,15 +366,15 @@ private fun DetailsContainer(measure: Int, measureType: MeasureType, type: Strin
         )
         .padding(16.dp),
     ) {
-        Text("Informações", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.information), fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
         DetailRow(measureType.label,measure.toMeasureString(measureType))
         HorizontalDivider()
-        DetailRow("Tipo", type)
+        DetailRow(stringResource(R.string.type), type)
         HorizontalDivider()
-        DetailRow("Origem", origin)
+        DetailRow(stringResource(R.string.origin), origin)
         HorizontalDivider()
-        DetailRow("Validade", "$expiration dias")
+        DetailRow(stringResource(R.string.days_until_expiration), "$expiration dias")
     }
 }
 
