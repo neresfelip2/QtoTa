@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
@@ -124,13 +126,12 @@ internal fun HomeScreen(navController: NavHostController) {
     ) { innerPadding ->
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             ModalNavigationDrawer(
-                modifier = Modifier.padding(innerPadding),
                 drawerState = drawerState,
                 drawerContent = { DrawerContent() },
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Scaffold/*(*floatingActionButton = { ChatButton() })*/ {
-                        LocationStateHandler(navController, viewModel)
+                    Scaffold(floatingActionButton = { SendFlyerButton(viewModel, navController) }) {
+                        LocationStateHandler(navController, viewModel, Modifier.padding(innerPadding))
                     }
                 }
             }
@@ -142,13 +143,14 @@ internal fun HomeScreen(navController: NavHostController) {
 private fun LocationStateHandler(
     navController: NavHostController,
     viewModel: HomeViewModel,
+    modifier: Modifier
 ) {
     val locationUIState by viewModel.locationUiState.collectAsState()
 
     when(locationUIState) {
-        is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
-        is UIState.Error -> RequestLocationComponent(viewModel)
-        is UIState.Success -> Content(navController, viewModel)
+        is UIState.Loading -> LoadingComponent(modifier.fillMaxSize())
+        is UIState.Error -> RequestLocationComponent(viewModel, modifier)
+        is UIState.Success -> Content(navController, viewModel, modifier)
     }
 }
 
@@ -156,6 +158,7 @@ private fun LocationStateHandler(
 private fun Content(
     navController: NavHostController,
     viewModel: HomeViewModel,
+    modifier: Modifier
 ) {
 
     val homeUIState by viewModel.homeUIState.collectAsState()
@@ -163,24 +166,24 @@ private fun Content(
     val localityNameState by viewModel.localityNameState.collectAsState()
 
     when (homeUIState) {
-        is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
-        is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
+        is UIState.Loading -> LoadingComponent(modifier.fillMaxSize())
+        is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), modifier.fillMaxSize())
         is UIState.Success -> {
 
             val data = (homeUIState as UIState.Success).data
 
             var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
             val listState = rememberLazyListState()
-            LazyColumn(state = listState) {
+            LazyColumn(state = listState, modifier = modifier) {
 
                 item {
                     LocationComponent(localityNameState,
-                        Modifier.padding(horizontal = defaultPadding)
+                        Modifier.padding(start = defaultPadding)
                             .padding(top = defaultPadding)
                     )
                 }
 
-                item { SearchContent(navController, viewModel) }
+                item { SearchTextField(Modifier.fillMaxWidth().padding(defaultPadding)) { } }
 
                 item {
                     Text(
@@ -364,7 +367,7 @@ private fun Content(
 }
 
 @Composable
-private fun RequestLocationComponent(viewModel: HomeViewModel) {
+private fun RequestLocationComponent(viewModel: HomeViewModel, modifier: Modifier) {
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -374,7 +377,7 @@ private fun RequestLocationComponent(viewModel: HomeViewModel) {
     }
 
     Column(
-        Modifier.fillMaxSize(),
+        modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     )
@@ -390,55 +393,6 @@ private fun RequestLocationComponent(viewModel: HomeViewModel) {
             Text(stringResource(R.string.request_location_button))
         }
     }
-}
-
-@Composable
-private fun SearchContent(navController: NavHostController, viewModel: HomeViewModel) {
-
-    var showLoginDialog by remember { mutableStateOf(false) }
-    var showSendFlyerDialog by remember { mutableStateOf(false) }
-
-    Row(
-        Modifier.padding(defaultPadding),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SearchTextField(Modifier.weight(1f)) { }
-        Spacer(Modifier.width(defaultPadding))
-        IconButton(
-            {
-                viewModel.checkIfLogged { isLogged ->
-                    if(isLogged) {
-                        showSendFlyerDialog = true
-                    } else {
-                        showLoginDialog = true
-                    }
-                }
-            },
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.Send,
-                contentDescription = "",
-                tint = DefaultColor
-            )
-        }
-    }
-
-    if(showLoginDialog) {
-        ConfirmDialog(
-            text = stringResource(R.string.send_flyer_dialog),
-            onDismiss = { showLoginDialog = false },
-            onConfirm = {
-                showLoginDialog = false
-                navController.navigate(AppRoutes.Login.route)
-            },
-            confirmText = stringResource(R.string.log_in)
-        )
-    }
-
-    if(showSendFlyerDialog) {
-        SendFlyerDialog(viewModel) { showSendFlyerDialog = false }
-    }
-
 }
 
 @Composable
@@ -502,18 +456,69 @@ private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onC
 }
 
 @Composable
-private fun ChatButton() {
-    FloatingActionButton(
-        {},
-        shape = CircleShape,
-        containerColor = DefaultColor
+private fun SendFlyerButton(viewModel: HomeViewModel, navController: NavHostController) {
+
+    var showLoginDialog by remember { mutableStateOf(false) }
+    var showSendFlyerDialog by remember { mutableStateOf(false) }
+
+    Row(
+        Modifier.padding(defaultPadding),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            painter = painterResource(R.drawable.outline_chat_24),
-            tint = Color.White,
-            contentDescription = null,
+        Spacer(Modifier.width(defaultPadding))
+        IconButton(
+            {
+                viewModel.checkIfLogged { isLogged ->
+                    if(isLogged) {
+                        showSendFlyerDialog = true
+                    } else {
+                        showLoginDialog = true
+                    }
+                }
+            },
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Send,
+                contentDescription = "",
+                tint = DefaultColor
+            )
+        }
+    }
+
+    if(showLoginDialog) {
+        ConfirmDialog(
+            text = stringResource(R.string.send_flyer_dialog),
+            onDismiss = { showLoginDialog = false },
+            onConfirm = {
+                showLoginDialog = false
+                navController.navigate(AppRoutes.Login.route)
+            },
+            confirmText = stringResource(R.string.log_in)
         )
     }
+
+    if(showSendFlyerDialog) {
+        SendFlyerDialog(viewModel) { showSendFlyerDialog = false }
+    }
+
+    ExtendedFloatingActionButton(
+        text = { Text("Enviar encarte") },
+        icon = { Icon(painterResource(R.drawable.ic_flyer), contentDescription = null) },
+        contentColor = DefaultColor,
+        onClick = {
+            viewModel.checkIfLogged { isLogged ->
+                if(isLogged) {
+                    showSendFlyerDialog = true
+                } else {
+                    showLoginDialog = true
+                }
+            }
+        },
+        expanded = true,
+        elevation = FloatingActionButtonDefaults.elevation(0.dp),
+        modifier = Modifier
+            .animateContentSize()
+    )
 }
 
 @Composable @Preview
