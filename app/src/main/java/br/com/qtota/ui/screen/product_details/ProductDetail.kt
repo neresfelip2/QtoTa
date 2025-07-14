@@ -14,5 +14,6 @@ data class ProductDetail(
     val measureType: MeasureType,
     val origin: String,
     val expiration: Int,
+    val urlImage: String?,
     val stores: List<StoreResponse>
 )

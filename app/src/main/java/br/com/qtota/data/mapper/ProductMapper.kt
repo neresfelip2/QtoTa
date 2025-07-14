@@ -37,6 +37,7 @@ object ProductMapper {
             measureType = this.measureType,
             origin = this.origin,
             expiration = this.expirationProduct,
+            urlImage = this.urlImage,
             stores = this.stores.sortedBy { it.currentPrice }
         )
     }

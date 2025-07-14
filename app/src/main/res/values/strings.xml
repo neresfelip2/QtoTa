@@ -46,4 +46,6 @@
     <string name="type">Tipo</string>
     <string name="type_in_here">Escreva aqui…</string>
     <string name="variation">Variação:</string>
+    <string name="expiration_days">%1$d dias</string>
+    <string name="report">Sinalizar</string>
 </resources>

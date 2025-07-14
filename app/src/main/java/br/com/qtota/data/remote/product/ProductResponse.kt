@@ -28,6 +28,9 @@ data class ProductResponse(
     @SerializedName("expiration")
     val expirationProduct: Int,
 
+    @SerializedName("url_image")
+    val urlImage: String?,
+
     @SerializedName("stores")
     val stores: List<StoreResponse>
 )
