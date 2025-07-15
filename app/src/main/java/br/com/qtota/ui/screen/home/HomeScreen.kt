@@ -1,11 +1,6 @@
 package br.com.qtota.ui.screen.home
 
-import android.Manifest
 import android.annotation.SuppressLint
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,42 +13,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,12 +40,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,20 +53,17 @@ import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.ui.UIState
-import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
-import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
 import coil.compose.AsyncImage
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -97,92 +71,39 @@ internal fun HomeScreen(navController: NavHostController) {
 
     val viewModel: HomeViewModel = hiltViewModel()
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    BackHandler(drawerState.isOpen) {
-        scope.launch { drawerState.close() }
-    }
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            Toolbar(
-                stringResource(R.string.app_name),
-                backButtonEnabled = null,
-                Icons.Outlined.Notifications to {
-                    scope.launch {
-                        if (drawerState.isClosed) {
-                            drawerState.open()
-                        } else {
-                            drawerState.close()
-                        }
-                    }
-                },
-                Icons.Outlined.Settings to {
-                    navController.navigate(AppRoutes.Settings.route) { launchSingleTop = true }
-                })
-        },
-    ) { innerPadding ->
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = { DrawerContent() },
-            ) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Scaffold(floatingActionButton = { SendFlyerButton(viewModel, navController) }) {
-                        LocationStateHandler(navController, viewModel, Modifier.padding(innerPadding))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun LocationStateHandler(
-    navController: NavHostController,
-    viewModel: HomeViewModel,
-    modifier: Modifier
-) {
-    val locationUIState by viewModel.locationUiState.collectAsState()
-
-    when(locationUIState) {
-        is UIState.Loading -> LoadingComponent(modifier.fillMaxSize())
-        is UIState.Error -> RequestLocationComponent(viewModel, modifier)
-        is UIState.Success -> Content(navController, viewModel, modifier)
-    }
-}
-
-@Composable
-private fun Content(
-    navController: NavHostController,
-    viewModel: HomeViewModel,
-    modifier: Modifier
-) {
-
     val homeUIState by viewModel.homeUIState.collectAsState()
     val productListState by viewModel.productListState.collectAsState()
     val localityNameState by viewModel.localityNameState.collectAsState()
 
     when (homeUIState) {
-        is UIState.Loading -> LoadingComponent(modifier.fillMaxSize())
-        is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), modifier.fillMaxSize())
+        is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
+        is UIState.Error -> ErrorComponent(
+            stringResource(R.string.error_loading_message),
+            Modifier.fillMaxSize()
+        )
+
         is UIState.Success -> {
 
             val data = (homeUIState as UIState.Success).data
 
             var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
             val listState = rememberLazyListState()
-            LazyColumn(state = listState, modifier = modifier) {
+            LazyColumn(state = listState) {
 
                 item {
-                    LocationComponent(localityNameState,
+                    LocationComponent(
+                        localityNameState,
                         Modifier.padding(start = defaultPadding, top = defaultPadding)
                     )
                 }
 
-                item { SearchTextField(Modifier.fillMaxWidth().padding(defaultPadding)) { } }
+                item {
+                    SearchTextField(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(defaultPadding)
+                    ) { }
+                }
 
                 item {
                     Text(
@@ -208,6 +129,7 @@ private fun Content(
                                 .padding(32.dp)
                         )
                     }
+
                     is UIState.Error -> item {
                         ErrorComponent(
                             (productListState as UIState.Error).description,
@@ -216,6 +138,7 @@ private fun Content(
                                 .padding(32.dp)
                         )
                     }
+
                     is UIState.Success -> {
                         val products = (productListState as UIState.Success).data
                         if (products.isEmpty()) {
@@ -279,13 +202,15 @@ private fun Content(
 
                 item {
 
-                    if(data.nearbyStores.isEmpty()) {
-                        MessageContent({
-                            Icon(painterResource(R.drawable.outline_store_24), null,
-                                Modifier.size(128.dp),
-                                tint = Color(0x59187270)
-                            )
-                        }, stringResource(R.string.not_store_found),
+                    if (data.nearbyStores.isEmpty()) {
+                        MessageContent(
+                            {
+                                Icon(
+                                    painterResource(R.drawable.outline_store_24), null,
+                                    Modifier.size(128.dp),
+                                    tint = Color(0x59187270)
+                                )
+                            }, stringResource(R.string.not_store_found),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(32.dp)
@@ -355,7 +280,11 @@ private fun Content(
                                 containerColor = Color.Transparent
                             )
                         ) {
-                            Text(stringResource(R.string.see_maps), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                stringResource(R.string.see_maps),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
                     }
                 }
@@ -364,35 +293,7 @@ private fun Content(
 
         }
     }
-}
 
-@Composable
-private fun RequestLocationComponent(viewModel: HomeViewModel, modifier: Modifier) {
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            viewModel.requestLocation()
-        }
-    }
-
-    Column(
-        modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    )
-    {
-        MessageContent(
-            { Icons.Outlined.LocationOn },
-            stringResource(R.string.request_location_label)
-        )
-        Spacer(Modifier.height(defaultPadding))
-        Button({
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }) {
-            Text(stringResource(R.string.request_location_button))
-        }
-    }
 }
 
 @Composable
@@ -405,12 +306,12 @@ private fun CategoryTabs(tabs: List<CategoryResponse>, selectedIndex: Int, onCli
         divider = {},
     ) {
 
-        StoreTabsItem(stringResource(R.string.all), null, selectedIndex == 0) {
+        CategoryTabsItem(stringResource(R.string.all), null, selectedIndex == 0) {
             onClickTab(0, null)
         }
 
         tabs.forEachIndexed { index, category ->
-            StoreTabsItem(category.name, category.urlIcon, index == (selectedIndex - 1)) {
+            CategoryTabsItem(category.name, category.urlIcon, index == (selectedIndex - 1)) {
                 onClickTab(index + 1, category)
             }
         }
@@ -419,12 +320,13 @@ private fun CategoryTabs(tabs: List<CategoryResponse>, selectedIndex: Int, onCli
 }
 
 @Composable
-private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onClick: () -> Unit) {
+private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, onClick: () -> Unit) {
     Tab(
         modifier = Modifier
             .padding(4.dp)
             .clip(CircleShape)
             .background(if (selected) DefaultColor else GrayColor),
+            //.size(88.dp),
         selectedContentColor = Color.White,
         unselectedContentColor = DefaultColor,
         onClick = onClick,
@@ -432,14 +334,14 @@ private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onC
         icon = {
             urlIcon?.let {
                 AsyncImage(
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp),
                     model = it,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     colorFilter = ColorFilter.tint(if (selected) Color.White else DefaultColor)
                 )
             } ?: Icon(
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(30.dp),
                 painter = painterResource(R.drawable.outline_category_24),
                 contentDescription = null,
             )
@@ -448,94 +350,14 @@ private fun StoreTabsItem(name: String, urlIcon: String?, selected: Boolean, onC
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = name,
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
     )
-}
-
-@Composable
-private fun SendFlyerButton(viewModel: HomeViewModel, navController: NavHostController) {
-
-    var showLoginDialog by remember { mutableStateOf(false) }
-    var showSendFlyerDialog by remember { mutableStateOf(false) }
-
-    Row(
-        Modifier.padding(defaultPadding),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(Modifier.width(defaultPadding))
-        IconButton(
-            {
-                viewModel.checkIfLogged { isLogged ->
-                    if(isLogged) {
-                        showSendFlyerDialog = true
-                    } else {
-                        showLoginDialog = true
-                    }
-                }
-            },
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.Send,
-                contentDescription = "",
-                tint = DefaultColor
-            )
-        }
-    }
-
-    if(showLoginDialog) {
-        ConfirmDialog(
-            text = stringResource(R.string.send_flyer_dialog),
-            onDismiss = { showLoginDialog = false },
-            onConfirm = {
-                showLoginDialog = false
-                navController.navigate(AppRoutes.Login.route)
-            },
-            confirmText = stringResource(R.string.log_in)
-        )
-    }
-
-    if(showSendFlyerDialog) {
-        SendFlyerDialog(viewModel) { showSendFlyerDialog = false }
-    }
-
-    ExtendedFloatingActionButton(
-        text = { Text("Enviar encarte") },
-        icon = { Icon(painterResource(R.drawable.ic_flyer), contentDescription = null) },
-        contentColor = DefaultColor,
-        onClick = {
-            viewModel.checkIfLogged { isLogged ->
-                if(isLogged) {
-                    showSendFlyerDialog = true
-                } else {
-                    showLoginDialog = true
-                }
-            }
-        },
-        expanded = true,
-        elevation = FloatingActionButtonDefaults.elevation(0.dp),
-        modifier = Modifier
-            .animateContentSize()
-    )
-}
-
-@Composable @Preview
-private fun DrawerContent() {
-    Column(
-        Modifier
-            .padding(end = 80.dp)
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(defaultPadding)
-    ) {
-        /*Text("Notificações", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        HorizontalDivider()
-        Text("Você tem 3 cupons pendentes")
-        Text("Nova oferta: 20% OFF")*/
-    }
 }
 
 @Preview(showSystemUi = true)

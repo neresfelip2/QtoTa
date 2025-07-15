@@ -234,12 +234,6 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
 
     }
 }
-
-@Composable @Preview(showSystemUi = true)
-private fun ProductDetailsScreenPreview() {
-    ProductDetailsScreen(rememberNavController())
-}
-
 @Composable
 private fun TabItem(tab: Tab, selectedTab: Tab, onClick: (Tab) -> Unit) {
     Tab(
@@ -400,4 +394,9 @@ private fun DetailRow(label: String, value: String) {
 
 enum class Tab(val label: String) {
     TAB_PRICES("Preços"), TAB_DETAILS("Detalhes")
+}
+
+@Composable @Preview(showSystemUi = true)
+private fun ProductDetailsScreenPreview() {
+    ProductDetailsScreen(rememberNavController())
 }

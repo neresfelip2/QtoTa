@@ -36,7 +36,7 @@ android {
 
             // @TODO Url apontando para uma api simulada no próprio pc
             //buildConfigField "String", "API_URL", "\"http://Felipe-PC:8000/\""
-            buildConfigField "String", "API_URL", "\"http://192.168.1.6:8000/\""
+            buildConfigField "String", "API_URL", "\"http://192.168.1.4:8000/\""
         }
 
     }

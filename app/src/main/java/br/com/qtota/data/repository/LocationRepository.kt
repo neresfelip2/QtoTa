@@ -52,7 +52,7 @@ class LocationRepository @Inject constructor(
                 "Indisponível"
             }
         } catch (e: IOException) {
-            Log.d("LocationRepository", "Erro ao obter bairro: ${e.message}")
+            Log.d(LocationRepository::class.simpleName, "Erro ao obter bairro: ${e.message}")
             "Indisponível"
         }
     }

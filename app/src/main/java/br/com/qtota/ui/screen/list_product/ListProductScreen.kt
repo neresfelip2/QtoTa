@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +30,6 @@ import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
-import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.theme.defaultPadding
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -44,85 +42,95 @@ internal fun ListProductScreen(navController: NavHostController) {
     val listProductState by viewModel.listProductState.collectAsState()
     val loadState by viewModel.loadState.collectAsState()
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            Toolbar(
-                backButtonEnabled = navController
+    if (listProductState.isEmpty()) {
+        if (loadState == LoadState.LOADING) {
+            LoadingComponent(
+                Modifier
+                    .fillMaxSize()
             )
-        },
-    ) { innerPadding ->
+            return
+        }
 
-        if(listProductState.isEmpty()) {
-            if(loadState == LoadState.LOADING) {
-                LoadingComponent(Modifier
+        if (loadState == LoadState.ERROR) {
+            ErrorComponent(
+                "Algo deu errado", Modifier
                     .fillMaxSize()
-                    .padding(innerPadding))
-                return@Scaffold
-            }
+            )
+            return
+        }
 
-            if(loadState == LoadState.ERROR) {
-                ErrorComponent("Algo deu errado", Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding))
-                return@Scaffold
-            }
+        if (loadState == LoadState.EMPTY) {
+            MessageContent(
+                { Icon(Icons.Outlined.ShoppingCart, null) },
+                stringResource(R.string.any_product_found),
+                modifier = Modifier.fillMaxSize()
+            )
+            return
+        }
 
-            if(loadState == LoadState.EMPTY) {
-                MessageContent({ Icon(Icons.Outlined.ShoppingCart, null) },
-                    stringResource(R.string.any_product_found),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                )
-                return@Scaffold
-            }
+    } else {
 
-        } else {
+        val listState = rememberLazyListState()
 
-            val listState = rememberLazyListState()
-
-            LaunchedEffect(listState, listProductState.size) {
-                snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-                    .filterNotNull()
-                    .distinctUntilChanged()
-                    .collect { lastVisible ->
-                        if (lastVisible >= listProductState.size && loadState == LoadState.SUCCESS) {
-                            viewModel.getProducts()
-                        }
+        LaunchedEffect(listState, listProductState.size) {
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+                .filterNotNull()
+                .distinctUntilChanged()
+                .collect { lastVisible ->
+                    if (lastVisible >= listProductState.size && loadState == LoadState.SUCCESS) {
+                        viewModel.getProducts()
                     }
+                }
+        }
+
+        LazyColumn(state = listState) {
+            item {
+                LocationComponent(
+                    viewModel.neighborhood,
+                    modifier = Modifier.padding(start = defaultPadding, top = defaultPadding)
+                )
+            }
+            item {
+                SearchTextField(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding)
+                ) { }
+            }
+            items(listProductState) { product ->
+                ProductListItem(
+                    product = product,
+                    navController = navController,
+                    onHighlightedButtonClick = {
+                        //viewModel.saveProduct(it)
+                    },
+                    modifier = Modifier.padding(defaultPadding)
+                )
             }
 
-            LazyColumn(
-                state = listState, modifier = Modifier.padding(innerPadding)
-            ) {
-                item { LocationComponent(viewModel.neighborhood, modifier = Modifier.padding(start = defaultPadding, top = defaultPadding)) }
-                item { SearchTextField(Modifier
-                    .fillMaxWidth()
-                    .padding(defaultPadding)) { } }
-                items(listProductState) { product ->
-                    ProductListItem(
-                        product = product,
-                        navController = navController,
-                        onHighlightedButtonClick = {
-                            //viewModel.saveProduct(it)
-                        },
-                        modifier = Modifier.padding(defaultPadding)
+            if (loadState == LoadState.LOADING) {
+                item {
+                    Box(Modifier.fillMaxWidth()) {
+                        CircularProgressIndicator(
+                            Modifier
+                                .align(
+                                    Alignment.Center
+                                )
+                                .padding(defaultPadding)
+                        )
+                    }
+                }
+            } else if (loadState == LoadState.EMPTY) {
+                item {
+                    Text(
+                        "Fim da lista", Modifier
+                            .fillMaxWidth()
+                            .padding(defaultPadding), textAlign = TextAlign.Center
                     )
                 }
-
-                if(loadState == LoadState.LOADING) {
-                    item { Box(Modifier.fillMaxWidth()) { CircularProgressIndicator(Modifier.align(Alignment.Center)) } }
-                } else if(loadState == LoadState.EMPTY) {
-                    item { Text("Fim da lista", Modifier
-                        .fillMaxWidth()
-                        .padding(defaultPadding), textAlign = TextAlign.Center) }
-                }
-
             }
 
         }
-
     }
 
 }

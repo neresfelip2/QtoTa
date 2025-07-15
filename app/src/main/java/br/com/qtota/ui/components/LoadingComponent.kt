@@ -6,6 +6,6 @@ import androidx.compose.ui.Modifier
 import br.com.qtota.ui.theme.DefaultColor
 
 @Composable
-internal fun LoadingComponent(modifier: Modifier = Modifier) {
-    MessageContent({CircularProgressIndicator(color = DefaultColor)}, "Carregando...", modifier = modifier)
+internal fun LoadingComponent(modifier: Modifier = Modifier, message: String = "Carregando...") {
+    MessageContent({CircularProgressIndicator(color = DefaultColor)}, message, modifier = modifier)
 }

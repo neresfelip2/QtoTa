@@ -28,7 +28,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,14 +48,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
-import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.qtota.R
 import br.com.qtota.ui.theme.DefaultColor
 import coil.compose.AsyncImage
 import java.io.File
 
 @Composable
-fun SendFlyerDialog(viewModel: HomeViewModel, dismiss: () -> Unit) {
+fun SendFlyerDialog(dismiss: () -> Unit) {
 
     var selectedUri by remember { mutableStateOf<UriSource?>(null) }
 
@@ -92,7 +90,7 @@ fun SendFlyerDialog(viewModel: HomeViewModel, dismiss: () -> Unit) {
 
             Column(Modifier.padding(16.dp)) {
 
-                val sendingState by viewModel.sendingFlyerState.collectAsState()
+                //val sendingState by viewModel.sendingFlyerState.collectAsState()
 
                 /*when(sendingState) {
                     UIState.Error -> ErrorComponent("Algo de errado não está certo")
@@ -330,5 +328,5 @@ private fun Uri.isPdf(context: Context): Boolean {
 
 @Composable @Preview(showBackground = true)
 private fun SendFlyerDialogPreview() {
-    SendFlyerDialog(hiltViewModel()) { }
+    SendFlyerDialog { }
 }

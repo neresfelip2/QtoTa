@@ -1,9 +1,6 @@
 package br.com.qtota.ui.screen.home
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
@@ -12,37 +9,27 @@ import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
-import br.com.qtota.data.repository.UserRepository
 import br.com.qtota.ui.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
     private val locationRepository: LocationRepository
 ) : ViewModel() {
-
-    private val _locationUiState = MutableStateFlow<UIState<Location>>(UIState.Loading)
-    val locationUiState = _locationUiState.asStateFlow()
 
     private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
     val homeUIState = _homeUiState.asStateFlow()
 
     private val _productListState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
     val productListState = _productListState.asStateFlow()
-
-    private val _sendingFlyerState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
-    val sendingFlyerState = _sendingFlyerState.asStateFlow()
 
     private val _localityNameState = MutableStateFlow("Carregando...")
     val localityNameState = _localityNameState.asStateFlow()
@@ -51,34 +38,9 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
-        viewModelScope.launch {
-            locationRepository.loadStatus.collectLatest { isLoading ->
-
-                if (isLoading) {
-                    _locationUiState.value = UIState.Loading
-                    return@collectLatest
-                }
-
-                if (locationRepository.location == null) {
-                    _locationUiState.value = UIState.Error("Localização não encontrada")
-                    return@collectLatest
-                }
-
-                _locationUiState.value = UIState.Success(locationRepository.location!!)
-                _localityNameState.value = locationRepository.getNeighborhood()
-
-                fetchHome(locationRepository.location!!)
-
-            }
-        }
-        requestLocation()
+        _localityNameState.value = locationRepository.getNeighborhood()
+        fetchHome(locationRepository.location!!)
     }
-
-    @SuppressLint("MissingPermission")
-    internal fun requestLocation() {
-        locationRepository.startLocationUpdates()
-    }
-
     private fun fetchHome(location: Location) {
 
         viewModelScope.launch {
@@ -128,19 +90,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    internal fun sendFlyer(imageUri: Uri, context: Context, dismissDialog: () -> Unit) {
-        viewModelScope.launch {
-            _sendingFlyerState.value = UIState.Loading
-            val products = productRepository.sendFlyer(imageUri, context)
-            if(products != null) {
-                _sendingFlyerState.value = UIState.Success(products)
-                dismissDialog()
-            } else {
-                _sendingFlyerState.value = UIState.Error("")
-            }
-        }
-    }
-
     internal fun saveProduct(product: Product) {
         viewModelScope.launch {
             if (product.isSaved) {
@@ -148,15 +97,6 @@ class HomeViewModel @Inject constructor(
             } else {
                 productRepository.insert(product)
             }
-        }
-    }
-
-    internal fun checkIfLogged(onResult: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val isLogged = userRepository.authTokenFlow
-                .map { !it.isNullOrEmpty() }
-                .first()
-            onResult(isLogged)
         }
     }
 

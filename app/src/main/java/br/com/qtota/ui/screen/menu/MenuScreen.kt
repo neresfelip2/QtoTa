@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.settings
+package br.com.qtota.ui.screen.menu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,52 +34,46 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
-import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoutes
 import br.com.qtota.ui.theme.ErrorColor
+import br.com.qtota.ui.theme.defaultPadding
 
 @Composable
-internal fun SettingsScreen(navController: NavHostController) {
+internal fun MenuScreen(navController: NavHostController) {
 
-    val viewModel: SettingsViewModel = hiltViewModel()
+    val viewModel: MenuViewModel = hiltViewModel()
     val isLogged by viewModel.isLogged.collectAsState()
 
     var showDialogLogout by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
-    Scaffold(
-        topBar = { Toolbar(
-            backButtonEnabled = navController
-        ) }
-    ) { innerPadding ->
-        Column(
-            Modifier
-                .padding(innerPadding)
-                .padding(8.dp)) {
+    Column(
+        Modifier
+            .padding(defaultPadding)
+    ) {
 
-            SettingsGroup {
-                if (isLogged) {
-                    SettingsButton(stringResource(R.string.logout), Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
-                        showDialogLogout = true
-                    }
-                } else {
-                    SettingsButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
-                        navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
-                    }
+        MenuGroup {
+            if (isLogged) {
+                MenuButton(stringResource(R.string.logout), Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
+                    showDialogLogout = true
+                }
+            } else {
+                MenuButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
+                    navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
                 }
             }
+        }
 
-            SettingsGroup {
-                SettingsButton(stringResource(R.string.saved_offers), Icons.Outlined.FavoriteBorder) {
-                    navController.navigate(AppRoutes.SavedOffers.route)
-                }
+        MenuGroup {
+            MenuButton(stringResource(R.string.saved_offers), Icons.Outlined.FavoriteBorder) {
+                navController.navigate(AppRoutes.SavedOffers.route)
             }
+        }
 
-            SettingsGroup {
-                SettingsButton(stringResource(R.string.rate_us), Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
-                SettingsButton(stringResource(R.string.about),    Icons.Outlined.Info)     { /* … */ }
-            }
+        MenuGroup {
+            MenuButton(stringResource(R.string.rate_us), Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
+            MenuButton(stringResource(R.string.about),    Icons.Outlined.Info)     { /* … */ }
         }
     }
 
@@ -98,7 +91,7 @@ internal fun SettingsScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun SettingsGroup(
+private fun MenuGroup(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -111,7 +104,7 @@ private fun SettingsGroup(
 }
 
 @Composable
-private fun SettingsButton(title: String, icon: ImageVector, color: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
+private fun MenuButton(title: String, icon: ImageVector, color: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
     TextButton(onClick) {
         Icon(icon, null, Modifier.padding(8.dp), tint = color)
         Text(title,
@@ -124,8 +117,8 @@ private fun SettingsButton(title: String, icon: ImageVector, color: Color = Mate
 }
 
 @Composable @Preview(showSystemUi = true)
-private fun SettingsScreenPreview() {
-    SettingsScreen(rememberNavController())
+private fun MenuScreenPreview() {
+    MenuScreen(rememberNavController())
 }
 
 @Composable @Preview(showBackground = true)

@@ -23,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,65 +57,60 @@ internal fun LoginScreen(navController: NavHostController) {
     val viewModel: LoginViewModel = hiltViewModel()
     val loginState by viewModel.loginState.collectAsState()
 
-    Scaffold { innerPadding ->
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(GradientBackground),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Icon(
+            painterResource(R.drawable.qto_ta_logo), null,
+            Modifier
+                .size(144.dp),
+            tint = Color.White,
+        )
 
         Column(
             Modifier
-                .fillMaxSize()
-                .background(GradientBackground)
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(vertical = 16.dp)
+                .background(Color.White, shape = RoundedCornerShape(24.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Icon(
-                painterResource(R.drawable.qto_ta_logo), null,
-                Modifier
-                    .size(144.dp),
-                tint = Color.White,
-            )
+            var newRegister by remember { mutableStateOf(false) }
 
-            Column(
-                Modifier
-                    .padding(vertical = 16.dp)
-                    .background(Color.White, shape = RoundedCornerShape(24.dp))
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                var newRegister by remember { mutableStateOf(false) }
-
-                if(newRegister) {
-                    NewRegisterContainer(viewModel) {
-                        newRegister = false
-                    }
-                } else {
-                    LoginContainer(viewModel) {
-                        newRegister = true
-                    }
+            if(newRegister) {
+                NewRegisterContainer(viewModel) {
+                    newRegister = false
                 }
-
+            } else {
+                LoginContainer(viewModel) {
+                    newRegister = true
+                }
             }
-
-            TextButton(
-                {
-                    viewModel.setNotFirstAccess()
-                    viewModel.navigateToNextScreen(navController)
-                },
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
-            ) { Text(stringResource(R.string.continue_without_logging_in)) }
 
         }
 
-        when(loginState) {
-            null -> Unit
-            is LoginState.Loading -> LoadingDialog()
-            is LoginState.Error -> ErrorDialog((loginState as LoginState.Error).description) {
-                viewModel.resetLoginState()
-            }
-            is LoginState.Success -> viewModel.navigateToNextScreen(navController)
-        }
+        TextButton(
+            {
+                viewModel.setNotFirstAccess()
+                viewModel.navigateToNextScreen(navController)
+            },
+            colors = ButtonDefaults.textButtonColors(contentColor = Color.White),
+        ) { Text(stringResource(R.string.continue_without_logging_in)) }
 
+    }
+
+    when(loginState) {
+        null -> Unit
+        is LoginState.Loading -> LoadingDialog()
+        is LoginState.Error -> ErrorDialog((loginState as LoginState.Error).description) {
+            viewModel.resetLoginState()
+        }
+        is LoginState.Success -> viewModel.navigateToNextScreen(navController)
     }
 
 }
