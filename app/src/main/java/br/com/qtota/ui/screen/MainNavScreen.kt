@@ -38,7 +38,7 @@ import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.DrawerContent
 import br.com.qtota.ui.components.Toolbar
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
 import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.home.SendFlyerDialog
@@ -117,11 +117,11 @@ internal fun MainNavigationScreen(navController: NavHostController) {
                             Box(Modifier.padding(top = topBarPadding.calculateTopPadding(), bottom = bottomBarPadding.calculateBottomPadding())) {
                                 NavHost(
                                     bottomNavController,
-                                    startDestination = AppRoutes.Home.route
+                                    AppRoute.Home.route
                                 ) {
-                                    composable(AppRoutes.Home.route) { HomeScreen(navController) }
-                                    composable(AppRoutes.ListProduct.route) { ListProductScreen(navController) }
-                                    composable(AppRoutes.Menu.route) { MenuScreen(navController) }
+                                    composable(AppRoute.Home.route) { HomeScreen(navController, bottomNavController) }
+                                    composable(AppRoute.ListProduct.route) { ListProductScreen(navController) }
+                                    composable(AppRoute.Menu.route) { MenuScreen(navController) }
                                 }
                             }
                         }
@@ -137,7 +137,7 @@ internal fun MainNavigationScreen(navController: NavHostController) {
                 onDismiss = { showLoginDialog = false },
                 onConfirm = {
                     showLoginDialog = false
-                    navController.navigate(AppRoutes.Login.route)
+                    navController.navigate(AppRoute.Login.route)
                 },
                 confirmText = stringResource(R.string.log_in)
             )

@@ -16,21 +16,21 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
 
     NavHost(navController, startDestination = startDestination) {
 
-        animatedComposable(AppRoutes.Login.route) { LoginScreen(navController) }
+        animatedComposable(AppRoute.Login.route) { LoginScreen(navController) }
 
-        animatedComposable(AppRoutes.RequestLocation.route) { RequestLocationScreen(navController) }
+        animatedComposable(AppRoute.RequestLocation.route) { RequestLocationScreen(navController) }
 
-        animatedComposable(AppRoutes.MainNav.route) { MainNavigationScreen(navController)}
+        animatedComposable(AppRoute.MainNav.route) { MainNavigationScreen(navController)}
 
         animatedComposable(
-            AppRoutes.ProductDetails.route,
+            AppRoute.ProductDetails.route,
             arguments = listOf(
-                navArgument(AppRoutes.ProductDetails.ARG_PRODUCT_ID) {
+                navArgument(AppRoute.ProductDetails.ARG_PRODUCT_ID) {
                     type = NavType.LongType
                 }
             )
         ) { ProductDetailsScreen(navController) }
 
-        animatedComposable(AppRoutes.SavedOffers.route) { SavedOffersScreen(navController) }
+        animatedComposable(AppRoute.SavedOffers.route) { SavedOffersScreen(navController) }
     }
 }

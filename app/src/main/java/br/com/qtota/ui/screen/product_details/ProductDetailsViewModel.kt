@@ -7,7 +7,7 @@ import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.UIState
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,7 +24,7 @@ class ProductDetailsViewModel @Inject constructor(
     locationRepository: LocationRepository,
 ) : ViewModel() {
 
-    private val productId: Long = savedStateHandle[AppRoutes.ProductDetails.ARG_PRODUCT_ID]!!
+    private val productId: Long = savedStateHandle[AppRoute.ProductDetails.ARG_PRODUCT_ID]!!
 
     private val _productDetails = MutableStateFlow<UIState<ProductDetail>>(UIState.Loading)
     val productDetails = _productDetails.asStateFlow()

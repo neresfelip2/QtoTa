@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
@@ -59,7 +59,7 @@ internal fun ProductListItem(
     Card(
         modifier.clickable {
                 navController.navigate(
-                    AppRoutes.ProductDetails
+                    AppRoute.ProductDetails
                         .productId(product.id)
                 )
             },

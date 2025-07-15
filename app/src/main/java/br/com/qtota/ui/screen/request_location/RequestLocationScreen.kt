@@ -27,7 +27,7 @@ import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.Toolbar
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.defaultPadding
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -44,7 +44,7 @@ internal fun RequestLocationScreen(navController: NavHostController) {
         when (locationState) {
             is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize(), "Buscando localização...")
             is UIState.Error -> RequestLocationComponent(viewModel)
-            is UIState.Success -> navController.navigate(AppRoutes.MainNav.route) {
+            is UIState.Success -> navController.navigate(AppRoute.MainNav.route) {
                 popUpTo(navController.graph.id) {
                     inclusive = true
                 }

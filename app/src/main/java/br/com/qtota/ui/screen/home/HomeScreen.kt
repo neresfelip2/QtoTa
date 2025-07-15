@@ -59,7 +59,7 @@ import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
@@ -67,7 +67,7 @@ import coil.compose.AsyncImage
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-internal fun HomeScreen(navController: NavHostController) {
+internal fun HomeScreen(navController: NavHostController, bottomNavController: NavHostController) {
 
     val viewModel: HomeViewModel = hiltViewModel()
 
@@ -172,7 +172,13 @@ internal fun HomeScreen(navController: NavHostController) {
                             item {
                                 Box(Modifier.fillMaxWidth()) {
                                     TextButton(
-                                        { navController.navigate(AppRoutes.ListProduct.route) },
+                                        { bottomNavController.navigate(AppRoute.ListProduct.route) {
+                                            popUpTo(bottomNavController.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }},
                                         Modifier.align(Alignment.Center),
                                         colors = ButtonDefaults.buttonColors(
                                             contentColor = DefaultColor,
@@ -326,7 +332,6 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
             .padding(4.dp)
             .clip(CircleShape)
             .background(if (selected) DefaultColor else GrayColor),
-            //.size(88.dp),
         selectedContentColor = Color.White,
         unselectedContentColor = DefaultColor,
         onClick = onClick,
@@ -363,6 +368,6 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
 @Preview(showSystemUi = true)
 @Composable
 private fun HomeScreenPreview() {
-    HomeScreen(rememberNavController())
+    HomeScreen(rememberNavController(), rememberNavController())
 }
 

@@ -1,12 +1,11 @@
 package br.com.qtota.ui.navigation
 
-import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,79 +18,40 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import br.com.qtota.ui.theme.DefaultColor
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 internal fun BottomNavBar(navController: NavHostController) {
 
     val currentRoute = navController
         .currentBackStackEntryAsState().value?.destination?.route
 
-    NavigationBar(modifier = Modifier.height(112.dp)) {
-        NavigationBarItem(
-            selected = currentRoute == AppRoutes.Home.route,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DefaultColor,
-                unselectedIconColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            ),
-            onClick = {
-                if(currentRoute != AppRoutes.Home.route) navController.navigate(AppRoutes.Home.route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
-            icon = { Icon(Icons.Outlined.Home, null) },
-        )
-        NavigationBarItem(
-            selected = currentRoute == AppRoutes.ListProduct.route,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DefaultColor,
-                unselectedIconColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            ),
-            onClick = {
-                if(currentRoute != AppRoutes.ListProduct.route) navController.navigate(AppRoutes.ListProduct.route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
-            icon = { Icon(Icons.Outlined.Search, null) }
-        )
+    NavigationBar(Modifier.heightIn(56.dp, 112.dp).windowInsetsPadding(WindowInsets.navigationBars)) {
+        NavItem(AppRoute.Home, currentRoute, navController)
+        NavItem(AppRoute.ListProduct, currentRoute, navController)
         Spacer(Modifier.weight(1f, fill = true))
-        NavigationBarItem(
-            selected = false,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DefaultColor,
-                unselectedIconColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            ),
-            onClick = {},
-            icon = {}
-        )
-        NavigationBarItem(
-            selected = currentRoute == AppRoutes.Menu.route,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DefaultColor,
-                unselectedIconColor = Color.Gray,
-                indicatorColor = Color.Transparent
-            ),
-            onClick = {
-                if(currentRoute != AppRoutes.Menu.route) navController.navigate(AppRoutes.Menu.route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            },
-            icon = { Icon(Icons.Outlined.Menu, null) }
-        )
+        NavItem(AppRoute.Menu, currentRoute, navController)
+        NavItem(AppRoute.Menu, currentRoute, navController)
     }
 
+}
+
+@Composable
+internal fun RowScope.NavItem(route: AppRoute, currentRoute: String?, navController: NavHostController) {
+    NavigationBarItem(
+        selected = currentRoute == route.route,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = DefaultColor,
+            unselectedIconColor = Color.Gray,
+            indicatorColor = Color.Transparent
+        ),
+        onClick = {
+            if(currentRoute != route.route) navController.navigate(route.route) {
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        icon = { route.icon?.let { Icon(it, null) } },
+    )
 }

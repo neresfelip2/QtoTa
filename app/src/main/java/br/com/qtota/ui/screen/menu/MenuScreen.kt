@@ -34,7 +34,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.defaultPadding
 
@@ -60,14 +60,14 @@ internal fun MenuScreen(navController: NavHostController) {
                 }
             } else {
                 MenuButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
-                    navController.navigate(AppRoutes.Login.route) { launchSingleTop = true }
+                    navController.navigate(AppRoute.Login.route) { launchSingleTop = true }
                 }
             }
         }
 
         MenuGroup {
             MenuButton(stringResource(R.string.saved_offers), Icons.Outlined.FavoriteBorder) {
-                navController.navigate(AppRoutes.SavedOffers.route)
+                navController.navigate(AppRoute.SavedOffers.route)
             }
         }
 
