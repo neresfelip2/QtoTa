@@ -1,98 +1,103 @@
 package br.com.qtota.ui.screen.home
 
+import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.data.mapper.ProductMapper.toProduct
+import br.com.qtota.data.remote.home_response.CategoryResponse
+import br.com.qtota.data.remote.home_response.HomeResponse
+import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
-import br.com.qtota.data.repository.UserRepository
+import br.com.qtota.ui.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
-    private val _storeTabsState = MutableStateFlow<List<String>>(listOf())
-    val storeTabsState = _storeTabsState.asStateFlow()
+    private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
+    val homeUIState = _homeUiState.asStateFlow()
 
-    private val _listProductState = MutableStateFlow<ListProductState>(ListProductState.Loading)
-    val listProductState = _listProductState.asStateFlow()
+    private val _productListState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
+    val productListState = _productListState.asStateFlow()
 
-    internal val savedProducts = productRepository.getAll().stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        emptyList()
-    )
+    private val _localityNameState = MutableStateFlow("Carregando...")
+    val localityNameState = _localityNameState.asStateFlow()
+
+    private val savedProductsState = productRepository.getSavedProducts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
-        _listProductState.value = mockSuccess
+        _localityNameState.value = locationRepository.getNeighborhood()
+        fetchHome(locationRepository.location!!)
+    }
+    private fun fetchHome(location: Location) {
+
+        viewModelScope.launch {
+            val result = productRepository.getHome(location.latitude, location.longitude)
+
+            if(result == null) {
+                _homeUiState.value = UIState.Error("")
+                return@launch
+            }
+
+            _homeUiState.value = UIState.Success(result)
+            _productListState.value = UIState.Success(result.products.map { it.toProduct() })
+
+            savedProductsState.collectLatest { savedProduct ->
+                val savedIds = savedProduct.map { it.id }.toSet()
+                val products = (_productListState.value as UIState.Success).data
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
+                }
+                _productListState.value = UIState.Success(products)
+            }
+
+        }
     }
 
-    internal fun checkIfLogged(onResult: (Boolean) -> Unit) {
+    internal fun selectTab(category: CategoryResponse?) {
+        _productListState.value = UIState.Loading
+
         viewModelScope.launch {
-            val isLogged = userRepository.authTokenFlow
-                .map { !it.isNullOrEmpty() }
-                .first()
-            onResult(isLogged)
+            val products = productRepository.getProducts(category?.id, locationRepository.location!!)
+
+            if(products == null) {
+                _productListState.value = UIState.Error("")
+                return@launch
+            }
+
+            _productListState.value = UIState.Success(products)
+            savedProductsState.collectLatest { savedProduct ->
+                val savedIds = savedProduct.map { it.id }.toSet()
+                val products = (_productListState.value as UIState.Success).data
+                products.forEach { product ->
+                    product.isSaved = product.id in savedIds
+                }
+                _productListState.value = UIState.Success(products)
+            }
+
         }
     }
 
     internal fun saveProduct(product: Product) {
         viewModelScope.launch {
-            if (savedProducts.value.find { it.id == product.id } == null) {
-                productRepository.insert(product)
-            } else {
+            if (product.isSaved) {
                 productRepository.delete(product)
+            } else {
+                productRepository.insert(product)
             }
         }
     }
 
 }
-
-/* @TODO mocks para fins de desenvolvimento  */
-private val mockError = ListProductState.Error("Ocorreu um erro")
-private val mockEmptyList = ListProductState.Success(emptyList())
-private val mockSuccess = ListProductState.Success(
-    listOf(
-        Product(
-            id = 1,
-            name = "Arroz Pai João 5kg",
-            description = "Arroz parboilizado tipo 1",
-            currentValue = 5.99,
-            previousValue = 8.99,
-            storeName = "Carrefour",
-            distance = 800,
-            expirationDate = LocalDate.of(2025, 6, 20)
-        ),
-        Product(
-            id = 2,
-            name = "Óleo Liza 900ml",
-            description = "Óleo de soja refinado, perfeito para frituras",
-            currentValue = 4.49,
-            previousValue = 6.99,
-            storeName = "Extra",
-            distance = 1300,
-            expirationDate = LocalDate.of(2025, 6, 18)
-        ),
-        Product(
-            id = 3,
-            name = "Macarrão",
-            description = "Só um macarrão",
-            currentValue = 7.89,
-            previousValue = 10.0,
-            storeName = "Guará",
-            distance = 2100,
-            expirationDate = LocalDate.of(2025, 6, 19)
-        ),
-    )
-)

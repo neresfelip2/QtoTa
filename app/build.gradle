@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace 'br.com.qtota'
-    compileSdk 35
+    compileSdk 36
 
     buildFeatures {
         buildConfig true
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "br.com.qtota"
         minSdk 26
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
@@ -30,23 +30,22 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-            buildConfigField "String", "API_BASE_URL", "\"https://api.qtota.com/\""
         }
 
         debug {
 
             // @TODO Url apontando para uma api simulada no próprio pc
-            buildConfigField "String", "API_URL", "\"http://192.168.1.6:3000\""
+            //buildConfigField "String", "API_URL", "\"http://Felipe-PC:8000/\""
+            buildConfigField "String", "API_URL", "\"http://192.168.1.4:8000/\""
         }
 
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '11'
+    kotlin {
+        jvmToolchain(17)
     }
     buildFeatures {
         compose true
@@ -69,6 +68,7 @@ dependencies {
 
     // Hilt
     implementation libs.hilt.android
+    implementation libs.play.services.location
     ksp libs.hilt.compiler
     implementation libs.androidx.hilt.navigation.compose
 
@@ -84,6 +84,7 @@ dependencies {
     // Retrofit
     implementation libs.retrofit
     implementation libs.converter.gson
+    implementation libs.logging.interceptor
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

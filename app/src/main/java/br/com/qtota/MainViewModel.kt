@@ -6,12 +6,14 @@ import br.com.qtota.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _isFirstAccess = MutableStateFlow<Boolean?>(null)
@@ -20,6 +22,15 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _isFirstAccess.value = userRepository.getIsFirstAccess()
+        }
+    }
+
+    internal fun checkIfLogged(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val isLogged = userRepository.authTokenFlow
+                .map { !it.isNullOrEmpty() }
+                .first()
+            onResult(isLogged)
         }
     }
 

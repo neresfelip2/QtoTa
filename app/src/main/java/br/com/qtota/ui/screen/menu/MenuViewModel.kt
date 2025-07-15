@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.settings
+package br.com.qtota.ui.screen.menu
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class MenuViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
