@@ -41,9 +41,9 @@ class ProductRepository(
         }
     }
 
-    suspend fun getProducts(categoryId: Int? = null, location: Location, page: Int = 1, limit: Int = 5): List<Product>? {
+    suspend fun getProducts(location: Location, query: String? = null, categoryId: Int? = null, page: Int = 1, limit: Int = 5): List<Product>? {
         return performRequest({
-            apiService.getProducts(categoryId, location.latitude, location.longitude, page, limit)
+            apiService.getProducts(location.latitude, location.longitude, if (query.isNullOrBlank()) null else query, categoryId, page, limit)
         }) { listProductResponse ->
             listProductResponse.map { it.toProduct() }
         }

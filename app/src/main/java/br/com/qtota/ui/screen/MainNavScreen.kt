@@ -30,9 +30,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import br.com.qtota.MainViewModel
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
@@ -42,7 +44,7 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
 import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.home.SendFlyerDialog
-import br.com.qtota.ui.screen.list_product.ListProductScreen
+import br.com.qtota.ui.screen.search_product.SearchProductScreen
 import br.com.qtota.ui.screen.menu.MenuScreen
 import br.com.qtota.ui.theme.DefaultColor
 import kotlinx.coroutines.launch
@@ -120,7 +122,19 @@ internal fun MainNavigationScreen(navController: NavHostController) {
                                     AppRoute.Home.route
                                 ) {
                                     composable(AppRoute.Home.route) { HomeScreen(navController, bottomNavController) }
-                                    composable(AppRoute.ListProduct.route) { ListProductScreen(navController) }
+                                    composable(
+                                        AppRoute.SearchProduct.route,
+                                        arguments = listOf(
+                                            navArgument(AppRoute.SearchProduct.ARG_QUERY) {
+                                                type = NavType.StringType
+                                                nullable = true
+                                                defaultValue = null
+                                            }
+                                        )
+                                    ) { backStack ->
+                                        val query = backStack.arguments?.getString(AppRoute.SearchProduct.ARG_QUERY)
+                                        SearchProductScreen(navController, query)
+                                    }
                                     composable(AppRoute.Menu.route) { MenuScreen(navController) }
                                 }
                             }

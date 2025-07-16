@@ -28,9 +28,10 @@ interface APIService {
 
     @GET("product")
     suspend fun getProducts(
-        @Query("id_category") categoryId: Int?,
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
+        @Query("query") query: String?,
+        @Query("id_category") categoryId: Int?,
         @Query("page") page: Int,
         @Query("limit") limit: Int
     ): Response<List<ProductResponse>>

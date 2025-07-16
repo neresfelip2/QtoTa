@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -75,6 +76,8 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
     val productListState by viewModel.productListState.collectAsState()
     val localityNameState by viewModel.localityNameState.collectAsState()
 
+    val focusManager = LocalFocusManager.current
+
     when (homeUIState) {
         is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
         is UIState.Error -> ErrorComponent(
@@ -102,7 +105,10 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                         Modifier
                             .fillMaxWidth()
                             .padding(defaultPadding)
-                    ) { }
+                    ) { query ->
+                        navigateToSearchProduct(bottomNavController, query)
+                        focusManager.clearFocus()
+                    }
                 }
 
                 item {
@@ -171,14 +177,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                             }
                             item {
                                 Box(Modifier.fillMaxWidth()) {
-                                    TextButton(
-                                        { bottomNavController.navigate(AppRoute.ListProduct.route) {
-                                            popUpTo(bottomNavController.graph.startDestinationId) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }},
+                                    TextButton({ navigateToSearchProduct(bottomNavController) },
                                         Modifier.align(Alignment.Center),
                                         colors = ButtonDefaults.buttonColors(
                                             contentColor = DefaultColor,
@@ -300,6 +299,16 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
         }
     }
 
+}
+
+private fun navigateToSearchProduct(bottomNavController: NavHostController, query: String? = null) {
+    bottomNavController.navigate(AppRoute.SearchProduct.createRoute(query)) {
+        popUpTo(bottomNavController.graph.startDestinationId) {
+            saveState = true
+        }
+        launchSingleTop = false
+        restoreState = false
+    }
 }
 
 @Composable

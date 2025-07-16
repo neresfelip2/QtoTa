@@ -70,7 +70,7 @@ class HomeViewModel @Inject constructor(
         _productListState.value = UIState.Loading
 
         viewModelScope.launch {
-            val products = productRepository.getProducts(category?.id, locationRepository.location!!)
+            val products = productRepository.getProducts(categoryId = category?.id, location = locationRepository.location!!)
 
             if(products == null) {
                 _productListState.value = UIState.Error("")

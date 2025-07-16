@@ -13,8 +13,27 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     object MainNav: AppRoute("main_nav")
     object Home: AppRoute("home", Icons.Outlined.Home)
-    object ListProduct: AppRoute("list_product", Icons.Outlined.Search)
-    object Menu: AppRoute("menu", Icons.Outlined.Menu)
+    object SearchProduct : AppRoute(
+        route = "search_product?query={query}",
+        icon  = Icons.Outlined.Search
+    ) {
+        const val BASE_ROUTE = "search_product"
+        const val ARG_QUERY  = "query"
+
+        /**
+         * Cria a rota corretamente:
+         * - se query for não‑nula: "search_product?query=agua"
+         * - se for nula:          "search_product"
+         */
+        fun createRoute(query: String?): String {
+            return if (!query.isNullOrBlank()) {
+                "$BASE_ROUTE?${ARG_QUERY}=${query}"
+            } else {
+                BASE_ROUTE
+            }
+        }
+    }
+    object Menu: AppRoute("menu", icon = Icons.Outlined.Menu)
     object ProductDetails: AppRoute("product_details/{productId}") {
 
         internal const val ARG_PRODUCT_ID = "productId"

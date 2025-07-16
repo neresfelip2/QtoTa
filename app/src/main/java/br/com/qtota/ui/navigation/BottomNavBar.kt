@@ -26,7 +26,24 @@ internal fun BottomNavBar(navController: NavHostController) {
 
     NavigationBar(Modifier.heightIn(56.dp, 112.dp).windowInsetsPadding(WindowInsets.navigationBars)) {
         NavItem(AppRoute.Home, currentRoute, navController)
-        NavItem(AppRoute.ListProduct, currentRoute, navController)
+        NavigationBarItem(
+            selected = currentRoute?.startsWith(AppRoute.SearchProduct.BASE_ROUTE) == true,
+            onClick  = {
+                if (currentRoute != AppRoute.SearchProduct.BASE_ROUTE) {
+                    navController.navigate(AppRoute.SearchProduct.createRoute(null)) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop  = true
+                        restoreState     = true
+                    }
+                }
+            },
+            icon     = { Icon(AppRoute.SearchProduct.icon!!, contentDescription = null) },
+            colors   = NavigationBarItemDefaults.colors(
+                selectedIconColor   = DefaultColor,
+                unselectedIconColor = Color.Gray,
+                indicatorColor      = Color.Transparent
+            )
+        )
         Spacer(Modifier.weight(1f, fill = true))
         NavItem(AppRoute.Menu, currentRoute, navController)
         NavItem(AppRoute.Menu, currentRoute, navController)
