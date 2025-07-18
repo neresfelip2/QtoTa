@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -41,8 +40,8 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
-import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
@@ -97,8 +96,9 @@ internal fun ProductListItem(
             }
             Spacer(Modifier.width(defaultPadding))
             Column(Modifier.weight(1f)) {
-                Text(product.store.name, color = Color.DarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(product.store.name, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
+                ProductTitle(product.store.name)
+                ProductDescription(product.store.branch)
+                //Text(product.store.branch, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
             }
             Spacer(Modifier.width(defaultPadding))
             Text(
@@ -116,7 +116,7 @@ internal fun ProductListItem(
 
         Column(Modifier.padding(defaultPadding)) {
             ProductTitle(product.name)
-            Spacer(Modifier.height(defaultPadding/2))
+            Spacer(Modifier.height(defaultPadding))
             ProductDescription(product.description, maxLines = 2)
             Row(
                 Modifier
@@ -132,7 +132,6 @@ internal fun ProductListItem(
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF007700)
                 )
-
                 Text(
                     "${product.percentageOfAverage}% abaixo da média",
                     Modifier
@@ -146,6 +145,7 @@ internal fun ProductListItem(
                     color = Color.White,
                 )
             }
+
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center

@@ -173,11 +173,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
             contentScale = ContentScale.Crop
         )
 
-        Spacer(Modifier.height(defaultPadding))
-        ProductTitle(product.name, maxLines = 2, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(defaultPadding))
-        ProductDescription(product.description)
-        Spacer(Modifier.height(16.dp))
+        ProductTitle(product.name, maxLines = 2, textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = defaultPadding))
         Column(
             Modifier
                 .fillMaxWidth()
@@ -232,7 +228,8 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
                 type = product.type,
                 measureType = product.measureType,
                 origin = product.origin,
-                expiration = product.expiration
+                expiration = product.expiration,
+                description = product.description
             )
         }
 
@@ -273,19 +270,16 @@ private fun PricesContainer(stores: List<ProductStoreResponse>) {
                         Modifier
                             .align(Alignment.End)
                             .background(
-                                DefaultColor,
-                                RoundedCornerShape(topEnd = 16.dp)
+                                DefaultColor, RoundedCornerShape(topEnd = 16.dp)
                             )
                             .padding(4.dp),
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                } else {
-                    Spacer(Modifier.height(defaultPadding))
                 }
 
-                Column(Modifier.padding(horizontal = 12.dp)) {
+                Column(Modifier.padding(horizontal = defaultPadding)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         store.logo?.let { logo ->
                             AsyncImage(
@@ -302,12 +296,12 @@ private fun PricesContainer(stores: List<ProductStoreResponse>) {
                             null,
                             Modifier.size(48.dp)
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(defaultPadding))
                         Column(Modifier.weight(1f)) {
                             Text(
                                 store.name,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.DarkGray
+                                color = Color.DarkGray,
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -317,7 +311,11 @@ private fun PricesContainer(stores: List<ProductStoreResponse>) {
                                     tint = Color.Gray
                                 )
                                 Spacer(Modifier.width(8.dp))
-                                Text(store.distance.toDistanceString(), color = Color.Gray, fontSize = 12.sp)
+                                Text(store.distance.toDistanceString(),
+                                    color = Color.Gray,
+                                    fontSize = 12.sp,
+                                    lineHeight = 14.sp
+                                )
                             }
                         }
                         Text(
@@ -363,23 +361,43 @@ private fun PricesContainer(stores: List<ProductStoreResponse>) {
 }
 
 @Composable
-private fun DetailsContainer(measure: Int, measureType: MeasureType, type: String, origin: String, expiration: Int) {
-    Column(Modifier
-        .background(
-            Color.White,
-            RoundedCornerShape(defaultPadding)
-        )
-        .padding(defaultPadding),
-    ) {
-        Text(stringResource(R.string.information), fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(defaultPadding))
-        DetailRow(measureType.label,measure.toMeasureString(measureType))
-        HorizontalDivider()
-        DetailRow(stringResource(R.string.type), type)
-        HorizontalDivider()
-        DetailRow(stringResource(R.string.origin), origin)
-        HorizontalDivider()
-        DetailRow(stringResource(R.string.days_until_expiration), stringResource(R.string.expiration_days, expiration))
+private fun DetailsContainer(measure: Int, measureType: MeasureType, type: String, origin: String, expiration: Int, description: String) {
+    Column {
+
+        Column(Modifier
+            .background(
+                Color.White,
+                RoundedCornerShape(defaultPadding)
+            )
+            .padding(defaultPadding),
+        ) {
+            Text(stringResource(R.string.description), fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(defaultPadding))
+            ProductDescription(description)
+        }
+
+        Column(
+            Modifier
+                .background(
+                    Color.White,
+                    RoundedCornerShape(defaultPadding)
+                )
+                .padding(defaultPadding),
+        ) {
+            Text(stringResource(R.string.information), fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(defaultPadding))
+            DetailRow(measureType.label, measure.toMeasureString(measureType))
+            HorizontalDivider()
+            DetailRow(stringResource(R.string.type), type)
+            HorizontalDivider()
+            DetailRow(stringResource(R.string.origin), origin)
+            HorizontalDivider()
+            DetailRow(
+                stringResource(R.string.days_until_expiration),
+                stringResource(R.string.expiration_days, expiration)
+            )
+        }
+
     }
 }
 
