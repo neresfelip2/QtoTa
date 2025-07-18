@@ -4,9 +4,8 @@
         <domain includeSubdomains="true">
             qtota-gbesfra0fsbwdhfe.canadacentral-01.azurewebsites.net
         </domain>
-        <domain includeSubdomains="true">
-            192.168.1.4
-        </domain>
+        <domain includeSubdomains="true">192.168.1.4</domain>
+        <domain includeSubdomains="true">192.168.1.7</domain>
     </domain-config>
     <!--<domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">

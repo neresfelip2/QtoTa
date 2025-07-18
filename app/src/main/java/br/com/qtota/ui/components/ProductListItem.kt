@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,7 +41,9 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
+import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
@@ -112,19 +115,9 @@ internal fun ProductListItem(
         }
 
         Column(Modifier.padding(defaultPadding)) {
-            Text(
-                product.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = Color.DarkGray
-            )
-            Text(
-                product.description,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            ProductTitle(product.name)
+            Spacer(Modifier.height(defaultPadding/2))
+            ProductDescription(product.description, maxLines = 2)
             Row(
                 Modifier
                     .fillMaxWidth()

@@ -3,7 +3,6 @@ package br.com.qtota.ui.screen.home
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -102,14 +101,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                     ) { query -> navigateToSearchProduct(bottomNavController, query) }
                 }
 
-                item {
-                    Text(
-                        stringResource(R.string.cheapests_in_your_area),
-                        Modifier.padding(defaultPadding),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray
-                    )
-                }
+                item { HomeTitle(stringResource(R.string.cheapests_in_your_area)) }
 
                 item {
                     CategoryTabs(data.categories, selectedIndex) { index, category ->
@@ -143,7 +135,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                                 MessageContent(
                                     {
                                         Icon(
-                                            Icons.Outlined.ShoppingCart,
+                                            painterResource(R.drawable.ic_empty_shopping_cart),
                                             null,
                                             Modifier.size(128.dp),
                                             tint = Color(0x59187270)
@@ -167,18 +159,13 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                                 )
                             }
                             item {
-                                Box(Modifier.fillMaxWidth()) {
-                                    TextButton({ navigateToSearchProduct(bottomNavController) },
-                                        Modifier.align(Alignment.Center),
-                                        colors = ButtonDefaults.buttonColors(
-                                            contentColor = DefaultColor,
-                                            containerColor = Color.Transparent
-                                        )
-                                    ) {
-                                        Text(
-                                            "Ver mais ofertas",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    HomeTextButton(stringResource(R.string.see_more_offers)) {
+                                        navigateToSearchProduct(
+                                            bottomNavController
                                         )
                                     }
                                 }
@@ -187,14 +174,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                     }
                 }
 
-                item {
-                    Text(
-                        "Lojas mais próximas",
-                        Modifier.padding(defaultPadding),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray
-                    )
-                }
+                item { HomeTitle(stringResource(R.string.nearest_stores)) }
 
                 item {
 
@@ -228,21 +208,8 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        TextButton(
-                            onClick = {
-                                bottomNavController.navigate(AppRoute.StoreList.route)
-                            },
-                            Modifier.padding(horizontal = defaultPadding),
-                            colors = ButtonDefaults.buttonColors(
-                                contentColor = DefaultColor,
-                                containerColor = Color.Transparent
-                            )
-                        ) {
-                            Text(
-                                stringResource(R.string.see_more_stores),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
+                        HomeTextButton(stringResource(R.string.see_more_stores)) {
+                            bottomNavController.navigate(AppRoute.StoreList.route)
                         }
                         /*TextButton(
                             onClick = { *//*…*//* },
@@ -341,6 +308,34 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
             }
         }
     )
+}
+
+@Composable
+internal fun HomeTitle(text: String) {
+    Text(
+        text,
+        Modifier.padding(defaultPadding),
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.DarkGray
+    )
+}
+
+@Composable
+private fun HomeTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    TextButton(onClick,
+        modifier,
+        colors = ButtonDefaults.buttonColors(
+            contentColor = DefaultColor,
+            containerColor = Color.Transparent
+        )
+    ) {
+        Text(
+            text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp
+        )
+    }
 }
 
 @Preview(showSystemUi = true)

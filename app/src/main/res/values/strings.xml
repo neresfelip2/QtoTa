@@ -48,4 +48,6 @@
     <string name="type">Tipo</string>
     <string name="type_in_here">Escreva aqui…</string>
     <string name="variation">Variação:</string>
+    <string name="nearest_stores">Lojas mais próximas</string>
+    <string name="see_more_offers">Ver mais ofertas</string>
 </resources>

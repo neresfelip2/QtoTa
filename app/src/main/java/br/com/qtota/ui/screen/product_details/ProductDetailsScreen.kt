@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,8 +60,10 @@ import br.com.qtota.data.remote.product.MeasureType
 import br.com.qtota.data.remote.product.ProductStoreResponse
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.ConfirmDialog
+import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
+import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GradientBackground
@@ -171,9 +174,10 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
         )
 
         Spacer(Modifier.height(defaultPadding))
-        Text(product.name, fontWeight = FontWeight.Bold)
-        Text(product.description, color = Color.Gray, fontSize = 12.sp)
+        ProductTitle(product.name, maxLines = 2, textAlign = TextAlign.Center)
         Spacer(Modifier.height(defaultPadding))
+        ProductDescription(product.description)
+        Spacer(Modifier.height(16.dp))
         Column(
             Modifier
                 .fillMaxWidth()

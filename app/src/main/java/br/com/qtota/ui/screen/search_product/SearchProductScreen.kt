@@ -22,6 +22,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -129,7 +130,7 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
                 MessageContent(
                     {
                         Icon(
-                            Icons.Outlined.ShoppingCart,
+                            painterResource(R.drawable.ic_empty_shopping_cart),
                             null,
                             Modifier.size(128.dp),
                             tint = Color(0x59187270)
