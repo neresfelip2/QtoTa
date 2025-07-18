@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
@@ -48,7 +48,7 @@ import coil.compose.AsyncImage
 
 @Composable
 internal fun ProductListItem(
-    product: Product,
+    product: ProductResponse,
     navController: NavHostController,
     onHighlightedButtonClick: (Product) -> Unit,
     modifier: Modifier = Modifier
@@ -73,9 +73,9 @@ internal fun ProductListItem(
                 .padding(defaultPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if(product.logo != null && product.logo.isNotEmpty()) {
+            if(product.store.logo != null && product.store.logo.isNotEmpty()) {
                 AsyncImage(
-                    model = product.logo,
+                    model = product.store.logo,
                     contentDescription = "Logo",
                     modifier = Modifier
                         .size(48.dp)
@@ -94,12 +94,12 @@ internal fun ProductListItem(
             }
             Spacer(Modifier.width(defaultPadding))
             Column(Modifier.weight(1f)) {
-                Text(product.storeName, color = Color.DarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(product.storeBranch, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
+                Text(product.store.name, color = Color.DarkGray, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(product.store.name, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
             }
             Spacer(Modifier.width(defaultPadding))
             Text(
-                product.distance.toDistanceString(),
+                product.store.distance.toDistanceString(),
                 Modifier
                     .background(
                         shape = RoundedCornerShape(8.dp),
@@ -133,7 +133,7 @@ internal fun ProductListItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    product.currentPrice.toMonetaryString(),
+                    product.price.toMonetaryString(),
                     Modifier.padding(4.dp),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.ExtraBold,
@@ -141,7 +141,7 @@ internal fun ProductListItem(
                 )
 
                 Text(
-                    "${product.discountPercentage}% abaixo da média",
+                    "${product.percentageOfAverage}% abaixo da média",
                     Modifier
                         .background(
                             shape = RoundedCornerShape(8.dp),
@@ -158,7 +158,7 @@ internal fun ProductListItem(
                 horizontalArrangement = Arrangement.Center
             ) {
 
-                if(!product.isSaved) {
+                /*if(!product.isSaved) {
                     Button(
                         { saveProduct = product },
                         Modifier.padding(4.dp),
@@ -176,7 +176,7 @@ internal fun ProductListItem(
                             containerColor = DefaultColor,
                         )
                     ) { Text("Remover dos salvos") }
-                }
+                }*/
 
                 OutlinedButton(
                     {},

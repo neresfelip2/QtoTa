@@ -1,13 +1,13 @@
 package br.com.qtota.data.mapper
 
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import java.time.LocalDate
 
 object ProductMapper {
 
-    fun ProductResponse.toProduct(): Product {
+    fun ProductDetailResponse.toProduct(): Product {
         val store = this.stores.minBy { it.currentPrice }
         return Product(
             id = this.id,
@@ -25,7 +25,7 @@ object ProductMapper {
         )
     }
 
-    fun ProductResponse.toProductDetail() : ProductDetail {
+    fun ProductDetailResponse.toProductDetail() : ProductDetail {
         return ProductDetail(
             id = this.id,
             name = this.name,

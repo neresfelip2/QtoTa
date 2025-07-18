@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
-import br.com.qtota.ui.UIState
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.navigation.AppRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

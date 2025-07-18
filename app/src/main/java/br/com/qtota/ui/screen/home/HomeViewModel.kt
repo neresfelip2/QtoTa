@@ -4,12 +4,12 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
+import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
-import br.com.qtota.ui.UIState
+import br.com.qtota.ui.state_handler.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +28,7 @@ class HomeViewModel @Inject constructor(
     private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
     val homeUIState = _homeUiState.asStateFlow()
 
-    private val _productListState = MutableStateFlow<UIState<List<Product>>>(UIState.Loading)
+    private val _productListState = MutableStateFlow<UIState<List<ProductResponse>>>(UIState.Loading)
     val productListState = _productListState.asStateFlow()
 
     private val _localityNameState = MutableStateFlow("Carregando...")
@@ -52,14 +52,14 @@ class HomeViewModel @Inject constructor(
             }
 
             _homeUiState.value = UIState.Success(result)
-            _productListState.value = UIState.Success(result.products.map { it.toProduct() })
+            _productListState.value = UIState.Success(result.products)
 
             savedProductsState.collectLatest { savedProduct ->
                 val savedIds = savedProduct.map { it.id }.toSet()
                 val products = (_productListState.value as UIState.Success).data
-                products.forEach { product ->
+                /*products.forEach { product ->
                     product.isSaved = product.id in savedIds
-                }
+                }*/
                 _productListState.value = UIState.Success(products)
             }
 
@@ -81,9 +81,9 @@ class HomeViewModel @Inject constructor(
             savedProductsState.collectLatest { savedProduct ->
                 val savedIds = savedProduct.map { it.id }.toSet()
                 val products = (_productListState.value as UIState.Success).data
-                products.forEach { product ->
+                /*products.forEach { product ->
                     product.isSaved = product.id in savedIds
-                }
+                }*/
                 _productListState.value = UIState.Success(products)
             }
 

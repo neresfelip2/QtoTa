@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,8 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -40,7 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,14 +48,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
-import br.com.qtota.ui.UIState
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
+import br.com.qtota.ui.components.StoreListItem
 import br.com.qtota.ui.navigation.AppRoute
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
@@ -75,8 +71,6 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
     val homeUIState by viewModel.homeUIState.collectAsState()
     val productListState by viewModel.productListState.collectAsState()
     val localityNameState by viewModel.localityNameState.collectAsState()
-
-    val focusManager = LocalFocusManager.current
 
     when (homeUIState) {
         is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
@@ -104,11 +98,8 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                     SearchTextField(
                         Modifier
                             .fillMaxWidth()
-                            .padding(defaultPadding)
-                    ) { query ->
-                        navigateToSearchProduct(bottomNavController, query)
-                        focusManager.clearFocus()
-                    }
+                            .padding(defaultPadding),
+                    ) { query -> navigateToSearchProduct(bottomNavController, query) }
                 }
 
                 item {
@@ -215,7 +206,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                                     Modifier.size(128.dp),
                                     tint = Color(0x59187270)
                                 )
-                            }, stringResource(R.string.not_store_found),
+                            }, stringResource(R.string.any_store_found),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(32.dp)
@@ -225,32 +216,8 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
 
                     LazyRow(contentPadding = PaddingValues(8.dp)) {
                         items(data.nearbyStores) { store ->
-                            Card(
-                                {},
-                                Modifier.padding(8.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color.White
-                                )
-                            ) {
-                                Column(
-                                    Modifier.padding(defaultPadding),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    store.logo?.let {
-                                        AsyncImage(
-                                            model = it,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Inside,
-                                            modifier = Modifier.size(96.dp),
-                                        )
-                                    } ?: Icon(
-                                        painterResource(R.drawable.outline_store_24), null,
-                                        Modifier.size(96.dp),
-                                        tint = Color.LightGray
-                                    )
-                                    Spacer(Modifier.height(2.dp))
-                                    Text(store.name, fontSize = 14.sp, maxLines = 2)
-                                }
+                            StoreListItem(store) {
+                                bottomNavController.navigate(AppRoute.StoreProducts.route)
                             }
                         }
                     }
@@ -262,7 +229,9 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                         horizontalArrangement = Arrangement.Center
                     ) {
                         TextButton(
-                            onClick = { /*…*/ },
+                            onClick = {
+                                bottomNavController.navigate(AppRoute.StoreList.route)
+                            },
                             Modifier.padding(horizontal = defaultPadding),
                             colors = ButtonDefaults.buttonColors(
                                 contentColor = DefaultColor,
@@ -275,8 +244,8 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                                 fontSize = 16.sp
                             )
                         }
-                        TextButton(
-                            onClick = { /*…*/ },
+                        /*TextButton(
+                            onClick = { *//*…*//* },
                             Modifier
                                 .padding(horizontal = defaultPadding)
                                 .padding(bottom = defaultPadding),
@@ -290,7 +259,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
-                        }
+                        }*/
                     }
                 }
 
@@ -348,14 +317,14 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
         icon = {
             urlIcon?.let {
                 AsyncImage(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(24.dp),
                     model = it,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     colorFilter = ColorFilter.tint(if (selected) Color.White else DefaultColor)
                 )
             } ?: Icon(
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(24.dp),
                 painter = painterResource(R.drawable.outline_category_24),
                 contentDescription = null,
             )

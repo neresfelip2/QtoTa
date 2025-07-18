@@ -3,6 +3,8 @@
 
     <string name="about">Sobre</string>
     <string name="all">Todos</string>
+    <string name="any_product_found">Nenhum produto encontrado</string>
+    <string name="any_store_found">Nenhuma loja encontrada</string>
     <string name="best_price">Melhor preço</string>
     <string name="cancel">Cancelar</string>
     <string name="cheapests_in_your_area">Mais baratos na sua região</string>
@@ -16,6 +18,7 @@
     <string name="email">E-mail</string>
     <string name="empty_product_list_message">Não há nada aqui</string>
     <string name="error_loading_message">Algo deu errado</string>
+    <string name="expiration_days">%1$d dias</string>
     <string name="expired">Expirado</string>
     <string name="i_forgot_my_password">Esqueci minha senha</string>
     <string name="information">Informações</string>
@@ -25,13 +28,12 @@
     <string name="logout">Logout</string>
     <string name="logout_dialog_message">Deseja fazer logout?</string>
     <string name="new_register">Novo cadastro</string>
-    <string name="any_product_found">Nenhum produto encontrado</string>
-    <string name="not_store_found">Nenhuma loja encontrada</string>
     <string name="origin">Origem</string>
     <string name="password">Senha</string>
     <string name="password_character_limit_message">A senha deve ter no mínimo 6 caracteres</string>
     <string name="prices">Preços</string>
     <string name="rate_us">Avalie-nos</string>
+    <string name="report">Sinalizar</string>
     <string name="request_location_button">Permitir localização</string>
     <string name="request_location_label">É necessário a localização</string>
     <string name="save_product_dialog">Deseja salvar este produto?</string>
@@ -46,6 +48,4 @@
     <string name="type">Tipo</string>
     <string name="type_in_here">Escreva aqui…</string>
     <string name="variation">Variação:</string>
-    <string name="expiration_days">%1$d dias</string>
-    <string name="report">Sinalizar</string>
 </resources>

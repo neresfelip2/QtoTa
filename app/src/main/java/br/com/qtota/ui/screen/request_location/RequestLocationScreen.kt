@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.qtota.R
-import br.com.qtota.ui.UIState
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.Toolbar

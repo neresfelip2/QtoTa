@@ -3,7 +3,7 @@ package br.com.qtota.data.remote.product
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
 
-data class StoreResponse(
+data class ProductStoreResponse(
 
     @SerializedName("id")
     val id: Long,

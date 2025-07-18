@@ -1,7 +1,7 @@
 package br.com.qtota.ui.screen.product_details
 
 import br.com.qtota.data.remote.product.MeasureType
-import br.com.qtota.data.remote.product.StoreResponse
+import br.com.qtota.data.remote.product.ProductStoreResponse
 
 data class ProductDetail(
     val id: Long,
@@ -15,5 +15,5 @@ data class ProductDetail(
     val origin: String,
     val expiration: Int,
     val urlImage: String?,
-    val stores: List<StoreResponse>
+    val stores: List<ProductStoreResponse>
 )

@@ -1,16 +1,13 @@
 package br.com.qtota.data.repository
 
-import android.content.Context
 import android.location.Location
-import android.net.Uri
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.home_response.HomeResponse
+import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
-import br.com.qtota.utils.Utils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -41,11 +38,11 @@ class ProductRepository(
         }
     }
 
-    suspend fun getProducts(location: Location, query: String? = null, categoryId: Int? = null, page: Int = 1, limit: Int = 5): List<Product>? {
+    suspend fun getProducts(location: Location, query: String? = null, categoryId: Int? = null, page: Int = 1, limit: Int = 5): List<ProductResponse>? {
         return performRequest({
             apiService.getProducts(location.latitude, location.longitude, if (query.isNullOrBlank()) null else query, categoryId, page, limit)
         }) { listProductResponse ->
-            listProductResponse.map { it.toProduct() }
+            listProductResponse
         }
     }
 
@@ -58,7 +55,7 @@ class ProductRepository(
 
     }
 
-    suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {
+    /*suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {
         val multipartUri = Utils.uriToMultipart(
             context = context,
             uri = imageUri,
@@ -70,6 +67,6 @@ class ProductRepository(
         }) { listProductsResponse ->
             listProductsResponse.map {it.toProduct()}
         }
-    }
+    }*/
 
 }

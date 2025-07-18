@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.repository.ProductRepository
+import br.com.qtota.data.repository.StoreRespository
 import br.com.qtota.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -29,6 +30,12 @@ object RepositoryModule {
     @Singleton
     fun provideProductRepository(apiService: APIService, productDAO: ProductDAO): ProductRepository {
         return ProductRepository(apiService, productDAO)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStoreRepository(apiService: APIService): StoreRespository {
+        return StoreRespository(apiService)
     }
 
 }

@@ -1,7 +1,8 @@
-package br.com.qtota.ui.screen.search_product
+package br.com.qtota.ui.screen.store_products
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
@@ -13,12 +14,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchProductViewModel @Inject constructor(
-    private val locationRepository: LocationRepository,
+class StoreProductsViewModel @Inject constructor(
     private val productRepository: ProductRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
-
-    val neighborhood = locationRepository.getNeighborhood()
 
     private val _listProductState = MutableStateFlow<List<ProductResponse>>(emptyList())
     val listProductState = _listProductState.asStateFlow()
@@ -51,24 +50,19 @@ class SearchProductViewModel @Inject constructor(
                 }
                 else -> {
                     _loadState.value = LoadMoreListState.SUCCESS
-                    // usamos List + resultado
                     _listProductState.value = _listProductState.value + result
                 }
             }
         }
     }
 
-    /** Sempre que quiser buscar (nova query ou paginação) chame aqui */
     fun performSearch(newQuery: String?) {
-        // Se vier null, tratamos como string vazia
         val cleaned = newQuery.orEmpty()
-        // Se for diferente da anterior, resetamos tudo
         if (cleaned != query) {
             query = cleaned
             page = 0
             _listProductState.value = emptyList()
         }
-        // busca a próxima página (ou primeira, se resetamos)
         getProducts()
     }
 

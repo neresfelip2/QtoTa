@@ -56,8 +56,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.product.MeasureType
-import br.com.qtota.data.remote.product.StoreResponse
-import br.com.qtota.ui.UIState
+import br.com.qtota.data.remote.product.ProductStoreResponse
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
@@ -250,7 +250,7 @@ private fun TabItem(tab: Tab, selectedTab: Tab, onClick: (Tab) -> Unit) {
 }
 
 @Composable
-private fun PricesContainer(stores: List<StoreResponse>) {
+private fun PricesContainer(stores: List<ProductStoreResponse>) {
     Column {
         stores.forEachIndexed { index, store ->
 

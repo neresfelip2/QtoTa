@@ -1,4 +1,4 @@
-package br.com.qtota.ui
+package br.com.qtota.ui.state_handler
 
 sealed class UIState<out T> {
     object Loading: UIState<Nothing>()

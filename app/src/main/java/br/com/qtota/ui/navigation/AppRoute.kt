@@ -8,9 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
-    object RequestLocation: AppRoute("request_location")
-    object Login: AppRoute("login")
-
+    /* Bottom Navigation Routes */
     object MainNav: AppRoute("main_nav")
     object Home: AppRoute("home", Icons.Outlined.Home)
     object SearchProduct : AppRoute(
@@ -20,11 +18,6 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
         const val BASE_ROUTE = "search_product"
         const val ARG_QUERY  = "query"
 
-        /**
-         * Cria a rota corretamente:
-         * - se query for não‑nula: "search_product?query=agua"
-         * - se for nula:          "search_product"
-         */
         fun createRoute(query: String?): String {
             return if (!query.isNullOrBlank()) {
                 "$BASE_ROUTE?${ARG_QUERY}=${query}"
@@ -34,6 +27,12 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
         }
     }
     object Menu: AppRoute("menu", icon = Icons.Outlined.Menu)
+    object StoreList: AppRoute("store_list")
+    object StoreProducts: AppRoute("store_products")
+
+
+    object RequestLocation: AppRoute("request_location")
+    object Login: AppRoute("login")
     object ProductDetails: AppRoute("product_details/{productId}") {
 
         internal const val ARG_PRODUCT_ID = "productId"
