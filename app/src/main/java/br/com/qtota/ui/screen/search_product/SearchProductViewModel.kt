@@ -2,11 +2,14 @@ package br.com.qtota.ui.screen.search_product
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.state_handler.LoadMoreListState
+import br.com.qtota.ui.state_handler.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -20,56 +23,96 @@ class SearchProductViewModel @Inject constructor(
 
     val neighborhood = locationRepository.getNeighborhood()
 
-    private val _listProductState = MutableStateFlow<List<ProductResponse>>(emptyList())
-    val listProductState = _listProductState.asStateFlow()
+    private val _productListState = MutableStateFlow<List<ProductResponse>>(emptyList())
+    val productListState = _productListState.asStateFlow()
+
+    private val _categoryListState = MutableStateFlow<UIState<List<CategoryResponse>>>(UIState.Loading)
+    val categoryListState = _categoryListState.asStateFlow()
 
     private val _loadState = MutableStateFlow(LoadMoreListState.LOADING)
     val loadState = _loadState.asStateFlow()
 
-    private var page = 0
+    private var currentPage = 0
     private val limit = 10
     private var query: String = ""
+    private var category: CategoryResponse? = null
 
-    fun getProducts() {
-        _loadState.value = LoadMoreListState.LOADING
-        page++
-        viewModelScope.launch {
+    private var request: Job? = null
+
+    init {
+        getCategoryList()
+    }
+
+    internal fun getProducts(page: Int) {
+
+        if(request != null) {
+            request?.cancel()
+        }
+
+        request = viewModelScope.launch {
+            _loadState.value = LoadMoreListState.LOADING
+
             val result = productRepository.getProducts(
                 location = locationRepository.location!!,
                 query = query,
+                categoryId = category?.id,
                 page = page,
                 limit = limit
             )
-            when {
-                result == null -> {
-                    page--
-                    _loadState.value = LoadMoreListState.ERROR
-                }
-                result.isEmpty() -> {
-                    page--
-                    _loadState.value = LoadMoreListState.EMPTY
-                }
-                else -> {
-                    _loadState.value = LoadMoreListState.SUCCESS
-                    // usamos List + resultado
-                    _listProductState.value = _listProductState.value + result
-                }
+
+            if (result == null) {
+                _loadState.value = LoadMoreListState.ERROR
+                return@launch
             }
+
+            if (result.isEmpty()) {
+                _loadState.value = LoadMoreListState.EMPTY
+                return@launch
+            }
+
+            _loadState.value = LoadMoreListState.SUCCESS
+            _productListState.value = _productListState.value + result
+
+            currentPage = page
+            request = null
         }
     }
 
-    /** Sempre que quiser buscar (nova query ou paginação) chame aqui */
-    fun performSearch(newQuery: String?) {
-        // Se vier null, tratamos como string vazia
-        val cleaned = newQuery.orEmpty()
-        // Se for diferente da anterior, resetamos tudo
-        if (cleaned != query) {
-            query = cleaned
-            page = 0
-            _listProductState.value = emptyList()
+    internal fun getCategoryList() {
+        viewModelScope.launch {
+            val result = productRepository.getCategories()
+            if (result == null) {
+                _categoryListState.value = UIState.Error("")
+                return@launch
+            }
+
+            _categoryListState.value = UIState.Success(result)
         }
-        // busca a próxima página (ou primeira, se resetamos)
-        getProducts()
+    }
+
+    internal fun performSearch(newQuery: String?) {
+        if (newQuery != query) {
+            query = newQuery.orEmpty()
+            resetPaging()
+            getProducts(1)
+        }
+    }
+
+    internal fun selectTab(category: CategoryResponse?) {
+        if(category != this.category) {
+            this.category = category
+            resetPaging()
+            getProducts(1)
+        }
+    }
+
+    internal fun loadMore() {
+        getProducts(currentPage + 1)
+    }
+
+    private fun resetPaging() {
+        currentPage = 0
+        _productListState.value = emptyList()
     }
 
 }

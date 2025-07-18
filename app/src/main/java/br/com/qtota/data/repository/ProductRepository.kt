@@ -5,6 +5,7 @@ import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.mapper.ProductMapper.toProductDetail
 import br.com.qtota.data.remote.APIService
+import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
@@ -53,6 +54,14 @@ class ProductRepository(
             productResponse.toProductDetail()
         }
 
+    }
+
+    suspend fun getCategories(): List<CategoryResponse>? {
+        return performRequest({
+            apiService.getCategories()
+        }) { categoryList ->
+            categoryList
+        }
     }
 
     /*suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {

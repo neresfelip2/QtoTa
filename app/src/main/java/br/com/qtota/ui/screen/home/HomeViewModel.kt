@@ -4,7 +4,6 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
-import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.repository.LocationRepository
@@ -22,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val productRepository: ProductRepository,
-    private val locationRepository: LocationRepository
+    locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
@@ -54,30 +53,6 @@ class HomeViewModel @Inject constructor(
             _homeUiState.value = UIState.Success(result)
             _productListState.value = UIState.Success(result.products)
 
-            savedProductsState.collectLatest { savedProduct ->
-                val savedIds = savedProduct.map { it.id }.toSet()
-                val products = (_productListState.value as UIState.Success).data
-                /*products.forEach { product ->
-                    product.isSaved = product.id in savedIds
-                }*/
-                _productListState.value = UIState.Success(products)
-            }
-
-        }
-    }
-
-    internal fun selectTab(category: CategoryResponse?) {
-        _productListState.value = UIState.Loading
-
-        viewModelScope.launch {
-            val products = productRepository.getProducts(categoryId = category?.id, location = locationRepository.location!!)
-
-            if(products == null) {
-                _productListState.value = UIState.Error("")
-                return@launch
-            }
-
-            _productListState.value = UIState.Success(products)
             savedProductsState.collectLatest { savedProduct ->
                 val savedIds = savedProduct.map { it.id }.toSet()
                 val products = (_productListState.value as UIState.Success).data

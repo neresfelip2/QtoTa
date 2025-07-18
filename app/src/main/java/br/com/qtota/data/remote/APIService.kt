@@ -1,5 +1,6 @@
 package br.com.qtota.data.remote
 
+import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.remote.login.LoginRequest
@@ -57,5 +58,8 @@ interface APIService {
     suspend fun sendFlyer(
         @Part flyer: MultipartBody.Part
     ): Response<List<ProductDetailResponse>>
+
+    @GET("product/category")
+    suspend fun getCategories(): Response<List<CategoryResponse>>
 
 }
