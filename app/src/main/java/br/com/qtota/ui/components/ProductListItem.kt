@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -32,16 +35,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import br.com.qtota.R
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
-import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
@@ -60,126 +69,151 @@ internal fun ProductListItem(
 
     Card(
         modifier.clickable {
-                navController.navigate(
-                    AppRoute.ProductDetails
-                        .productId(product.id)
-                )
-            },
+            navController.navigate(
+                AppRoute.ProductDetails
+                    .productId(product.id)
+            )
+        },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
     ) {
-        Row(
-            Modifier
-                .background(GrayColor)
-                .padding(defaultPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if(product.store.logo != null && product.store.logo.isNotEmpty()) {
-                AsyncImage(
-                    model = product.store.logo,
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(MaterialTheme.shapes.small),
-                    contentScale = ContentScale.Inside
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (product.urlImage.isNullOrBlank()) {
+                Icon(
+                    Icons.Outlined.ShoppingCart,
+                    null,
+                    Modifier.size(112.dp),
+                    tint = Color.LightGray
                 )
             } else {
-                Icon(
-                    imageVector = Icons.Outlined.ShoppingCart,
-                    contentDescription = null,
-                    tint = Color.LightGray,
+                AsyncImage(
+                    product.urlImage,
+                    null,
+                    Modifier.size(112.dp),
+                    contentScale = ContentScale.Inside
+                )
+            }
+            Column {
+                Row(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .size(48.dp)
-                )
-            }
-            Spacer(Modifier.width(defaultPadding))
-            Column(Modifier.weight(1f)) {
-                ProductTitle(product.store.name)
-                ProductDescription(product.store.branch)
-                //Text(product.store.branch, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
-            }
-            Spacer(Modifier.width(defaultPadding))
-            Text(
-                product.store.distance.toDistanceString(),
-                Modifier
-                    .background(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFD3E2FD)
+                        .background(GrayColor)
+                        .padding(defaultPadding, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (product.store.logo != null && product.store.logo.isNotEmpty()) {
+                        AsyncImage(
+                            model = product.store.logo,
+                            contentDescription = "Logo",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(MaterialTheme.shapes.small),
+                            contentScale = ContentScale.Inside
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_store_24),
+                            contentDescription = null,
+                            tint = Color.LightGray,
+                            modifier = Modifier
+                                .size(40.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(defaultPadding))
+                    Column(Modifier.weight(1f)) {
+                        Text(product.store.name,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = 15.sp,
+                                color = Color.DarkGray,
+                            )
+                        )
+                        Text(product.store.branch,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = TextStyle(
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                lineHeight = 13.sp,
+                            )
+                        )
+                    }
+                    Spacer(Modifier.width(defaultPadding))
+                    Row(
+                        Modifier
+                            .background(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFD3E2FD)
+                            )
+                            .padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Outlined.LocationOn, null, Modifier.size(12.dp), tint = Color(0xFF0015DF))
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            product.store.distance.toDistanceString(),
+                            color = Color(0xFF0015DF),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+                Column(Modifier.padding(defaultPadding)) {
+                    ProductTitle(product.name)
+                    Text("Oferta válida até: 10/08",
+                        fontSize = 13.sp,
+                        color = Color.Gray,
                     )
-                    .padding(4.dp),
-                color = Color(0xFF0015DF),
-                fontSize = 14.sp
-            )
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            product.price.toMonetaryString(),
+                            Modifier.padding(4.dp),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF007700)
+                        )
+                        Text(
+                            "Economize ${product.percentageOfAverage}%",
+                            Modifier
+                                .background(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = Color(0xFFFF883C)
+                                )
+                                .padding(8.dp, 2.dp),
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp,
+                            color = Color.White,
+                        )
+                    }
+                }
+            }
         }
-
-        Column(Modifier.padding(defaultPadding)) {
-            ProductTitle(product.name)
-            Spacer(Modifier.height(defaultPadding))
-            ProductDescription(product.description, maxLines = 2)
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        HorizontalDivider(Modifier.padding(horizontal = defaultPadding), color = GrayColor)
+        Row(Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.Center) {
+            Button({},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DefaultColor,
+                    contentColor = Color.White
+                )
             ) {
-                Text(
-                    product.price.toMonetaryString(),
-                    Modifier.padding(4.dp),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF007700)
-                )
-                Text(
-                    "${product.percentageOfAverage}% abaixo da média",
-                    Modifier
-                        .background(
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFFF883C)
-                        )
-                        .padding(8.dp, 4.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    color = Color.White,
-                )
+                Text("Salvar")
             }
-
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-
-                /*if(!product.isSaved) {
-                    Button(
-                        { saveProduct = product },
-                        Modifier.padding(4.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = Color.White,
-                            containerColor = DefaultColor,
-                        )
-                    ) { Text("Salvar") }
-                } else {
-                    Button(
-                        { deleteProduct = product },
-                        Modifier.padding(4.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            contentColor = Color.White,
-                            containerColor = DefaultColor,
-                        )
-                    ) { Text("Remover dos salvos") }
-                }*/
-
-                OutlinedButton(
-                    {},
-                    Modifier.padding(4.dp),
-                    border = BorderStroke(1.dp, DefaultColor),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = DefaultColor,
-                    )
-                ) { Text("Compartilhar") }
-
+            Spacer(Modifier.width(defaultPadding))
+            OutlinedButton({},
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = DefaultColor
+                ),
+                border = BorderStroke(1.dp, DefaultColor)) {
+                Text("Compartilhar")
             }
         }
     }
@@ -206,4 +240,27 @@ internal fun ProductListItem(
         )
     }
 
+}
+
+@Composable @Preview(showBackground = true)
+private fun ProductListItemPreview() {
+    ProductListItem(
+        product = ProductResponse(
+            id = 0,
+            name = "Name",
+            description = "Description",
+            price = 0.0,
+            percentageOfAverage = 0,
+            urlImage = null,
+            store = StoreResponse(
+                id = 0,
+                name = "Store Name",
+                branch = "Store Branch",
+                distance = 0,
+                logo = null
+            ),
+        ),
+        navController = rememberNavController(),
+        onHighlightedButtonClick = {}
+    )
 }

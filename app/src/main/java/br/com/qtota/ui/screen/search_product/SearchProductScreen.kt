@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -121,14 +121,18 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
 
             }
 
-            items(listProductState) { product ->
+            itemsIndexed(listProductState) { index, product ->
                 ProductListItem(
                     product = product,
                     navController = navController,
                     onHighlightedButtonClick = {
                         //viewModel.saveProduct(it)
                     },
-                    modifier = Modifier.padding(defaultPadding)
+                    modifier = Modifier.padding(
+                        start = defaultPadding, end = defaultPadding,
+                        top = if(index == 0) defaultPadding else defaultPadding/2,
+                        bottom = if(index == listProductState.size - 1) defaultPadding else defaultPadding/2
+                    )
                 )
             }
 

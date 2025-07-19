@@ -160,29 +160,6 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                     }
                 }
 
-                /*when (productListState) {
-                    is UIState.Loading -> item {
-                        LoadingComponent(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp)
-                        )
-                    }
-
-                    is UIState.Error -> item {
-                        ErrorComponent(
-                            (productListState as UIState.Error).description,
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp)
-                        )
-                    }
-
-                    is UIState.Success -> {
-
-                    }
-                }*/
-
                 item {
                     HomeTitle(
                         stringResource(R.string.nearest_stores),

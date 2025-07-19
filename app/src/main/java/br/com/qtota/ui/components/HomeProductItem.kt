@@ -70,33 +70,18 @@ internal fun HomeProductItem(product: ProductResponse, navController: NavHostCon
                 Text(
                     product.price.toMonetaryString(),
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.Black,
                     color = Color(0xFF007700)
                 )
             }
             Text(
                 "${product.percentageOfAverage}% abaixo da média no ${product.store.name}",
                 fontSize = 12.sp,
-                lineHeight = 14.sp
+                lineHeight = 14.sp,
+                color = Color.Gray
             )
         }
 
-        /*Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-
-
-            OutlinedButton(
-                {},
-                Modifier.padding(4.dp),
-                border = BorderStroke(1.dp, DefaultColor),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = DefaultColor,
-                )
-            ) { Text("Compartilhar") }
-
-        }*/
     }
 
 }
