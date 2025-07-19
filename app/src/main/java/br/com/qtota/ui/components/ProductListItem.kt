@@ -128,7 +128,7 @@ internal fun ProductListItem(
                 Text(
                     product.price.toMonetaryString(),
                     Modifier.padding(4.dp),
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF007700)
                 )

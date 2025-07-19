@@ -103,7 +103,12 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
 
             item {
                 when(categoryListState) {
-                    is UIState.Loading -> CircularProgressIndicator()
+                    is UIState.Loading -> Box(Modifier.fillMaxSize()) {
+                        Text(
+                            stringResource(R.string.loading_categories),
+                            Modifier.align(Alignment.Center)
+                        )
+                    }
                     is UIState.Error -> Text("Não foi possível carregar as categorias")
                     is UIState.Success -> {
                         val categoryList = (categoryListState as UIState.Success).data

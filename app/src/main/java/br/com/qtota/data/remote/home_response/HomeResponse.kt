@@ -9,9 +9,6 @@ data class HomeResponse(
     @SerializedName("products")
     val products: List<ProductResponse>,
 
-    @SerializedName("categories")
-    val categories: List<CategoryResponse>,
-
     @SerializedName("nearby_stores")
     val nearbyStores: List<StoreResponse>
 )

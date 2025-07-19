@@ -17,9 +17,9 @@ internal fun ProductTitle(text: String, maxLines: Int = 1, textAlign: TextAlign 
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         style = TextStyle(
-            fontSize = 15.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            lineHeight = 20.sp,
+            lineHeight = 18.sp,
             color = Color.DarkGray,
             textAlign = textAlign
         )

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.home_response.HomeResponse
-import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.state_handler.UIState
@@ -27,9 +26,6 @@ class HomeViewModel @Inject constructor(
     private val _homeUiState = MutableStateFlow<UIState<HomeResponse>>(UIState.Loading)
     val homeUIState = _homeUiState.asStateFlow()
 
-    private val _productListState = MutableStateFlow<UIState<List<ProductResponse>>>(UIState.Loading)
-    val productListState = _productListState.asStateFlow()
-
     private val _localityNameState = MutableStateFlow("Carregando...")
     val localityNameState = _localityNameState.asStateFlow()
 
@@ -40,6 +36,7 @@ class HomeViewModel @Inject constructor(
         _localityNameState.value = locationRepository.getNeighborhood()
         fetchHome(locationRepository.location!!)
     }
+
     private fun fetchHome(location: Location) {
 
         viewModelScope.launch {
@@ -51,15 +48,14 @@ class HomeViewModel @Inject constructor(
             }
 
             _homeUiState.value = UIState.Success(result)
-            _productListState.value = UIState.Success(result.products)
 
             savedProductsState.collectLatest { savedProduct ->
                 val savedIds = savedProduct.map { it.id }.toSet()
-                val products = (_productListState.value as UIState.Success).data
+                //val products = (_productListState.value as UIState.Success).data
                 /*products.forEach { product ->
                     product.isSaved = product.id in savedIds
                 }*/
-                _productListState.value = UIState.Success(products)
+                //_productListState.value = UIState.Success(products)
             }
 
         }
