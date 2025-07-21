@@ -32,5 +32,5 @@ data class ProductDetailResponse(
     val urlImage: String?,
 
     @SerializedName("stores")
-    val stores: List<ProductStoreResponse>
+    val stores: List<ProductDetailStoreResponse>
 )

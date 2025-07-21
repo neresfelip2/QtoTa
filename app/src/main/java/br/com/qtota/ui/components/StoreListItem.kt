@@ -1,11 +1,15 @@
 package br.com.qtota.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,7 +41,9 @@ internal fun StoreListItem(store: StoreResponse, onClick: () -> Unit) {
 
     ) {
         Column(
-            Modifier.padding(defaultPadding).fillMaxWidth(),
+            Modifier
+                .padding(defaultPadding)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             store.logo?.let {
@@ -53,8 +59,12 @@ internal fun StoreListItem(store: StoreResponse, onClick: () -> Unit) {
                 tint = Color.LightGray
             )
             Spacer(Modifier.height(8.dp))
-            Text(store.name, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = TextAlign.Center, lineHeight = 14.sp)
-            Text(store.distance.toDistanceString(), fontSize = 12.sp, color = Color.Gray)
+            Text(store.name, color = Color.DarkGray, fontSize = 14.sp, fontWeight = FontWeight.Bold, maxLines = 2, textAlign = TextAlign.Center, lineHeight = 14.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.LocationOn, null, Modifier.size(16.dp), tint = Color.Gray)
+                Spacer(Modifier.width(4.dp))
+                Text(store.distance.toDistanceString(), fontSize = 12.sp, color = Color.Gray)
+            }
         }
     }
 }

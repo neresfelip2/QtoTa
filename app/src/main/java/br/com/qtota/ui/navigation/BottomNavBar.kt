@@ -45,7 +45,7 @@ internal fun BottomNavBar(navController: NavHostController) {
             )
         )
         Spacer(Modifier.weight(1f, fill = true))
-        NavItem(AppRoute.Menu, currentRoute, navController)
+        NavItem(AppRoute.SavedOffers, currentRoute, navController)
         NavItem(AppRoute.Menu, currentRoute, navController)
     }
 

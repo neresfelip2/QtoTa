@@ -9,7 +9,6 @@ import br.com.qtota.ui.screen.MainNavigationScreen
 import br.com.qtota.ui.screen.login.LoginScreen
 import br.com.qtota.ui.screen.product_details.ProductDetailsScreen
 import br.com.qtota.ui.screen.request_location.RequestLocationScreen
-import br.com.qtota.ui.screen.saved_offers.SavedOffersScreen
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, startDestination: String) {
@@ -31,6 +30,5 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
             )
         ) { ProductDetailsScreen(navController) }
 
-        animatedComposable(AppRoute.SavedOffers.route) { SavedOffersScreen(navController) }
     }
 }

@@ -1,6 +1,7 @@
 package br.com.qtota.ui.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
@@ -12,8 +13,8 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
     object MainNav: AppRoute("main_nav")
     object Home: AppRoute("home", Icons.Outlined.Home)
     object SearchProduct : AppRoute(
-        route = "search_product?query={query}",
-        icon  = Icons.Outlined.Search
+        "search_product?query={query}",
+        Icons.Outlined.Search
     ) {
         const val BASE_ROUTE = "search_product"
         const val ARG_QUERY  = "query"
@@ -26,7 +27,9 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
             }
         }
     }
-    object Menu: AppRoute("menu", icon = Icons.Outlined.Menu)
+
+    object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
+    object Menu: AppRoute("menu", Icons.Outlined.Menu)
     object StoreList: AppRoute("store_list")
     object StoreProducts: AppRoute("store_products")
 
@@ -41,5 +44,5 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
             return "product_details/$id"
         }
     }
-    object SavedOffers: AppRoute("saved_offers")
+
 }

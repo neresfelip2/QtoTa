@@ -52,4 +52,7 @@
     <string name="type">Tipo</string>
     <string name="type_in_here">Escreva aqui…</string>
     <string name="variation">Variação:</string>
+    <string name="save">Salvar</string>
+    <string name="share">Compartilhar</string>
+    <string name="valid_offer_until_date">Oferta válida até %1$s</string>
 </resources>

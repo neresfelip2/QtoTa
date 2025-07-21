@@ -201,22 +201,6 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                         HomeTextButton(stringResource(R.string.see_more_stores)) {
                             bottomNavController.navigate(AppRoute.StoreList.route)
                         }
-                        /*TextButton(
-                            onClick = { *//*…*//* },
-                            Modifier
-                                .padding(horizontal = defaultPadding)
-                                .padding(bottom = defaultPadding),
-                            colors = ButtonDefaults.buttonColors(
-                                contentColor = DefaultColor,
-                                containerColor = Color.Transparent
-                            )
-                        ) {
-                            Text(
-                                stringResource(R.string.see_maps),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
-                        }*/
                     }
                 }
 

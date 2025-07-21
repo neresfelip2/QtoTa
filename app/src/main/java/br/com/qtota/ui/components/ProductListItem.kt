@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,9 +55,11 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
+import br.com.qtota.utils.DateUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
 import coil.compose.AsyncImage
+import java.time.LocalDate
 
 @Composable
 internal fun ProductListItem(
@@ -98,7 +102,7 @@ internal fun ProductListItem(
                 Row(
                     modifier = Modifier
                         .background(GrayColor)
-                        .padding(defaultPadding, vertical = 4.dp),
+                        .padding(defaultPadding, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (product.store.logo != null && product.store.logo.isNotEmpty()) {
@@ -151,7 +155,7 @@ internal fun ProductListItem(
                             .padding(horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Outlined.LocationOn, null, Modifier.size(12.dp), tint = Color(0xFF0015DF))
+                        Icon(Icons.Outlined.LocationOn, null, Modifier.size(16.dp), tint = Color(0xFF0015DF))
                         Spacer(Modifier.width(4.dp))
                         Text(
                             product.store.distance.toDistanceString(),
@@ -162,7 +166,11 @@ internal fun ProductListItem(
                 }
                 Column(Modifier.padding(defaultPadding)) {
                     ProductTitle(product.name)
-                    Text("Oferta válida até: 10/08",
+                    Text(
+                        stringResource(
+                            R.string.valid_offer_until_date,
+                            product.expirationOffer.toDDMM()
+                        ),
                         fontSize = 13.sp,
                         color = Color.Gray,
                     )
@@ -197,23 +205,30 @@ internal fun ProductListItem(
             }
         }
         HorizontalDivider(Modifier.padding(horizontal = defaultPadding), color = GrayColor)
-        Row(Modifier.fillMaxWidth().padding(8.dp),
+        Row(Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
             horizontalArrangement = Arrangement.Center) {
             Button({},
+                Modifier.height(36.dp),
+                contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DefaultColor,
                     contentColor = Color.White
-                )
+                ),
             ) {
-                Text("Salvar")
+                Text(stringResource(R.string.save), fontSize = 13.sp)
             }
             Spacer(Modifier.width(defaultPadding))
             OutlinedButton({},
+                Modifier.height(36.dp),
+                contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = DefaultColor
                 ),
-                border = BorderStroke(1.dp, DefaultColor)) {
-                Text("Compartilhar")
+                border = BorderStroke(1.dp, DefaultColor)
+            ) {
+                Text(stringResource(R.string.share), fontSize = 13.sp)
             }
         }
     }
@@ -248,7 +263,7 @@ private fun ProductListItemPreview() {
         product = ProductResponse(
             id = 0,
             name = "Name",
-            description = "Description",
+            expirationOffer = LocalDate.now(),
             price = 0.0,
             percentageOfAverage = 0,
             urlImage = null,

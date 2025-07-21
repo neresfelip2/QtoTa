@@ -57,7 +57,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.product.MeasureType
-import br.com.qtota.data.remote.product.ProductStoreResponse
+import br.com.qtota.data.remote.product.ProductDetailStoreResponse
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.theme.ProductDescription
@@ -251,7 +251,7 @@ private fun TabItem(tab: Tab, selectedTab: Tab, onClick: (Tab) -> Unit) {
 }
 
 @Composable
-private fun PricesContainer(stores: List<ProductStoreResponse>) {
+private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
     Column {
         stores.forEachIndexed { index, store ->
 
@@ -277,6 +277,8 @@ private fun PricesContainer(stores: List<ProductStoreResponse>) {
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
                     )
+                } else {
+                    Spacer(Modifier.height(defaultPadding))
                 }
 
                 Column(Modifier.padding(horizontal = defaultPadding)) {

@@ -3,7 +3,6 @@ package br.com.qtota.ui.screen.product_details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.qtota.data.mapper.ProductMapper.toProduct
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.state_handler.UIState
@@ -52,15 +51,15 @@ class ProductDetailsViewModel @Inject constructor(
 
     internal fun saveProduct() {
         viewModelScope.launch {
-            val productDetails = (_productDetails.value as UIState.Success).data
-            productRepository.insert(productDetails.toProduct())
+            /*val productDetails = (_productDetails.value as UIState.Success).data
+            productRepository.insert(productDetails.toProduct())*/
         }
     }
 
     internal fun deleteProduct() {
         viewModelScope.launch {
-            val productDetails = (_productDetails.value as UIState.Success).data
-            productRepository.delete(productDetails.toProduct())
+            /*val productDetails = (_productDetails.value as UIState.Success).data
+            productRepository.delete(productDetails.toProduct())*/
         }
     }
 

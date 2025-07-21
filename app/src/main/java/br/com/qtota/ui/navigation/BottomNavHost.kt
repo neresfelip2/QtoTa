@@ -9,17 +9,18 @@ import androidx.navigation.navArgument
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.menu.MenuScreen
+import br.com.qtota.ui.screen.saved_offers.SavedOffersScreen
 import br.com.qtota.ui.screen.search_product.SearchProductScreen
 import br.com.qtota.ui.screen.store_list.StoreListScreen
 import br.com.qtota.ui.screen.store_products.StoreProductsScreen
 
 @Composable
 internal fun BottomNavHost(bottomNavController: NavHostController, navController: NavHostController) {
-
     NavHost(
         bottomNavController,
         AppRoute.Home.route
     ) {
+
         composable(AppRoute.Home.route) { HomeScreen(navController, bottomNavController) }
         composable(
             AppRoute.SearchProduct.route,
@@ -34,7 +35,9 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
             val query = backStack.arguments?.getString(AppRoute.SearchProduct.ARG_QUERY)
             SearchProductScreen(navController, query)
         }
+        composable(AppRoute.SavedOffers.route) { SavedOffersScreen(navController) }
         composable(AppRoute.Menu.route) { MenuScreen(navController) }
+
         composable(AppRoute.StoreList.route) { StoreListScreen(bottomNavController) }
         composable(AppRoute.StoreProducts.route) { StoreProductsScreen(StoreResponse(
             id = 0,

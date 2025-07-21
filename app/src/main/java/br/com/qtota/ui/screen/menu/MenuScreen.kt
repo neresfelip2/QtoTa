@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.navigation.AppRoute
+import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.defaultPadding
 
@@ -62,12 +61,6 @@ internal fun MenuScreen(navController: NavHostController) {
                 MenuButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
                     navController.navigate(AppRoute.Login.route) { launchSingleTop = true }
                 }
-            }
-        }
-
-        MenuGroup {
-            MenuButton(stringResource(R.string.saved_offers), Icons.Outlined.FavoriteBorder) {
-                navController.navigate(AppRoute.SavedOffers.route)
             }
         }
 
@@ -104,7 +97,7 @@ private fun MenuGroup(
 }
 
 @Composable
-private fun MenuButton(title: String, icon: ImageVector, color: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
+private fun MenuButton(title: String, icon: ImageVector, color: Color = DefaultColor, onClick: () -> Unit) {
     TextButton(onClick) {
         Icon(icon, null, Modifier.padding(8.dp), tint = color)
         Text(title,

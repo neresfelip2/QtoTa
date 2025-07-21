@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toMonetaryString
 import coil.compose.AsyncImage
+import java.time.LocalDate
 
 @Composable
 internal fun HomeProductItem(product: ProductResponse, navController: NavHostController, modifier: Modifier = Modifier) {
@@ -59,7 +61,8 @@ internal fun HomeProductItem(product: ProductResponse, navController: NavHostCon
         }
         Column(Modifier
             .padding(defaultPadding)
-            .fillMaxHeight()) {
+            .fillMaxHeight()
+        ) {
             ProductTitle(product.name, maxLines = 2)
             Row(
                 Modifier
@@ -78,7 +81,8 @@ internal fun HomeProductItem(product: ProductResponse, navController: NavHostCon
                 "${product.percentageOfAverage}% abaixo da média no ${product.store.name}",
                 fontSize = 12.sp,
                 lineHeight = 14.sp,
-                color = Color.Gray
+                color = Color.Gray,
+                textAlign = TextAlign.Center
             )
         }
 
@@ -92,7 +96,7 @@ private fun HomeProductItemPreview() {
         product = ProductResponse(
             id = 0,
             name = "Teste",
-            description = "Teste",
+            expirationOffer = LocalDate.now(),
             price = 10.0,
             percentageOfAverage = 10,
             urlImage = null,

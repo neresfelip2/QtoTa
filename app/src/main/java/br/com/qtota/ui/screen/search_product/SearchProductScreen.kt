@@ -1,12 +1,16 @@
 package br.com.qtota.ui.screen.search_product
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -104,10 +108,14 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
             item {
                 when(categoryListState) {
                     is UIState.Loading -> Box(Modifier.fillMaxSize()) {
-                        Text(
-                            stringResource(R.string.loading_categories),
-                            Modifier.align(Alignment.Center)
-                        )
+                        Row(Modifier.padding(defaultPadding).fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator(color = DefaultColor)
+                            Spacer(Modifier.width(defaultPadding))
+                            Text(
+                                stringResource(R.string.loading_categories),
+                                color = DefaultColor
+                            )
+                        }
                     }
                     is UIState.Error -> Text("Não foi possível carregar as categorias")
                     is UIState.Success -> {
@@ -146,9 +154,13 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
                 } else if (loadState == LoadMoreListState.EMPTY) {
                     item {
                         Text(
-                            "Fim da lista", Modifier
+                            "Fim da lista",
+                            Modifier
                                 .fillMaxWidth()
-                                .padding(defaultPadding), textAlign = TextAlign.Center
+                                .padding(defaultPadding),
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

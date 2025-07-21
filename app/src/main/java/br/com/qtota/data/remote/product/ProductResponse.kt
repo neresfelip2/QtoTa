@@ -2,6 +2,7 @@ package br.com.qtota.data.remote.product
 
 import br.com.qtota.data.remote.store.StoreResponse
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDate
 
 data class ProductResponse (
 
@@ -11,8 +12,8 @@ data class ProductResponse (
     @SerializedName("name")
     val name: String,
 
-    @SerializedName("description")
-    val description: String,
+    @SerializedName("expiration_offer")
+    val expirationOffer: LocalDate,
 
     @SerializedName("price")
     val price: Double,

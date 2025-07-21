@@ -3,7 +3,7 @@ package br.com.qtota.data.remote.product
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
 
-data class ProductStoreResponse(
+data class ProductDetailStoreResponse(
 
     @SerializedName("id")
     val id: Long,
@@ -14,14 +14,8 @@ data class ProductStoreResponse(
     @SerializedName("branch")
     val branch: String,
 
-    @SerializedName("current_price")
+    @SerializedName("price")
     val currentPrice: Double,
-
-    @SerializedName("discount_percentage")
-    val discountPercentage: Int,
-
-    @SerializedName("previous_price")
-    val previousPrice: Double?,
 
     @SerializedName("expiration_offer")
     val expirationOffer: LocalDate,
