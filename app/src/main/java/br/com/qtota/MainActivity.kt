@@ -12,13 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.AppNavHost
+import br.com.qtota.ui.screen.main_nav.MainNavViewModel
 import br.com.qtota.ui.theme.QtoTaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainNavViewModel by viewModels()
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {

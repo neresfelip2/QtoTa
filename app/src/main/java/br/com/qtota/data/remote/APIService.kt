@@ -34,6 +34,7 @@ interface APIService {
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
         @Query("query") query: String?,
+        @Query("id_store") storeId: Long?,
         @Query("id_category") categoryId: Int?,
         @Query("page") page: Int,
         @Query("limit") limit: Int

@@ -18,6 +18,7 @@
     <string name="diference_days">%1$d dias</string>
     <string name="email">E-mail</string>
     <string name="empty_product_list_message">Não há nada aqui</string>
+    <string name="end_of_list">Fim da lista</string>
     <string name="error_loading_message">Algo deu errado</string>
     <string name="expiration_days">%1$d dias</string>
     <string name="expired">Expirado</string>
@@ -25,6 +26,7 @@
     <string name="information">Informações</string>
     <string name="invalid_email">E-mail inválido</string>
     <string name="loading_categories">Carregando categorias…</string>
+    <string name="loading_location">Buscando localização…</string>
     <string name="log_in">Fazer login</string>
     <string name="logging_in">Fazendo login…</string>
     <string name="logout">Logout</string>
@@ -55,4 +57,5 @@
     <string name="save">Salvar</string>
     <string name="share">Compartilhar</string>
     <string name="valid_offer_until_date">Oferta válida até %1$s</string>
+    <string name="you_are_seeing_offers_in">Você está vendo ofertas em:</string>
 </resources>

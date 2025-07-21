@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen
+package br.com.qtota.ui.screen.main_nav
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
@@ -31,14 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import br.com.qtota.MainViewModel
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.DrawerContent
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
-import br.com.qtota.ui.navigation.BottomNavHost
 import br.com.qtota.ui.screen.home.SendFlyerDialog
 import br.com.qtota.ui.theme.DefaultColor
 import kotlinx.coroutines.launch
@@ -47,7 +45,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun MainNavigationScreen(navController: NavHostController) {
 
-    val viewModel: MainViewModel = hiltViewModel()
+    val viewModel: MainNavViewModel = hiltViewModel()
     val bottomNavController = rememberNavController()
 
     // Drawer

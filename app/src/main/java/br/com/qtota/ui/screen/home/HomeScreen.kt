@@ -186,9 +186,7 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
 
                     LazyRow(contentPadding = PaddingValues(8.dp)) {
                         items(data.nearbyStores) { store ->
-                            StoreListItem(store) {
-                                bottomNavController.navigate(AppRoute.StoreProducts.route)
-                            }
+                            StoreListItem(store, bottomNavController)
                         }
                     }
                 }

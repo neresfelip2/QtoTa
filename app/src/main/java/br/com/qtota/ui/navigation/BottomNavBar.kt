@@ -13,6 +13,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,43 +26,29 @@ internal fun BottomNavBar(navController: NavHostController) {
         .currentBackStackEntryAsState().value?.destination?.route
 
     NavigationBar(Modifier.heightIn(56.dp, 112.dp).windowInsetsPadding(WindowInsets.navigationBars)) {
-        NavItem(AppRoute.Home, currentRoute, navController)
-        NavigationBarItem(
-            selected = currentRoute?.startsWith(AppRoute.SearchProduct.BASE_ROUTE) == true,
-            onClick  = {
-                if (currentRoute != AppRoute.SearchProduct.BASE_ROUTE) {
-                    navController.navigate(AppRoute.SearchProduct.createRoute(null)) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop  = true
-                        restoreState     = true
-                    }
-                }
-            },
-            icon     = { Icon(AppRoute.SearchProduct.icon!!, contentDescription = null) },
-            colors   = NavigationBarItemDefaults.colors(
-                selectedIconColor   = DefaultColor,
-                unselectedIconColor = Color.Gray,
-                indicatorColor      = Color.Transparent
-            )
-        )
+        NavItem(AppRoute.Home.route, AppRoute.Home.icon, currentRoute, navController)
+        NavItem(AppRoute.SearchProduct.createRoute(), AppRoute.SearchProduct.icon, currentRoute, navController)
         Spacer(Modifier.weight(1f, fill = true))
-        NavItem(AppRoute.SavedOffers, currentRoute, navController)
-        NavItem(AppRoute.Menu, currentRoute, navController)
+        NavItem(AppRoute.SavedOffers.route, AppRoute.SavedOffers.icon, currentRoute, navController)
+        NavItem(AppRoute.Menu.route, AppRoute.Menu.icon, currentRoute, navController)
     }
 
 }
 
 @Composable
-internal fun RowScope.NavItem(route: AppRoute, currentRoute: String?, navController: NavHostController) {
+internal fun RowScope.NavItem(route: String, icon: ImageVector?, currentRoute: String?, navController: NavHostController) {
+
+    val selected = currentRoute?.startsWith(route) == true
+
     NavigationBarItem(
-        selected = currentRoute == route.route,
+        selected = selected,
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = DefaultColor,
             unselectedIconColor = Color.Gray,
             indicatorColor = Color.Transparent
         ),
         onClick = {
-            if(currentRoute != route.route) navController.navigate(route.route) {
+            if(!selected) navController.navigate(route) {
                 popUpTo(navController.graph.startDestinationId) {
                     saveState = true
                 }
@@ -69,6 +56,6 @@ internal fun RowScope.NavItem(route: AppRoute, currentRoute: String?, navControl
                 restoreState = true
             }
         },
-        icon = { route.icon?.let { Icon(it, null) } },
+        icon = { icon?.let { Icon(it, null) } },
     )
 }

@@ -24,16 +24,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.store.StoreResponse
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
 import coil.compose.AsyncImage
 
 @Composable
-internal fun StoreListItem(store: StoreResponse, onClick: () -> Unit) {
+internal fun StoreListItem(store: StoreResponse, navController: NavController) {
     Card(
-        onClick,
+        {
+            navController.navigate(AppRoute.SearchProduct.createRoute(store = store))
+        },
         Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White

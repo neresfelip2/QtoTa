@@ -1,11 +1,14 @@
 package br.com.qtota.ui.navigation
 
+import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
+import br.com.qtota.data.remote.store.StoreResponse
+import com.google.gson.Gson
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
@@ -13,25 +16,38 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
     object MainNav: AppRoute("main_nav")
     object Home: AppRoute("home", Icons.Outlined.Home)
     object SearchProduct : AppRoute(
-        "search_product?query={query}",
+        "search_product?query={query}&store={store}",
         Icons.Outlined.Search
     ) {
         const val BASE_ROUTE = "search_product"
         const val ARG_QUERY  = "query"
+        const val ARG_STORE = "store"
 
-        fun createRoute(query: String?): String {
-            return if (!query.isNullOrBlank()) {
-                "$BASE_ROUTE?${ARG_QUERY}=${query}"
-            } else {
+        fun createRoute(query: String? = null, store: StoreResponse? = null): String {
+            val params = mutableListOf<String>()
+
+            query
+                .takeIf { !it.isNullOrBlank() }
+                ?.let { params += "$ARG_QUERY=${Uri.encode(it)}" }
+
+            store
+                ?.let {
+                    val json = Gson().toJson(store)
+                    val encoded = Uri.encode(json)
+                    params += "$ARG_STORE=${Uri.encode(encoded)}"
+                }
+
+            return if (params.isEmpty()) {
                 BASE_ROUTE
+            } else {
+                "$BASE_ROUTE?${params.joinToString("&")}"
             }
         }
     }
 
     object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
     object Menu: AppRoute("menu", Icons.Outlined.Menu)
-    object StoreList: AppRoute("store_list")
-    object StoreProducts: AppRoute("store_products")
+    object StoreList: AppRoute("home/store_list")
 
 
     object RequestLocation: AppRoute("request_location")

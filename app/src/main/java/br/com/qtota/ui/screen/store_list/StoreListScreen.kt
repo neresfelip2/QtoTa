@@ -22,7 +22,6 @@ import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.StoreListItem
-import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.state_handler.UIState
 
 @Composable
@@ -34,7 +33,7 @@ internal fun StoreListScreen(bottomNavController: NavHostController) {
 
     when(storeListState) {
         is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize())
-        is UIState.Error -> ErrorComponent("Algo deu errado", Modifier.fillMaxSize())
+        is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
         is UIState.Success -> {
             val stores = (storeListState as UIState.Success).data
             if(stores.isEmpty()) {
@@ -55,9 +54,7 @@ internal fun StoreListScreen(bottomNavController: NavHostController) {
             }
             LazyVerticalGrid(GridCells.Fixed(2), contentPadding = PaddingValues(8.dp)) {
                 items(stores) { store ->
-                    StoreListItem(store) {
-                        bottomNavController.navigate(AppRoute.StoreProducts.route)
-                    }
+                    StoreListItem(store, bottomNavController)
                 }
             }
         }

@@ -1,4 +1,4 @@
-package br.com.qtota
+package br.com.qtota.ui.screen.main_nav
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class MainNavViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
 

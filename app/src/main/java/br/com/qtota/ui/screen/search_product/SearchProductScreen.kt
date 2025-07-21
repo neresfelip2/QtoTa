@@ -50,6 +50,7 @@ import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
+import br.com.qtota.ui.screen.home.HomeTitle
 import br.com.qtota.ui.state_handler.LoadMoreListState
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
@@ -60,7 +61,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 
 @Composable
-internal fun SearchProductScreen(navController: NavHostController, query: String?) {
+internal fun SearchProductScreen(navController: NavHostController) {
 
     val viewModel: SearchProductViewModel = hiltViewModel()
 
@@ -71,10 +72,6 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
 
     val listState = rememberLazyListState()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-
-    LaunchedEffect(query) {
-        viewModel.performSearch(query)
-    }
 
     LaunchedEffect(listState, listProductState.size) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
@@ -95,20 +92,44 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
                     modifier = Modifier.padding(start = defaultPadding, top = defaultPadding)
                 )
             }
+
+            viewModel.store?.let { store ->
+                item {
+                    Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
+                        Spacer(Modifier.width(defaultPadding))
+                        store.logo?.let { logo ->
+                            AsyncImage(
+                                logo, null,
+                                Modifier.size(24.dp)
+                            )
+                        } ?: Icon(
+                            painterResource(R.drawable.outline_store_24),
+                            null,
+                            Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.width(defaultPadding))
+                        HomeTitle(store.name)
+                    }
+                }
+            }
+
             item {
                 SearchTextField(
                     Modifier
                         .fillMaxWidth()
                         .padding(defaultPadding),
-                    query ?: "",
+                    viewModel.query,
                     onDone = viewModel::performSearch
                 )
             }
 
-            item {
+            stickyHeader {
                 when(categoryListState) {
                     is UIState.Loading -> Box(Modifier.fillMaxSize()) {
-                        Row(Modifier.padding(defaultPadding).fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Row(Modifier
+                            .padding(defaultPadding)
+                            .fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                             CircularProgressIndicator(color = DefaultColor)
                             Spacer(Modifier.width(defaultPadding))
                             Text(
@@ -133,6 +154,7 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
                 ProductListItem(
                     product = product,
                     navController = navController,
+                    viewModel.store == null,
                     onHighlightedButtonClick = {
                         //viewModel.saveProduct(it)
                     },
@@ -178,7 +200,7 @@ internal fun SearchProductScreen(navController: NavHostController, query: String
                 )
             } else if(loadState == LoadMoreListState.ERROR) {
                 ErrorComponent(
-                    "Algo deu errado",
+                    stringResource(R.string.error_loading_message),
                     Modifier.fillMaxSize()
                 )
             } else if(loadState == LoadMoreListState.EMPTY) {

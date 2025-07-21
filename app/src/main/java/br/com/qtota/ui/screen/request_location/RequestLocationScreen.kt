@@ -42,7 +42,7 @@ internal fun RequestLocationScreen(navController: NavHostController) {
         topBar = { Toolbar() }
     ) { innerPadding ->
         when (locationState) {
-            is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize(), "Buscando localização...")
+            is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize(), stringResource(R.string.loading_location))
             is UIState.Error -> RequestLocationComponent(viewModel)
             is UIState.Success -> navController.navigate(AppRoute.MainNav.route) {
                 popUpTo(navController.graph.id) {

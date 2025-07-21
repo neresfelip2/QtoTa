@@ -1,13 +1,18 @@
 package br.com.qtota.ui.screen.search_product
 
+import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.state_handler.LoadMoreListState
 import br.com.qtota.ui.state_handler.UIState
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +24,7 @@ import javax.inject.Inject
 class SearchProductViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
     private val productRepository: ProductRepository,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     val neighborhood = locationRepository.getNeighborhood()
@@ -32,15 +38,17 @@ class SearchProductViewModel @Inject constructor(
     private val _loadState = MutableStateFlow(LoadMoreListState.LOADING)
     val loadState = _loadState.asStateFlow()
 
+    var query: String = savedStateHandle[AppRoute.SearchProduct.ARG_QUERY] ?: ""
+    val store: StoreResponse? = Gson().fromJson(Uri.decode(savedStateHandle[AppRoute.SearchProduct.ARG_STORE]), StoreResponse::class.java)
+    private var category: CategoryResponse? = null
     private var currentPage = 0
     private val limit = 10
-    private var query: String = ""
-    private var category: CategoryResponse? = null
 
     private var request: Job? = null
 
     init {
         getCategoryList()
+        getProducts(1)
     }
 
     internal fun getProducts(page: Int) {
@@ -55,6 +63,7 @@ class SearchProductViewModel @Inject constructor(
             val result = productRepository.getProducts(
                 location = locationRepository.location!!,
                 query = query,
+                storeId = store?.id,
                 categoryId = category?.id,
                 page = page,
                 limit = limit
