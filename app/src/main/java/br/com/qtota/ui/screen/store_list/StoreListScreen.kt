@@ -51,13 +51,13 @@ internal fun StoreListScreen(bottomNavController: NavHostController) {
     Column {
         when(viewMode) {
             ViewMode.LIST -> {
-                ChangeViewButton("Ver mapa", R.drawable.outline_map_24) {
+                ChangeViewButton(stringResource(R.string.see_map), R.drawable.outline_map_24) {
                     viewMode = ViewMode.MAP
                 }
                 ListView(viewModel, bottomNavController)
             }
             ViewMode.MAP -> {
-                ChangeViewButton("Ver lista", R.drawable.outline_map_24) {
+                ChangeViewButton(stringResource(R.string.see_list), R.drawable.outline_map_24) {
                     viewMode = ViewMode.LIST
                 }
                 MapView(viewModel)

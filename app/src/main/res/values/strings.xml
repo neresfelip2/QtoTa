@@ -58,4 +58,6 @@
     <string name="share">Compartilhar</string>
     <string name="valid_offer_until_date">Oferta válida até %1$s</string>
     <string name="you_are_seeing_offers_in">Você está vendo ofertas em:</string>
+    <string name="see_list">Ver lista</string>
+    <string name="see_map">Ver mapa</string>
 </resources>
