@@ -37,7 +37,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ErrorComponent
-import br.com.qtota.ui.components.HomeProductItem
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent

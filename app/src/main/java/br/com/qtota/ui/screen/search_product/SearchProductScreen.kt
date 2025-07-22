@@ -48,7 +48,6 @@ import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
-import br.com.qtota.ui.components.ProductListItem
 import br.com.qtota.ui.components.SearchTextField
 import br.com.qtota.ui.screen.home.HomeTitle
 import br.com.qtota.ui.state_handler.LoadMoreListState

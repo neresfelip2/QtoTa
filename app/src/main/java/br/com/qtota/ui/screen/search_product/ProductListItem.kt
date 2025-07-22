@@ -1,4 +1,4 @@
-package br.com.qtota.ui.components
+package br.com.qtota.ui.screen.search_product
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -50,6 +50,7 @@ import br.com.qtota.R
 import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store.StoreResponse
+import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
@@ -198,18 +199,28 @@ internal fun ProductListItem(
                             fontWeight = FontWeight.Black,
                             color = Color(0xFF007700)
                         )
-                        Text(
-                            "Economize ${product.percentageOfAverage}%",
-                            Modifier
-                                .background(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFFFF883C)
-                                )
-                                .padding(8.dp, 2.dp),
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            color = Color.White,
-                        )
+                        if(product.percentageOfAverage > 0) {
+                            Text(
+                                "Economize ${product.percentageOfAverage}%",
+                                Modifier
+                                    .background(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = Color(0xFFFF883C)
+                                    )
+                                    .padding(6.dp, 1.dp),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp,
+                                color = Color.White,
+                            )
+                        } else if(product.percentageOfAverage < 0) {
+                            Text(
+                                "${-product.percentageOfAverage}% acima da média",
+                                Modifier
+                                    .padding(6.dp, 1.dp),
+                                fontSize = 12.sp,
+                                color = Color.Red,
+                            )
+                        }
                     }
                 }
             }
