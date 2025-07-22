@@ -81,6 +81,7 @@ internal fun MainNavigationScreen(navController: NavHostController) {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = { DrawerContent() },
+                gesturesEnabled = false
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                         Scaffold(

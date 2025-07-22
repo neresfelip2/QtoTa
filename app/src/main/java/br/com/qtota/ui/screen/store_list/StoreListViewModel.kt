@@ -6,6 +6,7 @@ import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.StoreRespository
 import br.com.qtota.ui.state_handler.UIState
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +35,10 @@ class StoreListViewModel @Inject constructor(
 
             _storeListState.value = UIState.Success(result)
         }
+    }
+
+    fun getLatLng() : LatLng {
+        return LatLng(locationRepository.location!!.latitude, locationRepository.location!!.longitude)
     }
 
 }
