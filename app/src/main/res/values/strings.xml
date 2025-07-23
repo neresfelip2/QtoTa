@@ -12,6 +12,7 @@
     <string name="continue_without_logging_in">Continuar sem login</string>
     <string name="create_price_alert">Criar alerta de preço</string>
     <string name="days_until_expiration">Validade</string>
+    <string name="delete_from_saved">Remover dos salvos</string>
     <string name="delete_product_dialog">Deseja remover este produto dos salvos?</string>
     <string name="description">Descrição</string>
     <string name="details">Detalhes</string>
@@ -25,14 +26,17 @@
     <string name="i_forgot_my_password">Esqueci minha senha</string>
     <string name="information">Informações</string>
     <string name="invalid_email">E-mail inválido</string>
+    <string name="load_offers_error_message">Não foi possível carregar os dados</string>
     <string name="loading_categories">Carregando categorias…</string>
     <string name="loading_location">Buscando localização…</string>
+    <string name="loading_offers">Carregando ofertas…</string>
     <string name="log_in">Fazer login</string>
     <string name="logging_in">Fazendo login…</string>
     <string name="logout">Logout</string>
     <string name="logout_dialog_message">Deseja fazer logout?</string>
     <string name="nearest_stores">Lojas mais próximas</string>
     <string name="new_register">Novo cadastro</string>
+    <string name="num_offers_found">%1$d ofertas encontradas</string>
     <string name="origin">Origem</string>
     <string name="password">Senha</string>
     <string name="password_character_limit_message">A senha deve ter no mínimo 6 caracteres</string>
@@ -44,6 +48,7 @@
     <string name="save_product_dialog">Deseja salvar este produto?</string>
     <string name="saved_offers">Ofertas salvas</string>
     <string name="search_products">Pesquise um produto…</string>
+    <string name="see_list">Ver lista</string>
     <string name="see_maps">Ver mapa</string>
     <string name="see_more_offers">Ver mais ofertas</string>
     <string name="see_more_stores">Ver mais lojas</string>
@@ -58,7 +63,4 @@
     <string name="share">Compartilhar</string>
     <string name="valid_offer_until_date">Oferta válida até %1$s</string>
     <string name="you_are_seeing_offers_in">Você está vendo ofertas em:</string>
-    <string name="see_list">Ver lista</string>
-    <string name="see_map">Ver mapa</string>
-    <string name="delete_from_saved">Remover dos salvos</string>
 </resources>

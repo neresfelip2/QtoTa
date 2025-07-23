@@ -12,6 +12,7 @@ import br.com.qtota.ui.screen.menu.MenuScreen
 import br.com.qtota.ui.screen.saved_offers.SavedItemsScreen
 import br.com.qtota.ui.screen.search_product.SearchProductScreen
 import br.com.qtota.ui.screen.store_list.StoreListScreen
+import br.com.qtota.ui.screen.store_list.ViewMode
 
 @Composable
 internal fun BottomNavHost(bottomNavController: NavHostController, navController: NavHostController) {
@@ -35,7 +36,16 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
         }
         composable(AppRoute.SavedOffers.route) { SavedItemsScreen(navController) }
         composable(AppRoute.Menu.route) { MenuScreen(navController) }
-        composable(AppRoute.StoreList.route) { StoreListScreen(bottomNavController) }
+        composable(AppRoute.StoreList.route,
+            arguments = listOf(
+                navArgument(AppRoute.StoreList.ARG_VIEW_MODE) {
+                    type = NavType.StringType
+                }
+            )
+        ) { navBackStackEntry ->
+            val arg = navBackStackEntry.arguments?.getString(AppRoute.StoreList.ARG_VIEW_MODE)!!
+            StoreListScreen(bottomNavController, ViewMode.valueOf(arg))
+        }
     }
 
 }

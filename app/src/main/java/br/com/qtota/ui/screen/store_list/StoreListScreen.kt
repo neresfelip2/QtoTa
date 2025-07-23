@@ -51,21 +51,22 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.core.graphics.scale
 import br.com.qtota.ui.navigation.AppRoute
+import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.utils.BitmapUtils
 import br.com.qtota.utils.BitmapUtils.cropToCircle
 import com.google.android.gms.maps.model.MapStyleOptions
 
 @Composable
-internal fun StoreListScreen(bottomNavController: NavHostController) {
+internal fun StoreListScreen(bottomNavController: NavHostController, initialMode: ViewMode) {
 
     val viewModel: StoreListViewModel = hiltViewModel()
 
-    var mode by rememberSaveable { mutableStateOf(ViewMode.LIST) }
+    var mode by rememberSaveable { mutableStateOf(initialMode) }
 
     Column {
         when(mode) {
             ViewMode.LIST -> {
-                ChangeViewButton(stringResource(R.string.see_map), R.drawable.outline_map_24) {
+                ChangeViewButton(stringResource(R.string.see_maps), R.drawable.outline_map_24) {
                     mode = ViewMode.MAP
                 }
                 ListView(viewModel, bottomNavController)
@@ -88,9 +89,13 @@ internal fun ColumnScope.ChangeViewButton(text: String, @DrawableRes icon: Int, 
             .padding(end = defaultPadding)
             .align(Alignment.End)
     ) {
-        Icon(painterResource(icon), null)
+        Icon(
+            painterResource(icon),
+            null,
+            tint = DefaultColor
+        )
         Spacer(Modifier.width(defaultPadding))
-        Text(text)
+        Text(text, color = DefaultColor)
     }
 }
 

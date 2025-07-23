@@ -119,12 +119,12 @@ private fun SavedItemCard(savedProduct: SavedProductUI, navController: NavHostCo
                 is UIState.Loading -> Row {
                     CircularProgressIndicator(Modifier.size(20.dp), color = DefaultColor)
                     Spacer(Modifier.width(defaultPadding))
-                    Text("Carregando ofertas...", fontSize = 12.sp, color = DefaultColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(stringResource(R.string.loading_offers), fontSize = 12.sp, color = DefaultColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                is UIState.Error -> Text("Não foi possível carregar os dados", fontSize = 12.sp, lineHeight = 13.sp, color = ErrorColor, textAlign = TextAlign.Center)
+                is UIState.Error -> Text(stringResource(R.string.load_offers_error_message), fontSize = 12.sp, lineHeight = 13.sp, color = ErrorColor, textAlign = TextAlign.Center)
                 is UIState.Success -> {
                     val numOffers = savedProduct.offersState.data
-                    Text("$numOffers ofertas encontradas", fontSize = 12.sp, lineHeight = 13.sp, color = Color.Gray)
+                    Text(stringResource(R.string.num_offers_found, numOffers), fontSize = 12.sp, lineHeight = 13.sp, color = Color.Gray)
                 }
             }
         }

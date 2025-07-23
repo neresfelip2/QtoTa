@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import br.com.qtota.data.remote.store.StoreResponse
+import br.com.qtota.ui.screen.store_list.ViewMode
 import com.google.gson.Gson
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
@@ -47,7 +48,18 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
     object Menu: AppRoute("menu", Icons.Outlined.Menu)
-    object StoreList: AppRoute("home/store_list")
+    object StoreList: AppRoute("home/store_list/{view_mode}") {
+
+        internal const val BASE_ROUTE = "home/store_list"
+
+        internal const val ARG_VIEW_MODE = "view_mode"
+
+        internal fun createRoute(viewMode: ViewMode) : String {
+            return "${BASE_ROUTE}/${viewMode.name}"
+        }
+
+
+    }
 
 
     object RequestLocation: AppRoute("request_location")
