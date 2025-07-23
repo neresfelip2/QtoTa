@@ -9,7 +9,7 @@ import androidx.navigation.navArgument
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.menu.MenuScreen
-import br.com.qtota.ui.screen.saved_offers.SavedOffersScreen
+import br.com.qtota.ui.screen.saved_offers.SavedItemsScreen
 import br.com.qtota.ui.screen.search_product.SearchProductScreen
 import br.com.qtota.ui.screen.store_list.StoreListScreen
 
@@ -33,7 +33,7 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
         ) {
             SearchProductScreen(navController)
         }
-        composable(AppRoute.SavedOffers.route) { SavedOffersScreen(navController) }
+        composable(AppRoute.SavedOffers.route) { SavedItemsScreen(navController) }
         composable(AppRoute.Menu.route) { MenuScreen(navController) }
         composable(AppRoute.StoreList.route) { StoreListScreen(bottomNavController) }
     }

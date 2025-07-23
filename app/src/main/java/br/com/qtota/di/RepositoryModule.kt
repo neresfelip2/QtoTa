@@ -1,5 +1,6 @@
 package br.com.qtota.di
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import br.com.qtota.data.local.dao.ProductDAO
@@ -10,6 +11,7 @@ import br.com.qtota.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -28,8 +30,12 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideProductRepository(apiService: APIService, productDAO: ProductDAO): ProductRepository {
-        return ProductRepository(apiService, productDAO)
+    fun provideProductRepository(
+        @ApplicationContext context: Context,
+        apiService: APIService,
+        productDAO: ProductDAO,
+    ): ProductRepository {
+        return ProductRepository(context, apiService, productDAO)
     }
 
     @Provides

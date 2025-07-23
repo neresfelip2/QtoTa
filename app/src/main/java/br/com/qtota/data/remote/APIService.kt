@@ -63,4 +63,9 @@ interface APIService {
     @GET("product/category")
     suspend fun getCategories(): Response<List<CategoryResponse>>
 
+    @GET("product/offer")
+    suspend fun getOffers(
+        @Query("id") ids: List<Long>
+    ): Response<Map<Long, Int>>
+
 }

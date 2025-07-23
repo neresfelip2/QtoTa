@@ -1,7 +1,6 @@
 package br.com.qtota.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -20,7 +19,7 @@ interface ProductDAO {
     @Query("SELECT * FROM Product WHERE id = :id")
     fun getProductById(id: Long): Product
 
-    @Delete
-    suspend fun delete(product: Product)
+    @Query("DELETE FROM Product WHERE id = :id")
+    suspend fun delete(id: Long)
 
 }

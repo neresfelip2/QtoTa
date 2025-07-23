@@ -3,17 +3,13 @@ package br.com.qtota.ui.screen.home
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.state_handler.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,9 +24,6 @@ class HomeViewModel @Inject constructor(
 
     private val _localityNameState = MutableStateFlow("Carregando...")
     val localityNameState = _localityNameState.asStateFlow()
-
-    private val savedProductsState = productRepository.getSavedProducts()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
         _localityNameState.value = locationRepository.getNeighborhood()
@@ -49,25 +42,6 @@ class HomeViewModel @Inject constructor(
 
             _homeUiState.value = UIState.Success(result)
 
-            savedProductsState.collectLatest { savedProduct ->
-                val savedIds = savedProduct.map { it.id }.toSet()
-                //val products = (_productListState.value as UIState.Success).data
-                /*products.forEach { product ->
-                    product.isSaved = product.id in savedIds
-                }*/
-                //_productListState.value = UIState.Success(products)
-            }
-
-        }
-    }
-
-    internal fun saveProduct(product: Product) {
-        viewModelScope.launch {
-            if (product.isSaved) {
-                productRepository.delete(product)
-            } else {
-                productRepository.insert(product)
-            }
         }
     }
 

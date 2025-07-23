@@ -153,10 +153,7 @@ internal fun SearchProductScreen(navController: NavHostController) {
                 ProductListItem(
                     product = product,
                     navController = navController,
-                    viewModel.store == null,
-                    onHighlightedButtonClick = {
-                        //viewModel.saveProduct(it)
-                    },
+                    viewModel = viewModel,
                     modifier = Modifier.padding(
                         start = defaultPadding, end = defaultPadding,
                         top = if(index == 0) defaultPadding else defaultPadding/2,

@@ -16,7 +16,9 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,6 +30,9 @@ class SearchProductViewModel @Inject constructor(
 ) : ViewModel() {
 
     val neighborhood = locationRepository.getNeighborhood()
+
+    val savedProductsState = productRepository.getSavedProducts()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val _productListState = MutableStateFlow<List<ProductResponse>>(emptyList())
     val productListState = _productListState.asStateFlow()
@@ -122,6 +127,18 @@ class SearchProductViewModel @Inject constructor(
     private fun resetPaging() {
         currentPage = 0
         _productListState.value = emptyList()
+    }
+
+    internal fun saveProduct(product: ProductResponse) {
+        viewModelScope.launch {
+            productRepository.insert(product)
+        }
+    }
+
+    internal fun deleteProduct(product: ProductResponse) {
+        viewModelScope.launch {
+            productRepository.delete(product.id)
+        }
     }
 
 }

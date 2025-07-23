@@ -51,15 +51,15 @@ class ProductDetailsViewModel @Inject constructor(
 
     internal fun saveProduct() {
         viewModelScope.launch {
-            /*val productDetails = (_productDetails.value as UIState.Success).data
-            productRepository.insert(productDetails.toProduct())*/
+            val productDetails = (_productDetails.value as UIState.Success).data
+            productRepository.insert(productDetails)
         }
     }
 
     internal fun deleteProduct() {
         viewModelScope.launch {
-            /*val productDetails = (_productDetails.value as UIState.Success).data
-            productRepository.delete(productDetails.toProduct())*/
+            val productDetails = (_productDetails.value as UIState.Success).data
+            productRepository.delete(productDetails.id)
         }
     }
 

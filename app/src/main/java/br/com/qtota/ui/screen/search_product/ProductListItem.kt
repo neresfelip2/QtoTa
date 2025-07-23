@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +45,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
-import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.components.ConfirmDialog
@@ -66,12 +67,14 @@ import java.time.LocalDate
 internal fun ProductListItem(
     product: ProductResponse,
     navController: NavHostController,
-    showStoreHeader: Boolean,
-    onHighlightedButtonClick: (Product) -> Unit,
+    viewModel: SearchProductViewModel,
     modifier: Modifier = Modifier
 ) {
-    var saveProduct by remember { mutableStateOf<Product?>(null) }
-    var deleteProduct by remember { mutableStateOf<Product?>(null) }
+
+    val savedProductsState by viewModel.savedProductsState.collectAsState()
+    val isSaved = savedProductsState.any { it.id == product.id }
+
+    var dialog by remember { mutableStateOf<ProductResponse?>(null) }
 
     Card(
         modifier.clickable {
@@ -101,7 +104,7 @@ internal fun ProductListItem(
                 )
             }
             Column {
-                if(showStoreHeader) {
+                if(viewModel.store == null) {
                     Row(
                         modifier = Modifier
                             .background(GrayColor)
@@ -230,7 +233,7 @@ internal fun ProductListItem(
             .fillMaxWidth()
             .padding(8.dp),
             horizontalArrangement = Arrangement.Center) {
-            Button({},
+            Button({ dialog = product },
                 Modifier.height(36.dp),
                 contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
                 colors = ButtonDefaults.buttonColors(
@@ -238,7 +241,10 @@ internal fun ProductListItem(
                     contentColor = Color.White
                 ),
             ) {
-                Text(stringResource(R.string.save), fontSize = 13.sp)
+                Text(
+                    stringResource(if (isSaved) R.string.delete_from_saved else R.string.save),
+                    fontSize = 13.sp
+                )
             }
             Spacer(Modifier.width(defaultPadding))
             OutlinedButton({},
@@ -254,25 +260,15 @@ internal fun ProductListItem(
         }
     }
 
-    saveProduct?.let {
+    dialog?.let {
         ConfirmDialog(
-            text = "Deseja salvar este produto?",
+            text = if(isSaved) "Deseja remover este produto dos salvos?" else "Deseja salvar este produto?",
             onConfirm = {
-                onHighlightedButtonClick(it)
-                saveProduct = null
+                if (isSaved) viewModel.deleteProduct(it)
+                else viewModel.saveProduct(it)
+                dialog = null
             },
-            onDismiss = { saveProduct = null }
-        )
-    }
-
-    deleteProduct?.let {
-        ConfirmDialog(
-            text = "Deseja remover este produto dos salvos?",
-            onConfirm = {
-                onHighlightedButtonClick(it)
-                deleteProduct = null
-            },
-            onDismiss = { deleteProduct = null }
+            onDismiss = { dialog = null }
         )
     }
 
@@ -297,7 +293,6 @@ private fun ProductListItemPreview() {
             ),
         ),
         navController = rememberNavController(),
-        showStoreHeader = true,
-        onHighlightedButtonClick = {}
+        viewModel = hiltViewModel(),
     )
 }
