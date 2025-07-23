@@ -53,6 +53,11 @@ interface APIService {
         @Query("lon") longitude: Double,
     ) : Response<List<StoreResponse>>
 
+    @GET("store/branches")
+    suspend fun getNearbyStoreBranches(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ) : Response<List<StoreResponse>>
 
     @Multipart
     @POST("send-flyer")

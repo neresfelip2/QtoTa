@@ -2,7 +2,6 @@ package br.com.qtota.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import br.com.qtota.data.local.dao.ProductDAO
 import br.com.qtota.data.local.entity.Product
@@ -15,9 +14,7 @@ import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
 import br.com.qtota.ui.screen.saved_offers.SavedProductUI
 import br.com.qtota.ui.state_handler.UIState
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import br.com.qtota.utils.BitmapUtils
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.FileOutputStream
@@ -106,15 +103,8 @@ class ProductRepository(
     }*/
 
     private suspend fun generateFilePath(id: Long, urlImage: String?): String {
-        val loader = ImageLoader.Builder(context)
-            .build()
 
-        val request = ImageRequest.Builder(context)
-            .data(urlImage)
-            .build()
-
-        val result = loader.execute(request) as? SuccessResult
-        val bitmap = (result?.drawable as? BitmapDrawable)?.bitmap
+        val bitmap = BitmapUtils.downloadImageFromUrl(urlImage, context)
 
         val filename = "product_${id}.png"
         val file = File(context.filesDir, filename)

@@ -104,6 +104,8 @@ private fun HomeProductItemPreview() {
                 id = 0,
                 name = "Teste",
                 branch = "Teste",
+                latitude = 0.0,
+                longitude = 0.0,
                 distance = 600,
                 logo = null
             )

@@ -13,6 +13,12 @@ data class StoreResponse(
     @SerializedName("branch")
     val branch: String,
 
+    @SerializedName("latitude")
+    val latitude: Double,
+
+    @SerializedName("longitude")
+    val longitude: Double,
+
     @SerializedName("distance")
     val distance: Int,
 

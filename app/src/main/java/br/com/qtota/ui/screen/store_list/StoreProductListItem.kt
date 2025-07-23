@@ -197,6 +197,8 @@ private fun ProductListItemPreview() {
             store = StoreResponse(
                 id = 0,
                 name = "Store Name",
+                latitude = 0.0,
+                longitude = 0.0,
                 branch = "Store Branch",
                 distance = 0,
                 logo = null
