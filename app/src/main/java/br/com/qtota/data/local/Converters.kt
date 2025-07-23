@@ -1,17 +1,19 @@
 package br.com.qtota.data.local
 
 import androidx.room.TypeConverter
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Converters {
 
-    @TypeConverter
-    fun fromLocalDateToEpoch(date: LocalDate?): Long? {
-        return date?.toEpochDay()
-    }
+    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
     @TypeConverter
-    fun fromEpochToLocalDate(epochDay: Long?): LocalDate? {
-        return epochDay?.let { LocalDate.ofEpochDay(it) }
-    }
+    fun fromLocalDateTime(value: LocalDateTime?): String? =
+        value?.format(formatter)
+
+    @TypeConverter
+    fun toLocalDateTime(value: String?): LocalDateTime? =
+        value?.let { LocalDateTime.parse(it, formatter) }
+
 }

@@ -3,6 +3,7 @@ package br.com.qtota.data.local.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
 @Entity(tableName = "Product")
 data class Product(
@@ -15,4 +16,8 @@ data class Product(
 
     @ColumnInfo("path_image")
     val pathImage: String?,
+
+    @ColumnInfo("created_at")
+    val createdAt: LocalDateTime,
+
 )

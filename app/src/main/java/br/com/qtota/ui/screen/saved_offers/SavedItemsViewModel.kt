@@ -19,7 +19,17 @@ class SavedItemsViewModel @Inject constructor(
     private val _savedProducts = MutableStateFlow<List<SavedProductUI>?>(null)
     val savedProducts = _savedProducts.asStateFlow()
 
-    init {
+    internal fun loadSavedOffers(sortType: SortType) {
+
+        if (_savedProducts.value != null) {
+            val list = _savedProducts.value!!
+            _savedProducts.value = when(sortType) {
+                SortType.ALFABETIC -> list.sortedBy { it.product.name }
+                SortType.MOST_RECENT -> list.sortedByDescending { it.product.createdAt }
+            }
+            return
+        }
+
         viewModelScope.launch {
             productRepository.getSavedProducts().collectLatest {
                 _savedProducts.value = it.map { product ->
@@ -30,7 +40,7 @@ class SavedItemsViewModel @Inject constructor(
                 }
                 _savedProducts.value?.let { listProducts ->
                     val response = productRepository.getSavedProductsWithOffers(listProducts)
-                    if(response != null) {
+                    if (response != null) {
                         _savedProducts.value = response
                     } else {
                         _savedProducts.value = listProducts.map { product ->
@@ -40,6 +50,7 @@ class SavedItemsViewModel @Inject constructor(
                 }
             }
         }
+
     }
 
 }

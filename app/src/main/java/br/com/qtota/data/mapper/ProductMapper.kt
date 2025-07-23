@@ -4,6 +4,7 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.screen.product_details.ProductDetail
+import java.time.LocalDateTime
 
 object ProductMapper {
 
@@ -29,6 +30,7 @@ object ProductMapper {
             id = this.id,
             name = this.name,
             pathImage = pathImage,
+            createdAt = LocalDateTime.now()
         )
     }
 
@@ -37,6 +39,7 @@ object ProductMapper {
             id = this.id,
             name = this.name,
             pathImage = pathImage,
+            createdAt = LocalDateTime.now()
         )
     }
 

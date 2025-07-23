@@ -13,7 +13,7 @@ interface ProductDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(product: Product)
 
-    @Query("SELECT * FROM Product")
+    @Query("SELECT * FROM Product ORDER BY name")
     fun getAll(): Flow<List<Product>>
 
     @Query("SELECT * FROM Product WHERE id = :id")

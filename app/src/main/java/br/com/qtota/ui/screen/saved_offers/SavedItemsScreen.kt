@@ -6,22 +6,34 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,12 +58,20 @@ import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import coil.compose.AsyncImage
 import java.io.File
+import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SavedItemsScreen(navController: NavHostController) {
 
     val viewModel: SavedItemsViewModel = hiltViewModel()
     val savedProducts by viewModel.savedProducts.collectAsState()
+
+    var selectedSort by rememberSaveable { mutableStateOf(SortType.ALFABETIC) }
+
+    LaunchedEffect(selectedSort) {
+        viewModel.loadSavedOffers(selectedSort)
+    }
 
     savedProducts?.let {
         if (it.isEmpty()) {
@@ -75,6 +95,57 @@ internal fun SavedItemsScreen(navController: NavHostController) {
             StaggeredGridCells.Fixed(2),
             contentPadding = PaddingValues(defaultPadding / 2)
         ) {
+
+            item(span = StaggeredGridItemSpan.FullLine) {
+
+                var expanded by rememberSaveable { mutableStateOf(false) }
+
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(defaultPadding / 2),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+
+                        TextButton({},
+                            modifier = Modifier
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.outline_sort_24),
+                                null,
+                                tint = DefaultColor
+                            )
+                            Spacer(Modifier.width(defaultPadding))
+                            Text(
+                                text = selectedSort.label,
+                                fontSize = 14.sp,
+                                color = DefaultColor
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            SortType.entries.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.label) },
+                                    onClick = {
+                                        selectedSort = option
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             itemsIndexed(it) { index, product ->
                 SavedItemCard(
                     product,
@@ -99,7 +170,7 @@ private fun SavedItemCard(savedProduct: SavedProductUI, navController: NavHostCo
         colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Column(
-            Modifier.padding(defaultPadding),
+            Modifier.padding(defaultPadding).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             savedProduct.product.pathImage?.let {
@@ -138,7 +209,8 @@ private fun SavedItemCardPreview() {
             Product(
                 id = 0,
                 name = "Produto",
-                pathImage = null
+                pathImage = null,
+                createdAt = LocalDateTime.now()
             ),
             UIState.Loading
         ),
