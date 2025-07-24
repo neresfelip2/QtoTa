@@ -147,7 +147,7 @@ internal fun MapView(viewModel: StoreListViewModel, bottomNavController: NavHost
     }
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(viewModel.getLatLng(), 16f)
+        position = CameraPosition.fromLatLngZoom(viewModel.getLatLng(), 15f)
     }
 
     val targetSize = 40.dp
