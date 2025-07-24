@@ -18,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,13 +28,12 @@ import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
-import coil.compose.AsyncImage
 
 @Composable
 internal fun StoreListItem(store: StoreResponse, navController: NavController) {
     Card(
         {
-            navController.navigate(AppRoute.SearchProduct.createRoute(store = store))
+            navController.navigate(AppRoute.StoreDetail.createRoute(store.id))
         },
         Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
@@ -49,18 +46,7 @@ internal fun StoreListItem(store: StoreResponse, navController: NavController) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            store.logo?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = null,
-                    contentScale = ContentScale.Inside,
-                    modifier = Modifier.size(96.dp),
-                )
-            } ?: Icon(
-                painterResource(R.drawable.outline_store_24), null,
-                Modifier.size(96.dp),
-                tint = Color.LightGray
-            )
+            ImageComponent(store.logo, R.drawable.outline_store_24, 96.dp)
             Spacer(Modifier.height(8.dp))
             Text(
                 store.name,

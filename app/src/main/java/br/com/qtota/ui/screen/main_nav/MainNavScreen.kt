@@ -33,7 +33,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
-import br.com.qtota.ui.components.DrawerContent
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar

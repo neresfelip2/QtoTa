@@ -32,8 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +43,7 @@ import androidx.navigation.NavHostController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.ui.components.ErrorComponent
+import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
 import br.com.qtota.ui.components.MessageContent
@@ -55,7 +54,6 @@ import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
-import coil.compose.AsyncImage
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 
@@ -97,16 +95,7 @@ internal fun SearchProductScreen(navController: NavHostController) {
                     Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
                         Spacer(Modifier.width(defaultPadding))
-                        store.logo?.let { logo ->
-                            AsyncImage(
-                                logo, null,
-                                Modifier.size(24.dp)
-                            )
-                        } ?: Icon(
-                            painterResource(R.drawable.outline_store_24),
-                            null,
-                            Modifier.size(24.dp)
-                        )
+                        ImageComponent(store.logo, R.drawable.outline_store_24, 24.dp)
                         Spacer(Modifier.width(defaultPadding))
                         HomeTitle(store.name)
                     }
@@ -254,18 +243,11 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
         onClick = onClick,
         selected = selected,
         icon = {
-            urlIcon?.let {
-                AsyncImage(
-                    modifier = Modifier.size(24.dp),
-                    model = it,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(if (selected) Color.White else DefaultColor)
-                )
-            } ?: Icon(
-                modifier = Modifier.size(24.dp),
-                painter = painterResource(R.drawable.outline_category_24),
-                contentDescription = null,
+            ImageComponent(
+                urlIcon,
+                R.drawable.outline_category_24,
+                24.dp,
+                if(selected) Color.White else DefaultColor
             )
         },
         text = {

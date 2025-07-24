@@ -11,6 +11,7 @@ import br.com.qtota.ui.screen.home.HomeScreen
 import br.com.qtota.ui.screen.menu.MenuScreen
 import br.com.qtota.ui.screen.saved_offers.SavedItemsScreen
 import br.com.qtota.ui.screen.search_product.SearchProductScreen
+import br.com.qtota.ui.screen.store_detail.StoreDetailScreen
 import br.com.qtota.ui.screen.store_list.StoreListScreen
 import br.com.qtota.ui.screen.store_list.ViewMode
 
@@ -46,6 +47,17 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
             val arg = navBackStackEntry.arguments?.getString(AppRoute.StoreList.ARG_VIEW_MODE)!!
             StoreListScreen(bottomNavController, ViewMode.valueOf(arg))
         }
+
+        composable(AppRoute.StoreDetail.route,
+            arguments = listOf(
+                navArgument(AppRoute.StoreDetail.ARG_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            StoreDetailScreen()
+        }
+
     }
 
 }

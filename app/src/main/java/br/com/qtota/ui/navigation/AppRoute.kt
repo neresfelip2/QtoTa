@@ -61,6 +61,17 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     }
 
+    object StoreDetail: AppRoute("home/store_detail/{id}") {
+
+        const val BASE_ROUTE = "home/store_detail"
+        const val ARG_ID = "id"
+
+        fun createRoute(id: Long): String {
+            return "$BASE_ROUTE/$id"
+        }
+
+    }
+
 
     object RequestLocation: AppRoute("request_location")
     object Login: AppRoute("login")

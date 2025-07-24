@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.product_details
+package br.com.qtota.ui.screen.product_detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductDetailsViewModel @Inject constructor(
+class ProductDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     val productRepository: ProductRepository,
     locationRepository: LocationRepository,

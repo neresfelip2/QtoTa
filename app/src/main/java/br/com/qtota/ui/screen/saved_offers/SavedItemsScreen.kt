@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +47,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.state_handler.UIState
@@ -56,8 +55,6 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
-import coil.compose.AsyncImage
-import java.io.File
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -173,18 +170,7 @@ private fun SavedItemCard(savedProduct: SavedProductUI, navController: NavHostCo
             Modifier.padding(defaultPadding).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            savedProduct.product.pathImage?.let {
-                AsyncImage(
-                    File(it),
-                    null,
-                    Modifier.size(128.dp)
-                )
-            } ?: Icon(
-                Icons.Outlined.ShoppingCart,
-                null,
-                Modifier.size(128.dp),
-                Color.LightGray
-            )
+            ImageComponent(savedProduct.product.pathImage, R.drawable.outline_shopping_cart_24, 128.dp)
             ProductTitle(savedProduct.product.name, modifier = Modifier.padding(defaultPadding))
             when (savedProduct.offersState) {
                 is UIState.Loading -> Row {

@@ -11,17 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +40,7 @@ import br.com.qtota.data.local.entity.Product
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.components.ConfirmDialog
+import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
@@ -52,7 +48,6 @@ import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.DateUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toMonetaryString
-import coil.compose.AsyncImage
 import java.time.LocalDate
 
 @Composable
@@ -77,21 +72,7 @@ internal fun StoreProductListItem(
         ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (product.urlImage.isNullOrBlank()) {
-                Icon(
-                    Icons.Outlined.ShoppingCart,
-                    null,
-                    Modifier.size(112.dp),
-                    tint = Color.LightGray
-                )
-            } else {
-                AsyncImage(
-                    product.urlImage,
-                    null,
-                    Modifier.size(112.dp),
-                    contentScale = ContentScale.Inside
-                )
-            }
+            ImageComponent(product.urlImage, R.drawable.outline_shopping_cart_24, 112.dp)
             Column(Modifier.padding(defaultPadding)) {
                 ProductTitle(product.name)
                 Text(

@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.product_details
+package br.com.qtota.ui.screen.product_detail
 
 import br.com.qtota.data.remote.product.MeasureType
 import br.com.qtota.data.remote.product.ProductDetailStoreResponse

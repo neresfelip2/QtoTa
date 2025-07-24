@@ -11,7 +11,7 @@ import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.product.ProductResponse
-import br.com.qtota.ui.screen.product_details.ProductDetail
+import br.com.qtota.ui.screen.product_detail.ProductDetail
 import br.com.qtota.ui.screen.saved_offers.SavedProductUI
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.utils.BitmapUtils

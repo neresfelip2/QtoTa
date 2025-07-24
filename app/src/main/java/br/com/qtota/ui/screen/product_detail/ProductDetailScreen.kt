@@ -1,7 +1,6 @@
-package br.com.qtota.ui.screen.product_details
+package br.com.qtota.ui.screen.product_detail
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,6 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -43,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,27 +55,27 @@ import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.data.remote.product.MeasureType
 import br.com.qtota.data.remote.product.ProductDetailStoreResponse
-import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.ConfirmDialog
-import br.com.qtota.ui.theme.ProductDescription
 import br.com.qtota.ui.components.ErrorComponent
+import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.components.LoadingComponent
-import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.components.Toolbar
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GradientBackground
 import br.com.qtota.ui.theme.GrayColor
+import br.com.qtota.ui.theme.ProductDescription
+import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.stringDaysAfterNow
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMeasureString
 import br.com.qtota.utils.StringUtils.toMonetaryString
-import coil.compose.AsyncImage
 
 @Composable
 internal fun ProductDetailsScreen(navController: NavHostController) {
 
-    val viewModel: ProductDetailsViewModel = hiltViewModel()
+    val viewModel: ProductDetailViewModel = hiltViewModel()
 
     val savedProductState by viewModel.savedProductState.collectAsState()
     val productState by viewModel.productDetails.collectAsState()
@@ -156,23 +153,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        product.urlImage?.let {
-            AsyncImage(
-                model = it,
-                contentDescription = "Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(MaterialTheme.shapes.medium),
-                contentScale = ContentScale.Inside
-            )
-        } ?: Image(
-            painterResource(R.drawable.outline_photo_24),
-            null,
-            Modifier.height(160.dp),
-            contentScale = ContentScale.Crop
-        )
-
+        ImageComponent(product.urlImage, R.drawable.outline_photo_24, 160.dp)
         ProductTitle(product.name, maxLines = 2, textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = defaultPadding))
         Column(
             Modifier
@@ -283,21 +264,7 @@ private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
 
                 Column(Modifier.padding(horizontal = defaultPadding)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        store.logo?.let { logo ->
-                            AsyncImage(
-                                model = logo,
-                                contentDescription = "Logo",
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(MaterialTheme.shapes.small),
-                                contentScale = ContentScale.Inside
-                            )
-                        } ?:
-                        Image(
-                            painterResource(R.drawable.outline_photo_24),
-                            null,
-                            Modifier.size(48.dp)
-                        )
+                        ImageComponent(store.logo, R.drawable.outline_photo_24, 48.dp)
                         Spacer(Modifier.width(defaultPadding))
                         Column(Modifier.weight(1f)) {
                             Text(
