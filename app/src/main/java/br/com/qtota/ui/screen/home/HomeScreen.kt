@@ -236,7 +236,7 @@ internal fun HomeTitle(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun HomeTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun HomeTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     TextButton(onClick,
         modifier,
         colors = ButtonDefaults.buttonColors(

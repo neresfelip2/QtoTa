@@ -12,6 +12,18 @@ import java.io.IOException
 
 object Utils {
 
+    val mapStyle = """
+    [
+      {
+        "featureType": "poi",
+        "elementType": "labels",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      }
+    ]
+    """.trimIndent()
+
     /**
      * Cria um MultipartBody.Part a partir de um Uri
      */

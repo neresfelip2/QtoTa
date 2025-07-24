@@ -54,6 +54,7 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.utils.BitmapUtils
 import br.com.qtota.utils.BitmapUtils.cropToCircle
+import br.com.qtota.utils.Utils.mapStyle
 import com.google.android.gms.maps.model.MapStyleOptions
 
 @Composable
@@ -147,23 +148,11 @@ internal fun MapView(viewModel: StoreListViewModel, bottomNavController: NavHost
     }
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(viewModel.getLatLng(), 15f)
+        position = CameraPosition.fromLatLngZoom(viewModel.getCurrentPosition(), 15f)
     }
 
     val targetSize = 40.dp
     val iconSizePx = with(density) { targetSize.toPx().toInt() }
-
-    val mapStyle = """
-    [
-      {
-        "featureType": "poi",
-        "elementType": "labels",
-        "stylers": [
-          { "visibility": "off" }
-        ]
-      }
-    ]
-    """.trimIndent()
 
     GoogleMap(
         modifier = Modifier

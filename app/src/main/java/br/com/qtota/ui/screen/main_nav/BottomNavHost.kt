@@ -55,7 +55,7 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
                 }
             )
         ) {
-            StoreDetailScreen()
+            StoreDetailScreen(navController)
         }
 
     }

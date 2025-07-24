@@ -59,7 +59,7 @@ class StoreListViewModel @Inject constructor(
         }
     }
 
-    fun getLatLng() : LatLng {
+    fun getCurrentPosition() : LatLng {
         return LatLng(locationRepository.location!!.latitude, locationRepository.location!!.longitude)
     }
 
