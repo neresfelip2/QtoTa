@@ -7,7 +7,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
-import br.com.qtota.data.remote.store.StoreResponse
+import br.com.qtota.ui.screen.search_product.Store
 import com.google.gson.Gson
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
@@ -23,7 +23,7 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
         const val ARG_QUERY  = "query"
         const val ARG_STORE = "store"
 
-        fun createRoute(query: String? = null, store: StoreResponse? = null): String {
+        fun createRoute(query: String? = null, store: Store? = null): String {
             val params = mutableListOf<String>()
 
             query
@@ -70,8 +70,8 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
         }
     }
 
-    object Map: AppRoute("map/{store_id}") {
-        const val BASE_ROUTE = "map"
+    object Map: AppRoute("home/map/{store_id}") {
+        const val BASE_ROUTE = "home/map"
         const val ARG_STORE_ID = "store_id"
 
         internal fun createRoute(storeId: Long? = null) : String {

@@ -1,9 +1,12 @@
 package br.com.qtota.ui.screen.store_detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,8 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
@@ -52,6 +54,8 @@ import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.screen.home.HomeTextButton
 import br.com.qtota.ui.screen.home.HomeTitle
+import br.com.qtota.ui.screen.search_product.Store
+import br.com.qtota.ui.screen.store_detail.model.StoreDetail
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ProductTitle
@@ -123,26 +127,38 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
 
                 item {
                     Column(Modifier.fillMaxWidth()) {
-                        HomeTitle("Ofertas em destaque", Modifier.padding(defaultPadding))
+                        HomeTitle(stringResource(R.string.featured_offers), Modifier.padding(defaultPadding))
                         if(store.products.isNotEmpty()) {
-                            LazyRow {
-                                itemsIndexed(store.products) { index, product ->
+                            Row(
+                                modifier = Modifier
+                                    .height(IntrinsicSize.Max)
+                                    .horizontalScroll(rememberScrollState())
+                            ) {
+                                store.products.forEachIndexed { index, product ->
                                     StoreDetailProductItem(
                                         product = product,
                                         navController = bottomNavController,
-                                        modifier = Modifier.padding(
-                                            start = if (index == 0) defaultPadding else defaultPadding / 2,
-                                            end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
-                                        )
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .padding(
+                                                start = if (index == 0) defaultPadding else defaultPadding / 2,
+                                                end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
+                                            )
                                     )
                                 }
                             }
                             HomeTextButton(
-                                "Ver mais", Modifier
+                                stringResource(R.string.see_more_offers), Modifier
                                     .align(Alignment.End)
                                     .padding(horizontal = defaultPadding)
                             ) {
-                                bottomNavController.navigate(AppRoute.SearchProduct.createRoute())
+                                bottomNavController.navigate(
+                                    AppRoute.SearchProduct.createRoute(store = Store(
+                                        id = store.id,
+                                        name = store.name,
+                                        urlLogo = store.urlLogo
+                                    ))
+                                )
                             }
                         } else {
                             MessageContent(
@@ -164,7 +180,6 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                 }
 
                 item {
-
                     val nearbyBranch = store.branchList[0]
 
                     Column(
@@ -173,7 +188,7 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                             .fillMaxWidth()
                             .background(Color.White)
                     ) {
-                        HomeTitle("Unidade mais próxima", Modifier.padding(defaultPadding))
+                        HomeTitle(stringResource(R.string.nearest_branch), Modifier.padding(defaultPadding))
                         HorizontalDivider(thickness = 0.5.dp)
                         Column(
                             Modifier.padding(defaultPadding)
@@ -230,7 +245,7 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                                 .padding(horizontal = defaultPadding)
                                 .background(Color.White)
                         ) {
-                            HomeTitle("Outras unidades próximas", Modifier.padding(defaultPadding))
+                            HomeTitle(stringResource(R.string.other_nearest_branches), Modifier.padding(defaultPadding))
                             HorizontalDivider(thickness = 0.5.dp)
                             Column(Modifier.padding(defaultPadding)) {
                                 store.branchList.drop(1).forEachIndexed { index, branch ->
@@ -310,7 +325,7 @@ private fun MapContainer(store: StoreDetail, modifier: Modifier = Modifier) {
     val marker = remember { MarkerState(position = nearbyBranch.position )}
 
     GoogleMap(
-        modifier.height(180.dp),
+        modifier.height(200.dp),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(
             isMyLocationEnabled = true,

@@ -4,7 +4,7 @@ import android.location.Location
 import br.com.qtota.data.mapper.StoreMapper.toStoreDetail
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.store.StoreResponse
-import br.com.qtota.ui.screen.store_detail.StoreDetail
+import br.com.qtota.ui.screen.store_detail.model.StoreDetail
 
 class StoreRespository(
     private val apiService: APIService,

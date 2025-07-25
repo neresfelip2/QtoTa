@@ -95,7 +95,7 @@ internal fun SearchProductScreen(navController: NavHostController) {
                     Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
                         Spacer(Modifier.width(defaultPadding))
-                        ImageComponent(store.logo, R.drawable.outline_store_24, 24.dp)
+                        ImageComponent(store.urlLogo, R.drawable.outline_store_24, 24.dp)
                         Spacer(Modifier.width(defaultPadding))
                         HomeTitle(store.name)
                     }

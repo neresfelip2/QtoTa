@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.navigation.AppRoute
+import br.com.qtota.ui.screen.store_detail.model.StoreDetailProduct
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toMonetaryString

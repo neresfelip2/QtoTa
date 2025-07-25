@@ -1,9 +1,9 @@
 package br.com.qtota.data.mapper
 
 import br.com.qtota.data.remote.store.StoreDetailResponse
-import br.com.qtota.ui.screen.store_detail.StoreDetail
-import br.com.qtota.ui.screen.store_detail.StoreDetailBranch
-import br.com.qtota.ui.screen.store_detail.StoreDetailProduct
+import br.com.qtota.ui.screen.store_detail.model.StoreDetail
+import br.com.qtota.ui.screen.store_detail.model.StoreDetailBranch
+import br.com.qtota.ui.screen.store_detail.model.StoreDetailProduct
 import com.google.android.gms.maps.model.LatLng
 
 object StoreMapper {

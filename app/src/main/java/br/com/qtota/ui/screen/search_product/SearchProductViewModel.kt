@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.product.ProductResponse
-import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.ui.navigation.AppRoute
@@ -44,7 +43,7 @@ class SearchProductViewModel @Inject constructor(
     val loadState = _loadState.asStateFlow()
 
     var query: String = savedStateHandle[AppRoute.SearchProduct.ARG_QUERY] ?: ""
-    val store: StoreResponse? = Gson().fromJson(Uri.decode(savedStateHandle[AppRoute.SearchProduct.ARG_STORE]), StoreResponse::class.java)
+    val store: Store? = Gson().fromJson(Uri.decode(savedStateHandle[AppRoute.SearchProduct.ARG_STORE]), Store::class.java)
     private var category: CategoryResponse? = null
     private var currentPage = 0
     private val limit = 10

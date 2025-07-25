@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.store_detail
+package br.com.qtota.ui.screen.store_detail.model
 
 import com.google.android.gms.maps.model.LatLng
 
