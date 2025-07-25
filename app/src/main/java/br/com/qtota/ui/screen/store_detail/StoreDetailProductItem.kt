@@ -50,14 +50,18 @@ internal fun StoreDetailProductItem(product: StoreDetailProduct, navController: 
                 fontWeight = FontWeight.Black,
                 color = Color(0xFF007700)
             )
-            Spacer(Modifier.height(defaultPadding/2))
-            Text(
-                "${product.percentageOfAverage}% abaixo da média",
-                fontSize = 12.sp,
-                lineHeight = 14.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center
-            )
+            if(product.percentageOfAverage != 0) {
+                Spacer(Modifier.height(defaultPadding / 2))
+                Text(
+                    if (product.percentageOfAverage > 0)
+                        "${product.percentageOfAverage}% abaixo da média"
+                            else "${-product.percentageOfAverage}% acima da média",
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    color = if (product.percentageOfAverage > 0) Color.Gray else Color.Red,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 

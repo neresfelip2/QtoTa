@@ -2,11 +2,12 @@ package br.com.qtota.data.remote
 
 import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
-import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
 import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.data.remote.store.StoreDetailResponse
+import br.com.qtota.data.remote.store.StoreResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -72,5 +73,12 @@ interface APIService {
     suspend fun getOffers(
         @Query("id") ids: List<Long>
     ): Response<Map<Long, Int>>
+
+    @GET("store/{id}")
+    suspend fun getStoreDetail(
+        @Path("id") id: Long,
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ): Response<StoreDetailResponse>
 
 }

@@ -1,7 +1,10 @@
 package br.com.qtota.data.repository
 
+import android.location.Location
+import br.com.qtota.data.mapper.StoreMapper.toStoreDetail
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.store.StoreResponse
+import br.com.qtota.ui.screen.store_detail.StoreDetail
 
 class StoreRespository(
     private val apiService: APIService,
@@ -17,6 +20,12 @@ class StoreRespository(
         return performRequest({
             apiService.getNearbyStoreBranches(latitude, longitude)
         }) { it }
+    }
+
+    suspend fun getStoreDetail(id: Long, location: Location): StoreDetail? {
+        return performRequest({
+            apiService.getStoreDetail(id, location.latitude, location.longitude)
+        }) { it.toStoreDetail() }
     }
 
 }
