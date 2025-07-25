@@ -58,6 +58,7 @@ import br.com.qtota.ui.screen.home.HomeTextButton
 import br.com.qtota.ui.screen.home.HomeTitle
 import br.com.qtota.ui.screen.search_product.Store
 import br.com.qtota.ui.screen.store_detail.model.StoreDetail
+import br.com.qtota.ui.screen.store_detail.model.StoreDetailBranch
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ProductTitle
@@ -92,230 +93,186 @@ fun StoreDetailScreen(navController: NavHostController, bottomNavController: Nav
             ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
         }
         is UIState.Success -> {
-
-            val screenWidth = LocalWindowInfo.current.containerSize.width
-            val itemWidth = (0.15f * screenWidth).dp
-
             val store = (storeDetail as UIState.Success).data
 
             LazyColumn {
-                item {
-                    Row(
-                        Modifier
-                            .padding(defaultPadding)
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .padding(defaultPadding),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ImageComponent(
-                            store.urlLogo,
-                            errorImageRes = R.drawable.outline_store_24,
-                            size = 96.dp
-                        )
-                        Spacer(Modifier.width(defaultPadding))
-                        Column {
-                            ProductTitle(store.name)
-                            Spacer(Modifier.height(2.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painterResource(R.drawable.outline_store_24),
-                                    null,
-                                    Modifier.size(16.dp),
-                                    tint = Color.Gray
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text(
-                                    pluralStringResource(
-                                        R.plurals.branch_in_your_region,
-                                        store.branchList.size,
-                                        formatArgs = arrayOf(store.branchList.size)
-                                    ),
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(
-                                        color = Color.Gray,
-                                        fontSize = 13.sp,
-                                        lineHeight = 15.sp,
-                                    )
-                                )
-                            }
-
-                        }
-                    }
-                }
-
-                item {
-                    Column(Modifier.fillMaxWidth()) {
-                        HomeTitle(stringResource(R.string.featured_offers), Modifier.padding(defaultPadding))
-                        if(store.products.isNotEmpty()) {
-                            Row(
-                                modifier = Modifier
-                                    .height(IntrinsicSize.Max)
-                                    .horizontalScroll(rememberScrollState())
-                            ) {
-                                store.products.forEachIndexed { index, product ->
-                                    StoreDetailProductItem(
-                                        product = product,
-                                        navController = navController,
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .padding(
-                                                start = if (index == 0) defaultPadding else defaultPadding / 2,
-                                                end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
-                                            )
-                                            .width(itemWidth)
-                                    )
-                                }
-                            }
-                            HomeTextButton(
-                                stringResource(R.string.see_more_offers), Modifier
-                                    .align(Alignment.End)
-                                    .padding(horizontal = defaultPadding)
-                            ) {
-                                bottomNavController.navigate(
-                                    AppRoute.SearchProduct.createRoute(store = Store(
-                                        id = store.id,
-                                        name = store.name,
-                                        urlLogo = store.urlLogo
-                                    ))
-                                )
-                            }
-                        } else {
-                            MessageContent(
-                                {
-                                    Icon(
-                                        painterResource(R.drawable.ic_empty_shopping_cart),
-                                        null,
-                                        Modifier.size(128.dp),
-                                        tint = Color(0x59187270)
-                                    )
-                                },
-                                stringResource(R.string.any_product_found),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(32.dp),
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    val nearbyBranch = store.branchList[0]
-
-                    Column(
-                        Modifier
-                            .padding(defaultPadding)
-                            .fillMaxWidth()
-                            .background(Color.White)
-                    ) {
-                        HomeTitle(stringResource(R.string.nearest_branch), Modifier.padding(defaultPadding))
-                        HorizontalDivider(thickness = 0.5.dp)
-                        Column(
-                            Modifier.padding(defaultPadding)
-                        ) {
-                            MapContainer(store, Modifier.padding(vertical = defaultPadding))
-                            Text(
-                                nearbyBranch.description,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                lineHeight = 16.sp,
-                                color = Color.DarkGray
-                            )
-                            Text(
-                                nearbyBranch.address,
-                                Modifier.padding(vertical = 4.dp),
-                                fontSize = 13.sp,
-                                color = Color.DarkGray,
-                                lineHeight = 15.sp
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Outlined.LocationOn,
-                                    null,
-                                    Modifier.size(16.dp),
-                                    tint = Color.Gray
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text(
-                                    nearbyBranch.distance.toDistanceString(),
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
-                                )
-                            }
-                            Spacer(Modifier.height(defaultPadding))
-                            Button(
-                                {
-                                    bottomNavController.navigate(AppRoute.Map.createRoute(store.id))
-                                },
-                                Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = DefaultColor
-                                )
-                            ) {
-                                Text(stringResource(R.string.see_all_branches))
-                            }
-                        }
-                    }
-                }
-
+                item { StoreHeader(store) }
+                item { FeaturedOffersSection(store, navController, bottomNavController) }
+                item { NearestBranchSection(store, bottomNavController) }
                 if(store.branchList.size > 1) {
                     item {
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = defaultPadding)
-                                .background(Color.White)
-                        ) {
-                            HomeTitle(stringResource(R.string.other_nearest_branches), Modifier.padding(defaultPadding))
-                            HorizontalDivider(thickness = 0.5.dp)
-                            Column(Modifier.padding(defaultPadding)) {
-                                store.branchList.drop(1).forEachIndexed { index, branch ->
-                                    Column(
-                                        Modifier.padding(
-                                            start = defaultPadding, end = defaultPadding,
-                                            top = if (index == 0) defaultPadding / 2 else defaultPadding,
-                                            bottom = if (index == store.branchList.size - 1) defaultPadding / 2 else defaultPadding
-                                        )
-                                    ) {
-                                        Text(
-                                            branch.description,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            lineHeight = 16.sp,
-                                            color = Color.DarkGray
-                                        )
-                                        Text(
-                                            branch.address,
-                                            Modifier.padding(vertical = 4.dp),
-                                            fontSize = 13.sp,
-                                            color = Color.DarkGray,
-                                            lineHeight = 15.sp
-                                        )
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                Icons.Outlined.LocationOn,
-                                                null,
-                                                Modifier.size(16.dp),
-                                                tint = Color.Gray
-                                            )
-                                            Spacer(Modifier.width(4.dp))
-                                            Text(
-                                                branch.distance.toDistanceString(),
-                                                fontSize = 12.sp,
-                                                color = Color.Gray
-                                            )
-                                        }
-                                    }
-                                    if (index < store.branchList.size - 2) {
-                                        HorizontalDivider(thickness = 0.25.dp)
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(defaultPadding))
+                        OtherBranchesSection(store.branchList.drop(1))
                     }
                 }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun StoreHeader(store: StoreDetail) {
+    Row(
+        Modifier
+            .padding(defaultPadding)
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(defaultPadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ImageComponent(
+            store.urlLogo,
+            errorImageRes = R.drawable.outline_store_24,
+            size = 96.dp
+        )
+        Spacer(Modifier.width(defaultPadding))
+        Column {
+            ProductTitle(store.name)
+            Spacer(Modifier.height(2.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painterResource(R.drawable.outline_store_24),
+                    null,
+                    Modifier.size(16.dp),
+                    tint = Color.Gray
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    pluralStringResource(
+                        R.plurals.branch_in_your_region,
+                        store.branchList.size,
+                        formatArgs = arrayOf(store.branchList.size)
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        lineHeight = 15.sp,
+                    )
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun FeaturedOffersSection(store: StoreDetail, navController: NavHostController, bottomNavController: NavHostController) {
+
+    val screenWidth = LocalWindowInfo.current.containerSize.width
+    val itemWidth = (0.15f * screenWidth).dp
+
+    Column(Modifier.fillMaxWidth()) {
+        HomeTitle(stringResource(R.string.featured_offers), Modifier.padding(defaultPadding))
+        if(store.products.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .height(IntrinsicSize.Max)
+                    .horizontalScroll(rememberScrollState())
+            ) {
+                store.products.forEachIndexed { index, product ->
+                    StoreDetailProductItem(
+                        product = product,
+                        navController = navController,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(
+                                start = if (index == 0) defaultPadding else defaultPadding / 2,
+                                end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
+                            )
+                            .width(itemWidth)
+                    )
+                }
+            }
+            HomeTextButton(
+                stringResource(R.string.see_more_offers), Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = defaultPadding)
+            ) {
+                bottomNavController.navigate(
+                    AppRoute.SearchProduct.createRoute(store = Store(
+                        id = store.id,
+                        name = store.name,
+                        urlLogo = store.urlLogo
+                    ))
+                )
+            }
+        } else {
+            MessageContent(
+                {
+                    Icon(
+                        painterResource(R.drawable.ic_empty_shopping_cart),
+                        null,
+                        Modifier.size(128.dp),
+                        tint = Color(0x59187270)
+                    )
+                },
+                stringResource(R.string.any_product_found),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun NearestBranchSection(store: StoreDetail, bottomNavController: NavHostController) {
+
+    val nearbyBranch = store.branchList[0]
+
+    Column(
+        Modifier
+            .padding(defaultPadding)
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        HomeTitle(stringResource(R.string.nearest_branch), Modifier.padding(defaultPadding))
+        HorizontalDivider(thickness = 0.5.dp)
+        Column(
+            Modifier.padding(defaultPadding)
+        ) {
+            MapContainer(store, Modifier.padding(vertical = defaultPadding))
+            Text(
+                nearbyBranch.description,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
+                color = Color.DarkGray
+            )
+            Text(
+                nearbyBranch.address,
+                Modifier.padding(vertical = 4.dp),
+                fontSize = 13.sp,
+                color = Color.DarkGray,
+                lineHeight = 15.sp
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Outlined.LocationOn,
+                    null,
+                    Modifier.size(16.dp),
+                    tint = Color.Gray
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    nearbyBranch.distance.toDistanceString(),
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+            Spacer(Modifier.height(defaultPadding))
+            Button(
+                {
+                    bottomNavController.navigate(AppRoute.Map.createRoute(store.id))
+                },
+                Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DefaultColor
+                )
+            ) {
+                Text(stringResource(R.string.see_all_branches))
             }
         }
     }
@@ -369,6 +326,63 @@ private fun MapContainer(store: StoreDetail, modifier: Modifier = Modifier) {
         )
     }
 
+}
+
+@Composable
+private fun OtherBranchesSection(branches: List<StoreDetailBranch>) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = defaultPadding)
+            .background(Color.White)
+    ) {
+        HomeTitle(stringResource(R.string.other_nearest_branches), Modifier.padding(defaultPadding))
+        HorizontalDivider(thickness = 0.5.dp)
+        Column(Modifier.padding(defaultPadding)) {
+            branches.drop(1).forEachIndexed { index, branch ->
+                Column(
+                    Modifier.padding(
+                        start = defaultPadding, end = defaultPadding,
+                        top = if (index == 0) defaultPadding / 2 else defaultPadding,
+                        bottom = if (index == branches.size - 1) defaultPadding / 2 else defaultPadding
+                    )
+                ) {
+                    Text(
+                        branch.description,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        lineHeight = 16.sp,
+                        color = Color.DarkGray
+                    )
+                    Text(
+                        branch.address,
+                        Modifier.padding(vertical = 4.dp),
+                        fontSize = 13.sp,
+                        color = Color.DarkGray,
+                        lineHeight = 15.sp
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Outlined.LocationOn,
+                            null,
+                            Modifier.size(16.dp),
+                            tint = Color.Gray
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            branch.distance.toDistanceString(),
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                if (index < branches.size - 2) {
+                    HorizontalDivider(thickness = 0.25.dp)
+                }
+            }
+        }
+    }
+    Spacer(Modifier.height(defaultPadding))
 }
 
 @Composable @Preview(showBackground = true)
