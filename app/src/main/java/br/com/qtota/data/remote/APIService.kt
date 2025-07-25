@@ -1,9 +1,13 @@
 package br.com.qtota.data.remote
 
+import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.data.remote.product.ProductResponse
+import br.com.qtota.data.remote.store.StoreDetailResponse
+import br.com.qtota.data.remote.store.StoreResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -28,9 +32,11 @@ interface APIService {
 
     @GET("product")
     suspend fun getProducts(
-        @Query("id_category") categoryId: Int?,
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
+        @Query("query") query: String?,
+        @Query("id_store") storeId: Long?,
+        @Query("id_category") categoryId: Int?,
         @Query("page") page: Int,
         @Query("limit") limit: Int
     ): Response<List<ProductResponse>>
@@ -40,12 +46,40 @@ interface APIService {
         @Path("id") id: Long,
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
-    ): Response<ProductResponse>
+    ): Response<ProductDetailResponse>
+
+    @GET("store")
+    suspend fun getNearbyStores(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ) : Response<List<StoreResponse>>
+
+    @GET("store/branches")
+    suspend fun getNearbyStoreBranches(
+        @Query("store_id") storeId: Long?,
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ) : Response<List<StoreResponse>>
 
     @Multipart
     @POST("send-flyer")
     suspend fun sendFlyer(
         @Part flyer: MultipartBody.Part
-    ): Response<List<ProductResponse>>
+    ): Response<List<ProductDetailResponse>>
+
+    @GET("product/category")
+    suspend fun getCategories(): Response<List<CategoryResponse>>
+
+    @GET("product/offer")
+    suspend fun getOffers(
+        @Query("id") ids: List<Long>
+    ): Response<Map<Long, Int>>
+
+    @GET("store/{id}")
+    suspend fun getStoreDetail(
+        @Path("id") id: Long,
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+    ): Response<StoreDetailResponse>
 
 }

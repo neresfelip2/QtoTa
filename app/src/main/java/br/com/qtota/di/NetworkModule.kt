@@ -49,7 +49,7 @@ object NetworkModule {
         //authInterceptor: Interceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)   // tempo máximo para abrir a conexão
+            .connectTimeout(30, TimeUnit.SECONDS)   // tempo máximo para abrir a conexão
             .readTimeout(30, TimeUnit.SECONDS)      // tempo máximo para ler resposta
             .writeTimeout(30, TimeUnit.SECONDS)     // tempo máximo para enviar corpo da requisição
             //.addInterceptor(authInterceptor)

@@ -23,11 +23,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.qtota.R
-import br.com.qtota.ui.UIState
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.Toolbar
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.defaultPadding
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,9 +42,9 @@ internal fun RequestLocationScreen(navController: NavHostController) {
         topBar = { Toolbar() }
     ) { innerPadding ->
         when (locationState) {
-            is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize(), "Buscando localização...")
+            is UIState.Loading -> LoadingComponent(Modifier.fillMaxSize(), stringResource(R.string.loading_location))
             is UIState.Error -> RequestLocationComponent(viewModel)
-            is UIState.Success -> navController.navigate(AppRoutes.MainNav.route) {
+            is UIState.Success -> navController.navigate(AppRoute.MainNav.route) {
                 popUpTo(navController.graph.id) {
                     inclusive = true
                 }

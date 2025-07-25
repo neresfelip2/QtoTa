@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.repository.UserRepository
-import br.com.qtota.ui.navigation.AppRoutes
+import br.com.qtota.ui.navigation.AppRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,7 +72,7 @@ class LoginViewModel @Inject constructor(
 
     internal fun navigateToNextScreen(navController: NavHostController) {
         if (navController.previousBackStackEntry == null) {
-            navController.navigate(AppRoutes.Home.route) {
+            navController.navigate(AppRoute.RequestLocation.route) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 launchSingleTop = true
             }

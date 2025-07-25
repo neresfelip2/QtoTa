@@ -1,0 +1,19 @@
+package br.com.qtota.ui.screen.product_detail
+
+import br.com.qtota.data.remote.product.MeasureType
+import br.com.qtota.data.remote.product.ProductDetailStoreResponse
+
+data class ProductDetail(
+    val id: Long,
+    val name: String,
+    val description: String,
+    val bestPrice: Double,
+    val highestPrice: Double,
+    val weight: Int,
+    val type: String,
+    val measureType: MeasureType,
+    val origin: String,
+    val expiration: Int,
+    val urlImage: String?,
+    val stores: List<ProductDetailStoreResponse>
+)

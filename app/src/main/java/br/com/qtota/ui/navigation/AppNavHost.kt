@@ -5,32 +5,30 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navArgument
-import br.com.qtota.ui.screen.MainNavigationScreen
+import br.com.qtota.ui.screen.main_nav.MainNavigationScreen
 import br.com.qtota.ui.screen.login.LoginScreen
-import br.com.qtota.ui.screen.product_details.ProductDetailsScreen
+import br.com.qtota.ui.screen.product_detail.ProductDetailsScreen
 import br.com.qtota.ui.screen.request_location.RequestLocationScreen
-import br.com.qtota.ui.screen.saved_offers.SavedOffersScreen
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, startDestination: String) {
 
     NavHost(navController, startDestination = startDestination) {
 
-        animatedComposable(AppRoutes.Login.route) { LoginScreen(navController) }
+        animatedComposable(AppRoute.Login.route) { LoginScreen(navController) }
 
-        animatedComposable(AppRoutes.RequestLocation.route) { RequestLocationScreen(navController) }
+        animatedComposable(AppRoute.RequestLocation.route) { RequestLocationScreen(navController) }
 
-        animatedComposable(AppRoutes.MainNav.route) { MainNavigationScreen(navController)}
+        animatedComposable(AppRoute.MainNav.route) { MainNavigationScreen(navController)}
 
         animatedComposable(
-            AppRoutes.ProductDetails.route,
+            AppRoute.ProductDetails.route,
             arguments = listOf(
-                navArgument(AppRoutes.ProductDetails.ARG_PRODUCT_ID) {
+                navArgument(AppRoute.ProductDetails.ARG_PRODUCT_ID) {
                     type = NavType.LongType
                 }
             )
         ) { ProductDetailsScreen(navController) }
 
-        animatedComposable(AppRoutes.SavedOffers.route) { SavedOffersScreen(navController) }
     }
 }

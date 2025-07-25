@@ -1,31 +1,14 @@
 package br.com.qtota.data.mapper
 
 import br.com.qtota.data.local.entity.Product
+import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.data.remote.product.ProductResponse
-import br.com.qtota.ui.screen.product_details.ProductDetail
-import java.time.LocalDate
+import br.com.qtota.ui.screen.product_detail.ProductDetail
+import java.time.LocalDateTime
 
 object ProductMapper {
 
-    fun ProductResponse.toProduct(): Product {
-        val store = this.stores.minBy { it.currentPrice }
-        return Product(
-            id = this.id,
-            storeId = store.id,
-            name = this.name,
-            description = this.description,
-            currentPrice = store.currentPrice,
-            discountPercentage = store.discountPercentage,
-            previousPrice = null,
-            storeName = store.name,
-            storeBranch = store.branch,
-            distance = store.distance,
-            expirationOffer = LocalDate.now(),
-            logo = store.logo
-        )
-    }
-
-    fun ProductResponse.toProductDetail() : ProductDetail {
+    fun ProductDetailResponse.toProductDetail() : ProductDetail {
         return ProductDetail(
             id = this.id,
             name = this.name,
@@ -42,25 +25,22 @@ object ProductMapper {
         )
     }
 
-    fun ProductDetail.toProduct() : Product {
-
-        val store = this.stores[0]
-
+    fun ProductResponse.toProductEntity(pathImage: String?): Product {
         return Product(
             id = this.id,
-            storeId = store.id,
             name = this.name,
-            description = this.description,
-            currentPrice = store.currentPrice,
-            discountPercentage = store.discountPercentage,
-            previousPrice = store.previousPrice,
-            storeName = store.name,
-            storeBranch = store.branch,
-            distance = store.distance,
-            expirationOffer = store.expirationOffer,
-            logo = store.logo
+            pathImage = pathImage,
+            createdAt = LocalDateTime.now()
         )
+    }
 
+    fun ProductDetail.toProductEntity(pathImage: String?) : Product {
+        return Product(
+            id = this.id,
+            name = this.name,
+            pathImage = pathImage,
+            createdAt = LocalDateTime.now()
+        )
     }
 
 }
