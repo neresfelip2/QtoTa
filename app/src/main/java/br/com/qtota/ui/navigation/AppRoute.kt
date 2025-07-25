@@ -8,7 +8,6 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import br.com.qtota.data.remote.store.StoreResponse
-import br.com.qtota.ui.screen.store_list.ViewMode
 import com.google.gson.Gson
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
@@ -48,21 +47,9 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
     object Menu: AppRoute("menu", Icons.Outlined.Menu)
-    object StoreList: AppRoute("home/store_list/{view_mode}") {
-
-        internal const val BASE_ROUTE = "home/store_list"
-
-        internal const val ARG_VIEW_MODE = "view_mode"
-
-        internal fun createRoute(viewMode: ViewMode) : String {
-            return "${BASE_ROUTE}/${viewMode.name}"
-        }
-
-
-    }
+    object StoreList: AppRoute("home/store_list")
 
     object StoreDetail: AppRoute("home/store_detail/{id}") {
-
         const val BASE_ROUTE = "home/store_detail"
         const val ARG_ID = "id"
 
@@ -76,12 +63,21 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
     object RequestLocation: AppRoute("request_location")
     object Login: AppRoute("login")
     object ProductDetails: AppRoute("product_details/{productId}") {
-
         internal const val ARG_PRODUCT_ID = "productId"
 
         internal fun productId(id: Long): String {
             return "product_details/$id"
         }
+    }
+
+    object Map: AppRoute("map/{store_id}") {
+        const val BASE_ROUTE = "map"
+        const val ARG_STORE_ID = "store_id"
+
+        internal fun createRoute(storeId: Long? = null) : String {
+            return storeId?.let { "${BASE_ROUTE}/$it" } ?: "${BASE_ROUTE}/0"
+        }
+
     }
 
 }

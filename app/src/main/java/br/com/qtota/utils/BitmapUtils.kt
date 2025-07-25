@@ -4,14 +4,18 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
-import kotlin.math.min
 import androidx.core.graphics.createBitmap
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import kotlin.math.max
+import kotlin.math.min
+
 
 object BitmapUtils {
 
@@ -30,28 +34,40 @@ object BitmapUtils {
     }
 
     fun Bitmap.cropToCircle(): Bitmap {
-        // determina o tamanho do círculo (o menor lado do bitmap)
+        // diâmetro do círculo = menor lado do original
         val size = min(width, height)
-        // centraliza o recorte
-        val x = (width  - size) / 2
-        val y = (height - size) / 2
-
-        // corta um quadrado central
-        val squared = Bitmap.createBitmap(this, x, y, size, size)
-
-        // bitmap de saída, com canal alpha
         val output = createBitmap(size, size)
         val canvas = Canvas(output)
 
-        // prepara paint com shader do bitmap recortado
-        val paint = Paint().apply {
-            isAntiAlias = true
-            shader = BitmapShader(squared, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+        val radius = size / 2f
+
+        // 1) desenha o fundo branco
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+        }
+        canvas.drawCircle(radius, radius, radius, bgPaint)
+
+        // 2) calcula escala para "fit center" (mantém proporção)
+        val scale = size.toFloat() / max(width, height).toFloat()
+        val dx = (size - width * scale) / 2f
+        val dy = (size - height * scale) / 2f
+
+        // 3) prepara shader com todo o bitmap original
+        val shader = BitmapShader(this, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP).apply {
+            val matrix = Matrix().apply {
+                setScale(scale, scale)
+                postTranslate(dx, dy)
+            }
+            setLocalMatrix(matrix)
         }
 
-        // desenha um círculo preenchido com o shader
-        val r = size / 2f
-        canvas.drawCircle(r, r, r, paint)
+        // 4) paint usando shader anti-alias
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.shader = shader
+        }
+
+        // 5) desenha o círculo da imagem por cima do fundo
+        canvas.drawCircle(radius, radius, radius, paint)
 
         return output
     }

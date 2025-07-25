@@ -44,7 +44,6 @@ import br.com.qtota.ui.components.MessageContent
 import br.com.qtota.ui.components.SearchTextField
 import br.com.qtota.ui.components.StoreListItem
 import br.com.qtota.ui.navigation.AppRoute
-import br.com.qtota.ui.screen.store_list.ViewMode
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.defaultPadding
@@ -198,11 +197,11 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
                         horizontalArrangement = Arrangement.Center
                     ) {
                         HomeTextButton(stringResource(R.string.see_more_stores)) {
-                            bottomNavController.navigate(AppRoute.StoreList.createRoute(ViewMode.LIST))
+                            bottomNavController.navigate(AppRoute.StoreList.route)
                         }
                         Spacer(Modifier.width(defaultPadding))
                         HomeTextButton(stringResource(R.string.see_maps)) {
-                            bottomNavController.navigate(AppRoute.StoreList.createRoute(ViewMode.MAP))
+                            bottomNavController.navigate(AppRoute.Map.createRoute())
                         }
                     }
                 }

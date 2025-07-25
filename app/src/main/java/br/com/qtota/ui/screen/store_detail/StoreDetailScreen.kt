@@ -49,6 +49,7 @@ import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.MessageContent
+import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.screen.home.HomeTextButton
 import br.com.qtota.ui.screen.home.HomeTitle
 import br.com.qtota.ui.state_handler.UIState
@@ -71,7 +72,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun StoreDetailScreen(navController: NavHostController) {
+fun StoreDetailScreen(bottomNavController: NavHostController) {
 
     val viewModel: StoreDetailViewModel = hiltViewModel()
 
@@ -128,7 +129,7 @@ fun StoreDetailScreen(navController: NavHostController) {
                                 itemsIndexed(store.products) { index, product ->
                                     StoreDetailProductItem(
                                         product = product,
-                                        navController = navController,
+                                        navController = bottomNavController,
                                         modifier = Modifier.padding(
                                             start = if (index == 0) defaultPadding else defaultPadding / 2,
                                             end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
@@ -140,7 +141,9 @@ fun StoreDetailScreen(navController: NavHostController) {
                                 "Ver mais", Modifier
                                     .align(Alignment.End)
                                     .padding(horizontal = defaultPadding)
-                            ) { }
+                            ) {
+                                bottomNavController.navigate(AppRoute.SearchProduct.createRoute())
+                            }
                         } else {
                             MessageContent(
                                 {
@@ -205,7 +208,9 @@ fun StoreDetailScreen(navController: NavHostController) {
                             }
                             Spacer(Modifier.height(defaultPadding))
                             Button(
-                                {},
+                                {
+                                    bottomNavController.navigate(AppRoute.Map.createRoute(store.id))
+                                },
                                 Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = DefaultColor

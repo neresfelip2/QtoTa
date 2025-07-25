@@ -56,6 +56,7 @@ interface APIService {
 
     @GET("store/branches")
     suspend fun getNearbyStoreBranches(
+        @Query("store_id") storeId: Long?,
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
     ) : Response<List<StoreResponse>>

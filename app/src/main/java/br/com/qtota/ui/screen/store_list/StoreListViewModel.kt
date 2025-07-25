@@ -6,7 +6,6 @@ import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.data.repository.LocationRepository
 import br.com.qtota.data.repository.StoreRespository
 import br.com.qtota.ui.state_handler.UIState
-import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,14 +21,7 @@ class StoreListViewModel @Inject constructor(
     private val _storeListState = MutableStateFlow<UIState<List<StoreResponse>>>(UIState.Loading)
     val storeListState = _storeListState.asStateFlow()
 
-    private val _branchListState = MutableStateFlow<UIState<List<StoreResponse>>>(UIState.Loading)
-    val branchListState = _branchListState.asStateFlow()
-
     init {
-        getStores()
-    }
-
-    fun getStores() {
         viewModelScope.launch {
             val result = storeRepository.getNearbyStores(
                 locationRepository.location!!.latitude, locationRepository.location!!.longitude
@@ -42,25 +34,6 @@ class StoreListViewModel @Inject constructor(
 
             _storeListState.value = UIState.Success(result)
         }
-    }
-
-    fun getBranches() {
-        viewModelScope.launch {
-            val result = storeRepository.getNearbyStoreBranches(
-                locationRepository.location!!.latitude, locationRepository.location!!.longitude
-            )
-
-            if(result == null) {
-                _branchListState.value = UIState.Error("")
-                return@launch
-            }
-
-            _branchListState.value = UIState.Success(result)
-        }
-    }
-
-    fun getCurrentPosition() : LatLng {
-        return LatLng(locationRepository.location!!.latitude, locationRepository.location!!.longitude)
     }
 
 }

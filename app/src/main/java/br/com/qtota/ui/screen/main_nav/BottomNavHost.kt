@@ -8,12 +8,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.screen.home.HomeScreen
+import br.com.qtota.ui.screen.map.MapScreen
 import br.com.qtota.ui.screen.menu.MenuScreen
 import br.com.qtota.ui.screen.saved_offers.SavedItemsScreen
 import br.com.qtota.ui.screen.search_product.SearchProductScreen
 import br.com.qtota.ui.screen.store_detail.StoreDetailScreen
 import br.com.qtota.ui.screen.store_list.StoreListScreen
-import br.com.qtota.ui.screen.store_list.ViewMode
 
 @Composable
 internal fun BottomNavHost(bottomNavController: NavHostController, navController: NavHostController) {
@@ -37,16 +37,7 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
         }
         composable(AppRoute.SavedOffers.route) { SavedItemsScreen(navController) }
         composable(AppRoute.Menu.route) { MenuScreen(navController) }
-        composable(AppRoute.StoreList.route,
-            arguments = listOf(
-                navArgument(AppRoute.StoreList.ARG_VIEW_MODE) {
-                    type = NavType.StringType
-                }
-            )
-        ) { navBackStackEntry ->
-            val arg = navBackStackEntry.arguments?.getString(AppRoute.StoreList.ARG_VIEW_MODE)!!
-            StoreListScreen(bottomNavController, ViewMode.valueOf(arg))
-        }
+        composable(AppRoute.StoreList.route) { StoreListScreen(bottomNavController) }
 
         composable(AppRoute.StoreDetail.route,
             arguments = listOf(
@@ -55,8 +46,17 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
                 }
             )
         ) {
-            StoreDetailScreen(navController)
+            StoreDetailScreen(bottomNavController)
         }
+
+        composable(
+            AppRoute.Map.route,
+            arguments = listOf(
+                navArgument(AppRoute.Map.ARG_STORE_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { MapScreen(bottomNavController) }
 
     }
 

@@ -16,9 +16,9 @@ class StoreRespository(
         }) { it }
     }
 
-    suspend fun getNearbyStoreBranches(latitude: Double, longitude: Double): List<StoreResponse>? {
+    suspend fun getNearbyStoreBranches(storeId: Long?, latitude: Double, longitude: Double): List<StoreResponse>? {
         return performRequest({
-            apiService.getNearbyStoreBranches(latitude, longitude)
+            apiService.getNearbyStoreBranches(storeId, latitude, longitude)
         }) { it }
     }
 
