@@ -16,7 +16,6 @@ import coil.request.SuccessResult
 import kotlin.math.max
 import kotlin.math.min
 
-
 object BitmapUtils {
 
     suspend fun downloadImageFromUrl(urlImage: String?, context: Context) : Bitmap? {
@@ -52,7 +51,7 @@ object BitmapUtils {
         val dx = (size - width * scale) / 2f
         val dy = (size - height * scale) / 2f
 
-        // 3) prepara shader com todo o bitmap original
+        // 3) prepara shader com o bitmap completo
         val shader = BitmapShader(this, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP).apply {
             val matrix = Matrix().apply {
                 setScale(scale, scale)
