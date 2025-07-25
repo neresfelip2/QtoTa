@@ -34,7 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -76,7 +78,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun StoreDetailScreen(bottomNavController: NavHostController) {
+fun StoreDetailScreen(navController: NavHostController, bottomNavController: NavHostController) {
 
     val viewModel: StoreDetailViewModel = hiltViewModel()
 
@@ -90,6 +92,9 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
             ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
         }
         is UIState.Success -> {
+
+            val screenWidth = LocalWindowInfo.current.containerSize.width
+            val itemWidth = (0.15f * screenWidth).dp
 
             val store = (storeDetail as UIState.Success).data
 
@@ -111,16 +116,31 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                         Spacer(Modifier.width(defaultPadding))
                         Column {
                             ProductTitle(store.name)
-                            Text(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi cursus, felis ac ultricies egestas, tellus nibh rutrum diam, ac laoreet felis arcu a velit. Proin sem erat, feugiat sit amet vestibulum at, congue ac ex. Morbi ipsum augue, congue vulputate imperdiet vitae, tempor ut leo.",
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                style = TextStyle(
-                                    color = Color.Gray,
-                                    fontSize = 13.sp,
-                                    lineHeight = 15.sp,
+                            Spacer(Modifier.height(2.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painterResource(R.drawable.outline_store_24),
+                                    null,
+                                    Modifier.size(16.dp),
+                                    tint = Color.Gray
                                 )
-                            )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    pluralStringResource(
+                                        R.plurals.branch_in_your_region,
+                                        store.branchList.size,
+                                        formatArgs = arrayOf(store.branchList.size)
+                                    ),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = TextStyle(
+                                        color = Color.Gray,
+                                        fontSize = 13.sp,
+                                        lineHeight = 15.sp,
+                                    )
+                                )
+                            }
+
                         }
                     }
                 }
@@ -137,13 +157,14 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                                 store.products.forEachIndexed { index, product ->
                                     StoreDetailProductItem(
                                         product = product,
-                                        navController = bottomNavController,
+                                        navController = navController,
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .padding(
                                                 start = if (index == 0) defaultPadding else defaultPadding / 2,
                                                 end = if (index == store.products.size - 1) defaultPadding else defaultPadding / 2
                                             )
+                                            .width(itemWidth)
                                     )
                                 }
                             }
@@ -203,6 +224,7 @@ fun StoreDetailScreen(bottomNavController: NavHostController) {
                             )
                             Text(
                                 nearbyBranch.address,
+                                Modifier.padding(vertical = 4.dp),
                                 fontSize = 13.sp,
                                 color = Color.DarkGray,
                                 lineHeight = 15.sp
@@ -351,5 +373,5 @@ private fun MapContainer(store: StoreDetail, modifier: Modifier = Modifier) {
 
 @Composable @Preview(showBackground = true)
 private fun StoreDetailScreenPreview() {
-    StoreDetailScreen(rememberNavController())
+    StoreDetailScreen(rememberNavController(), rememberNavController())
 }

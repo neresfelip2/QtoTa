@@ -34,7 +34,7 @@ android {
         }
 
         debug {
-            // buildConfigField "String", "API_URL", "\"http://192.168.1.8:8000/\""
+            // buildConfigField "String", "API_URL", "\"http://192.168.1.9:8000/\""
             buildConfigField "String", "API_URL", "\"https://qtota-gbesfra0fsbwdhfe.canadacentral-01.azurewebsites.net/\""
         }
 
@@ -64,10 +64,10 @@ dependencies {
     implementation libs.coil.compose
     implementation libs.androidx.media3.common.ktx
     implementation libs.androidx.navigation.compose.android
+    implementation libs.play.services.location
 
     // Hilt
     implementation libs.hilt.android
-    implementation libs.play.services.location
     ksp libs.hilt.compiler
     implementation libs.androidx.hilt.navigation.compose
 

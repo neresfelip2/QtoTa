@@ -24,9 +24,10 @@ import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.utils.BitmapUtils
 import br.com.qtota.utils.BitmapUtils.cropToCircle
 import br.com.qtota.utils.Utils.mapStyle
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -45,13 +46,34 @@ fun MapScreen(bottomNavController: NavHostController) {
         is UIState.Error -> ErrorComponent(stringResource(R.string.error_loading_message), Modifier.fillMaxSize())
         is UIState.Success -> {
 
+            val currentPosition = viewModel.getCurrentPosition()
             val markers = (markerState as UIState.Success).data
 
             val context = LocalContext.current
             val density = LocalDensity.current
 
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(viewModel.getCurrentPosition(), 15f)
+            // 1) Cria o estado de câmera sem position/zoom inicial
+            val cameraPositionState = rememberCameraPositionState()
+
+            // 2) Quando markers ou storeId mudarem, dispara a animação de câmera
+            LaunchedEffect(markers, viewModel.storeId) {
+                if (viewModel.storeId != null && markers.isNotEmpty()) {
+                    // Constroi o LatLngBounds incluindo todas as posições dos markers
+                    val bounds = LatLngBounds.builder().apply {
+                        markers.forEach { include(it.position) }
+                        include(currentPosition)
+                    }.build()
+
+                    val padding = 50.dp
+                    val paddingPx = with(density) { padding.toPx().toInt() }
+                    cameraPositionState.move(
+                    CameraUpdateFactory.newLatLngBounds(bounds, paddingPx )
+                    )
+                } else {
+                    cameraPositionState.move(
+                    CameraUpdateFactory.newLatLngZoom(currentPosition, 15f)
+                    )
+                }
             }
 
             val targetSize = 40.dp

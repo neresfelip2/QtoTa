@@ -46,7 +46,7 @@ internal fun BottomNavHost(bottomNavController: NavHostController, navController
                 }
             )
         ) {
-            StoreDetailScreen(bottomNavController)
+            StoreDetailScreen(navController, bottomNavController)
         }
 
         composable(

@@ -3,6 +3,7 @@ package br.com.qtota.ui.screen.store_detail
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -40,8 +41,15 @@ internal fun StoreDetailProductItem(product: StoreDetailProduct, navController: 
         colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
 
-        Column(Modifier.padding(defaultPadding)) {
-            ImageComponent(product.urlImage, R.drawable.outline_photo_24, 128.dp, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Column(Modifier.padding(defaultPadding).fillMaxWidth()) {
+            ImageComponent(
+                product.urlImage,
+                R.drawable.outline_photo_24,
+                144.dp,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    //.background(Color.Red)
+            )
             Spacer(Modifier.height(defaultPadding/2))
             ProductTitle(product.name, maxLines = 2)
             Spacer(Modifier.height(defaultPadding/2))
