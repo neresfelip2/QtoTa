@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -37,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
+import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.LocationComponent
@@ -65,147 +67,13 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
         )
 
         is UIState.Success -> {
-
             val data = (homeUIState as UIState.Success).data
-            val listState = rememberLazyListState()
-            LazyColumn (state = listState) {
 
-                item {
-                    LocationComponent(localityNameState, Modifier.padding(top = defaultPadding, start = defaultPadding))
-                }
-
-                item {
-                    SearchTextField(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(defaultPadding),
-                    ) { query -> navigateToSearchProduct(bottomNavController, query) }
-                }
-
-                item {
-                    HomeTitle(stringResource(R.string.cheapests_in_your_area), Modifier.padding(defaultPadding))
-                }
-
-                if (data.products.isEmpty()) {
-                    item {
-                        MessageContent(
-                            {
-                                Icon(
-                                    painterResource(R.drawable.ic_empty_shopping_cart),
-                                    null,
-                                    Modifier.size(128.dp),
-                                    tint = Color(0x59187270)
-                                )
-                            },
-                            stringResource(R.string.any_product_found),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                        )
-                    }
-                } else {
-                    val productRows = data.products.chunked(2)
-                    itemsIndexed(productRows) { index, subList ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Max)
-                                .padding(
-                                    start = defaultPadding, end = defaultPadding,
-                                    top = if (index == 0) defaultPadding else defaultPadding / 2,
-                                    bottom = if (index == productRows.size - 1) defaultPadding else defaultPadding / 2
-                                ),
-                            horizontalArrangement = Arrangement.spacedBy(defaultPadding),
-                        ) {
-                            if(subList.size == 2) {
-                                HomeProductItem(
-                                    product = subList[0],
-                                    navController = navController,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
-                                HomeProductItem(
-                                    product = subList[1],
-                                    navController = navController,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
-                            } else {
-                                HomeProductItem(
-                                    product = subList[0],
-                                    navController = navController,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
-                                Spacer(Modifier.weight(1f))
-                            }
-
-                        }
-                    }
-
-                    item {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            HomeTextButton(stringResource(R.string.see_more_offers)) {
-                                navigateToSearchProduct(
-                                    bottomNavController
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    HomeTitle(
-                        stringResource(R.string.nearest_stores),
-                        Modifier.padding(defaultPadding)
-                    )
-                }
-
-                item {
-                    if (data.nearbyStores.isEmpty()) {
-                        MessageContent(
-                            {
-                                Icon(
-                                    painterResource(R.drawable.outline_store_24), null,
-                                    Modifier.size(128.dp),
-                                    tint = Color(0x59187270)
-                                )
-                            }, stringResource(R.string.any_store_found),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp)
-                        )
-                        return@item
-                    }
-
-                    LazyRow(contentPadding = PaddingValues(8.dp)) {
-                        items(data.nearbyStores) { store ->
-                            StoreListItem(store, bottomNavController)
-                        }
-                    }
-                }
-
-                item {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        HomeTextButton(stringResource(R.string.see_more_stores)) {
-                            bottomNavController.navigate(AppRoute.StoreList.route)
-                        }
-                        Spacer(Modifier.width(defaultPadding))
-                        HomeTextButton(stringResource(R.string.see_maps)) {
-                            bottomNavController.navigate(AppRoute.Map.createRoute())
-                        }
-                    }
-                }
-
+            LazyColumn(state = rememberLazyListState()) {
+                locationSection(localityNameState)
+                searchSection(bottomNavController)
+                chepaestProducsSection(data, navController, bottomNavController)
+                nearestStoresSection(data, bottomNavController)
             }
 
         }
@@ -213,13 +81,157 @@ internal fun HomeScreen(navController: NavHostController, bottomNavController: N
 
 }
 
-private fun navigateToSearchProduct(bottomNavController: NavHostController, query: String? = null) {
-    bottomNavController.navigate(AppRoute.SearchProduct.createRoute(query)) {
-        popUpTo(bottomNavController.graph.startDestinationId) {
-            saveState = true
+private fun LazyListScope.locationSection(localityNameState: String) {
+    item {
+        LocationComponent(
+            localityNameState,
+            Modifier.padding(top = defaultPadding, start = defaultPadding)
+        )
+    }
+}
+
+private fun LazyListScope.searchSection(bottomNavController: NavHostController) {
+    item {
+        SearchTextField(
+            Modifier
+                .fillMaxWidth()
+                .padding(defaultPadding),
+        ) { query -> navigateToSearchProduct(bottomNavController, query) }
+    }
+}
+
+private fun LazyListScope.nearestStoresSection(
+    data: HomeResponse,
+    bottomNavController: NavHostController,
+) {
+    item {
+        HomeTitle(
+            stringResource(R.string.nearest_stores),
+            Modifier.padding(defaultPadding)
+        )
+    }
+
+    item {
+        if (data.nearbyStores.isEmpty()) {
+            MessageContent(
+                {
+                    Icon(
+                        painterResource(R.drawable.outline_store_24), null,
+                        Modifier.size(128.dp),
+                        tint = Color(0x59187270)
+                    )
+                }, stringResource(R.string.any_store_found),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp)
+            )
+            return@item
         }
-        launchSingleTop = false
-        restoreState = false
+
+        LazyRow(contentPadding = PaddingValues(8.dp)) {
+            items(data.nearbyStores) { store ->
+                StoreListItem(store, bottomNavController)
+            }
+        }
+    }
+
+    item {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            HomeTextButton(stringResource(R.string.see_more_stores)) {
+                bottomNavController.navigate(AppRoute.StoreList.route)
+            }
+            Spacer(Modifier.width(defaultPadding))
+            HomeTextButton(stringResource(R.string.see_maps)) {
+                bottomNavController.navigate(AppRoute.Map.createRoute())
+            }
+        }
+    }
+}
+
+private fun LazyListScope.chepaestProducsSection(
+    data: HomeResponse,
+    navController: NavHostController,
+    bottomNavController: NavHostController,
+) {
+    item {
+        HomeTitle(stringResource(R.string.cheapests_in_your_area), Modifier.padding(defaultPadding))
+    }
+
+    if (data.products.isEmpty()) {
+        item {
+            MessageContent(
+                {
+                    Icon(
+                        painterResource(R.drawable.ic_empty_shopping_cart),
+                        null,
+                        Modifier.size(128.dp),
+                        tint = Color(0x59187270)
+                    )
+                },
+                stringResource(R.string.any_product_found),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+            )
+        }
+    } else {
+        val productRows = data.products.chunked(2)
+        itemsIndexed(productRows) { index, subList ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max)
+                    .padding(
+                        start = defaultPadding, end = defaultPadding,
+                        top = if (index == 0) defaultPadding else defaultPadding / 2,
+                        bottom = if (index == productRows.size - 1) defaultPadding else defaultPadding / 2
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(defaultPadding),
+            ) {
+                if (subList.size == 2) {
+                    HomeProductItem(
+                        product = subList[0],
+                        navController = navController,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                    HomeProductItem(
+                        product = subList[1],
+                        navController = navController,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                } else {
+                    HomeProductItem(
+                        product = subList[0],
+                        navController = navController,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+
+            }
+        }
+
+        item {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                HomeTextButton(stringResource(R.string.see_more_offers)) {
+                    navigateToSearchProduct(
+                        bottomNavController
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -248,6 +260,16 @@ fun HomeTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> U
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp
         )
+    }
+}
+
+private fun navigateToSearchProduct(bottomNavController: NavHostController, query: String? = null) {
+    bottomNavController.navigate(AppRoute.SearchProduct.createRoute(query)) {
+        popUpTo(bottomNavController.graph.startDestinationId) {
+            saveState = true
+        }
+        launchSingleTop = false
+        restoreState = false
     }
 }
 

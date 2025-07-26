@@ -66,11 +66,6 @@ internal fun ProductListItem(
     modifier: Modifier = Modifier
 ) {
 
-    val savedProductsState by viewModel.savedProductsState.collectAsState()
-    val isSaved = savedProductsState.any { it.id == product.id }
-
-    var dialog by remember { mutableStateOf<ProductResponse?>(null) }
-
     Card(
         modifier.clickable {
             navController.navigate(
@@ -86,141 +81,165 @@ internal fun ProductListItem(
             ImageComponent(product.urlImage, R.drawable.outline_shopping_cart_24, 112.dp)
             Column {
                 if(viewModel.store == null) {
-                    Row(
-                        modifier = Modifier
-                            .background(GrayColor)
-                            .padding(defaultPadding, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ImageComponent(product.store.logo, R.drawable.outline_store_24, 40.dp)
-                        Spacer(Modifier.width(defaultPadding))
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                product.store.name,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    lineHeight = 15.sp,
-                                    color = Color.DarkGray,
-                                )
-                            )
-                            Text(
-                                product.store.branch,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = TextStyle(
-                                    color = Color.Gray,
-                                    fontSize = 12.sp,
-                                    lineHeight = 13.sp,
-                                )
-                            )
-                        }
-                        Spacer(Modifier.width(defaultPadding))
-                        Row(
-                            Modifier
-                                .background(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFFD3E2FD)
-                                )
-                                .padding(horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Outlined.LocationOn,
-                                null,
-                                Modifier.size(16.dp),
-                                tint = Color(0xFF0015DF)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                product.store.distance.toDistanceString(),
-                                color = Color(0xFF0015DF),
-                                fontSize = 12.sp
-                            )
-                        }
-                    }
+                    StoreHeader(product.store)
                 }
-                Column(Modifier.padding(defaultPadding)) {
-                    ProductTitle(product.name)
-                    Text(
-                        stringResource(
-                            R.string.valid_offer_until_date,
-                            product.expirationOffer.toDDMM()
-                        ),
-                        fontSize = 13.sp,
-                        color = Color.Gray,
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Row(
-                        Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            product.price.toMonetaryString(),
-                            Modifier.padding(4.dp),
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF007700)
-                        )
-                        if(product.percentageOfAverage > 0) {
-                            Text(
-                                "Economize ${product.percentageOfAverage}%",
-                                Modifier
-                                    .background(
-                                        shape = RoundedCornerShape(8.dp),
-                                        color = Color(0xFFFF883C)
-                                    )
-                                    .padding(6.dp, 1.dp),
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 13.sp,
-                                color = Color.White,
-                            )
-                        } else if(product.percentageOfAverage < 0) {
-                            Text(
-                                "${-product.percentageOfAverage}% acima da média",
-                                Modifier
-                                    .padding(6.dp, 1.dp),
-                                fontSize = 12.sp,
-                                color = Color.Red,
-                            )
-                        }
-                    }
-                }
+                InfoProductSection(product)
             }
         }
         HorizontalDivider(Modifier.padding(horizontal = defaultPadding), color = GrayColor)
-        Row(Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-            horizontalArrangement = Arrangement.Center) {
-            Button({ dialog = product },
-                Modifier.height(36.dp),
-                contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = DefaultColor,
-                    contentColor = Color.White
-                ),
-            ) {
+        ButtonsSection(product, viewModel)
+    }
+
+}
+
+@Composable
+private fun StoreHeader(store: StoreResponse) {
+    Row(
+        modifier = Modifier
+            .background(GrayColor)
+            .padding(defaultPadding, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ImageComponent(store.logo, R.drawable.outline_store_24, 40.dp)
+        Spacer(Modifier.width(defaultPadding))
+        Column(Modifier.weight(1f)) {
+            Text(
+                store.name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    lineHeight = 15.sp,
+                    color = Color.DarkGray,
+                )
+            )
+            Text(
+                store.branch,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    lineHeight = 13.sp,
+                )
+            )
+        }
+        Spacer(Modifier.width(defaultPadding))
+        Row(
+            Modifier
+                .background(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFFD3E2FD)
+                )
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Outlined.LocationOn,
+                null,
+                Modifier.size(16.dp),
+                tint = Color(0xFF0015DF)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                store.distance.toDistanceString(),
+                color = Color(0xFF0015DF),
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoProductSection(product: ProductResponse) {
+
+    Column(Modifier.padding(defaultPadding)) {
+        ProductTitle(product.name)
+        Text(
+            stringResource(
+                R.string.valid_offer_until_date,
+                product.expirationOffer.toDDMM()
+            ),
+            fontSize = 13.sp,
+            color = Color.Gray,
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                product.price.toMonetaryString(),
+                Modifier.padding(4.dp),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Black,
+                color = Color(0xFF007700)
+            )
+            if(product.percentageOfAverage > 0) {
                 Text(
-                    stringResource(if (isSaved) R.string.delete_from_saved else R.string.save),
-                    fontSize = 13.sp
+                    "Economize ${product.percentageOfAverage}%",
+                    Modifier
+                        .background(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFFFF883C)
+                        )
+                        .padding(6.dp, 1.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 13.sp,
+                    color = Color.White,
+                )
+            } else if(product.percentageOfAverage < 0) {
+                Text(
+                    "${-product.percentageOfAverage}% acima da média",
+                    Modifier
+                        .padding(6.dp, 1.dp),
+                    fontSize = 12.sp,
+                    color = Color.Red,
                 )
             }
-            Spacer(Modifier.width(defaultPadding))
-            OutlinedButton({},
-                Modifier.height(36.dp),
-                contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = DefaultColor
-                ),
-                border = BorderStroke(1.dp, DefaultColor)
-            ) {
-                Text(stringResource(R.string.share), fontSize = 13.sp)
-            }
+        }
+    }
+
+}
+
+@Composable
+private fun ButtonsSection(product: ProductResponse, viewModel: SearchProductViewModel) {
+
+    val savedProductsState by viewModel.savedProductsState.collectAsState()
+    val isSaved = savedProductsState.any { it.id == product.id }
+
+    var dialog by remember { mutableStateOf<ProductResponse?>(null) }
+
+    Row(Modifier
+        .fillMaxWidth()
+        .padding(8.dp),
+        horizontalArrangement = Arrangement.Center) {
+        Button({ dialog = product },
+            Modifier.height(36.dp),
+            contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DefaultColor,
+                contentColor = Color.White
+            ),
+        ) {
+            Text(
+                stringResource(if (isSaved) R.string.delete_from_saved else R.string.save),
+                fontSize = 13.sp
+            )
+        }
+        Spacer(Modifier.width(defaultPadding))
+        OutlinedButton({},
+            Modifier.height(36.dp),
+            contentPadding = PaddingValues(vertical = 0.dp, horizontal = defaultPadding),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = DefaultColor
+            ),
+            border = BorderStroke(1.dp, DefaultColor)
+        ) {
+            Text(stringResource(R.string.share), fontSize = 13.sp)
         }
     }
 
