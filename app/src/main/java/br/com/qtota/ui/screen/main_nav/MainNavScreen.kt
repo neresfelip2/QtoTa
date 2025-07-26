@@ -48,7 +48,7 @@ internal fun MainNavigationScreen(navController: NavHostController) {
     var showLoginDialog by remember { mutableStateOf(false) }
     var showSendFlyerDialog by remember { mutableStateOf(false) }
 
-    DrawerScaffold { topBarPadding, drawerState, scope ->
+    DrawerScaffold { topBarPadding, drawerState ->
         BottomBarScaffold(
             topBarPadding,
             navController,
@@ -73,7 +73,7 @@ internal fun MainNavigationScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState, CoroutineScope) -> Unit) {
+private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState) -> Unit) {
 
     // Drawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -103,7 +103,7 @@ private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState, Cor
                 gesturesEnabled = false
             ) {
                 CompositionLocalProvider(value =LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    content(topBarPadding, drawerState, scope)
+                    content(topBarPadding, drawerState)
                 }
             }
         }
