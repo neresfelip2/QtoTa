@@ -38,7 +38,6 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
 import br.com.qtota.ui.theme.DefaultColor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
