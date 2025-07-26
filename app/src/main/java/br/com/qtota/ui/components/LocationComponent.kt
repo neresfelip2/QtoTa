@@ -34,7 +34,7 @@ internal fun LocationComponent(localityName: String, modifier: Modifier = Modifi
             localityName,
             fontWeight = FontWeight.Bold,
             color = DefaultColor,
-            fontSize = 16.sp
+            fontSize = 14.sp
         )
     }
 }

@@ -1,12 +1,13 @@
 package br.com.qtota.ui.screen.main_nav
 
 import android.annotation.SuppressLint
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -36,7 +37,6 @@ import br.com.qtota.ui.components.ConfirmDialog
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
-import br.com.qtota.ui.screen.home.SendFlyerDialog
 import br.com.qtota.ui.theme.DefaultColor
 import kotlinx.coroutines.launch
 
@@ -44,20 +44,39 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun MainNavigationScreen(navController: NavHostController) {
 
-    val viewModel: MainNavViewModel = hiltViewModel()
-    val bottomNavController = rememberNavController()
+    var showLoginDialog by remember { mutableStateOf(false) }
+    var showSendFlyerDialog by remember { mutableStateOf(false) }
+
+    DrawerScaffold { topBarPadding, drawerState ->
+        BottomBarScaffold(
+            topBarPadding,
+            navController,
+            drawerState,
+            { showLoginDialog = true },
+            { showSendFlyerDialog = true }
+        )
+    }
+
+    if (showLoginDialog)
+        LoginDialog(
+            onDismiss = { showLoginDialog = false },
+            onConfirm = {
+                showLoginDialog = false
+                navController.navigate(AppRoute.Login.route)
+            }
+        )
+
+    if (showSendFlyerDialog)
+        SendFlyerDialog(onDismiss = { showSendFlyerDialog = false })
+
+}
+
+@Composable
+private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState) -> Unit) {
 
     // Drawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    // SendFlyerDialog
-    var showLoginDialog by remember { mutableStateOf(false) }
-    var showSendFlyerDialog by remember { mutableStateOf(false) }
-
-    BackHandler(drawerState.isOpen) {
-        scope.launch { drawerState.close() }
-    }
 
     Scaffold(
         topBar = {
@@ -82,58 +101,69 @@ internal fun MainNavigationScreen(navController: NavHostController) {
                 drawerContent = { DrawerContent() },
                 gesturesEnabled = false
             ) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                        Scaffold(
-                            bottomBar = { BottomNavBar(bottomNavController) },
-                            floatingActionButton = {
-                                FloatingActionButton(
-                                    {
-                                        viewModel.checkIfLogged { isLogged ->
-                                            if (isLogged) {
-                                                showSendFlyerDialog = true
-                                            } else {
-                                                showLoginDialog = true
-                                            }
-                                        }
-                                    },
-                                    modifier = Modifier.offset(y = (64).dp),
-                                    contentColor = Color.White,
-                                    containerColor = DefaultColor,
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.ic_send_flyer),
-                                        null
-                                    )
-                                }
-                            },
-                            floatingActionButtonPosition = FabPosition.Center,
-                        ) { bottomBarPadding ->
-                            Box(Modifier.padding(top = topBarPadding.calculateTopPadding(), bottom = bottomBarPadding.calculateBottomPadding())) {
-                                BottomNavHost(bottomNavController, navController)
-                            }
-                        }
-                    }
-
+                CompositionLocalProvider(value =LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    content(topBarPadding, drawerState)
+                }
             }
-
         }
-
-        if(showLoginDialog) {
-            ConfirmDialog(
-                text = stringResource(R.string.send_flyer_dialog),
-                onDismiss = { showLoginDialog = false },
-                onConfirm = {
-                    showLoginDialog = false
-                    navController.navigate(AppRoute.Login.route)
-                },
-                confirmText = stringResource(R.string.log_in)
-            )
-        }
-
-        if(showSendFlyerDialog) {
-            SendFlyerDialog { showSendFlyerDialog = false }
-        }
-
     }
 
+}
+
+@Composable
+private fun BottomBarScaffold(topBarPadding: PaddingValues, navController: NavHostController, drawerState: DrawerState, showLoginDialog: () -> Unit, showSendFlyerDialog: () -> Unit) {
+
+    val viewModel: MainNavViewModel = hiltViewModel()
+    val bottomNavController = rememberNavController()
+
+    Scaffold(
+        bottomBar = { BottomNavBar(bottomNavController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                {
+                    viewModel.checkIfLogged { isLogged ->
+                        if (isLogged) {
+                            showSendFlyerDialog()
+                        } else {
+                            showLoginDialog()
+                        }
+                    }
+                },
+                modifier = Modifier.offset(y = (64).dp),
+                contentColor = Color.White,
+                containerColor = DefaultColor,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_send_flyer),
+                    null
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+    ) { bottomBarPadding ->
+        Box(Modifier.padding(top = topBarPadding.calculateTopPadding(), bottom = bottomBarPadding.calculateBottomPadding())) {
+            BottomNavHost(bottomNavController, navController, drawerState)
+        }
+    }
+
+}
+
+@Composable
+private fun LoginDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    ConfirmDialog(
+        text = stringResource(R.string.send_flyer_dialog),
+        onDismiss = onDismiss,
+        onConfirm = onConfirm,
+        confirmText = stringResource(R.string.log_in)
+    )
+}
+
+@Composable
+private fun SendFlyerDialog(
+    onDismiss: () -> Unit
+) {
+    SendFlyerDialog(onDismiss = onDismiss)
 }
