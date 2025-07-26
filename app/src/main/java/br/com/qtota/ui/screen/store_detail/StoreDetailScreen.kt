@@ -339,7 +339,7 @@ private fun OtherBranchesSection(branches: List<StoreDetailBranch>) {
         HomeTitle(stringResource(R.string.other_nearest_branches), Modifier.padding(defaultPadding))
         HorizontalDivider(thickness = 0.5.dp)
         Column(Modifier.padding(defaultPadding)) {
-            branches.drop(1).forEachIndexed { index, branch ->
+            branches.forEachIndexed { index, branch ->
                 Column(
                     Modifier.padding(
                         start = defaultPadding, end = defaultPadding,
