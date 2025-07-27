@@ -5,10 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navArgument
-import br.com.qtota.ui.screen.main_nav.MainNavigationScreen
 import br.com.qtota.ui.screen.login.LoginScreen
 import br.com.qtota.ui.screen.product_detail.ProductDetailsScreen
-import br.com.qtota.ui.screen.request_location.RequestLocationScreen
+import br.com.qtota.ui.screen.main_navigation.MainNavigationScreen
 
 @Composable
 internal fun AppNavHost(navController: NavHostController, startDestination: String) {
@@ -17,9 +16,7 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
 
         animatedComposable(AppRoute.Login.route) { LoginScreen(navController) }
 
-        animatedComposable(AppRoute.RequestLocation.route) { RequestLocationScreen(navController) }
-
-        animatedComposable(AppRoute.MainNav.route) { MainNavigationScreen(navController)}
+        animatedComposable(AppRoute.Main.route) { MainNavigationScreen(navController) }
 
         animatedComposable(
             AppRoute.ProductDetails.route,
