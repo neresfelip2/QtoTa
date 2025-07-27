@@ -7,7 +7,6 @@ import br.com.qtota.data.remote.adapters.MeasureTypeAdapter
 import br.com.qtota.data.remote.product.MeasureType
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
@@ -33,7 +32,7 @@ object NetworkModule {
         }
     }*/
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
@@ -41,7 +40,7 @@ object NetworkModule {
         }
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
@@ -56,7 +55,7 @@ object NetworkModule {
             .build()
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideGsonTypeAdapter(): Gson {
         return GsonBuilder()
@@ -65,7 +64,7 @@ object NetworkModule {
             .create()
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, typeAdapter: Gson): Retrofit {
         return Retrofit.Builder()
@@ -75,7 +74,7 @@ object NetworkModule {
             .build()
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideAPIService(retrofit: Retrofit): APIService {
         return retrofit.create(APIService::class.java)

@@ -8,7 +8,6 @@ import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.StoreRespository
 import br.com.qtota.data.repository.UserRepository
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -18,7 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideUserRepository(
         apiService: APIService,
@@ -27,7 +26,7 @@ object RepositoryModule {
         return UserRepository(apiService, dataStore)
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideProductRepository(
         @ApplicationContext context: Context,
@@ -37,7 +36,7 @@ object RepositoryModule {
         return ProductRepository(context, apiService, productDAO)
     }
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideStoreRepository(apiService: APIService): StoreRespository {
         return StoreRespository(apiService)

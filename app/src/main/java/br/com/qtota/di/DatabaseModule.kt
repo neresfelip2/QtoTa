@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import br.com.qtota.data.local.AppDatabase
 import br.com.qtota.data.local.dao.ProductDAO
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -14,7 +13,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Provides
+    @dagger.Provides
     @Singleton
     fun provideDatabase(@ApplicationContext ctx: Context): AppDatabase {
         return Room.databaseBuilder(ctx, AppDatabase::class.java, "qtota.db")
@@ -22,7 +21,7 @@ object DatabaseModule {
             .build()
     }
 
-    @Provides
+    @dagger.Provides
     fun provideProductDAO(db: AppDatabase): ProductDAO {
         return db.productDAO()
     }
