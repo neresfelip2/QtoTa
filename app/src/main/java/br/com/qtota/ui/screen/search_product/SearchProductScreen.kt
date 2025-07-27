@@ -299,7 +299,7 @@ private fun EmptyListSection(
                 )
             }
 
-            else -> {}
+            LoadMoreListState.SUCCESS -> {}
         }
     }
 
