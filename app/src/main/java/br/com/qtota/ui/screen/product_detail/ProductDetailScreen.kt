@@ -190,21 +190,21 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
 
         Spacer(Modifier.height(defaultPadding * 2))
 
-        var selectedTab by remember { mutableStateOf(Tab.TAB_PRICES) }
+        var selectedTab by remember { mutableStateOf(TabDetail.TAB_PRICES) }
         TabRow(
             selectedTabIndex = selectedTab.ordinal,
             indicator = {},
             divider = {},
         ) {
-            TabItem(Tab.TAB_PRICES, selectedTab) { selectedTab = it }
-            TabItem(Tab.TAB_DETAILS, selectedTab) { selectedTab = it }
+            TabItem(TabDetail.TAB_PRICES, selectedTab) { selectedTab = it }
+            TabItem(TabDetail.TAB_DETAILS, selectedTab) { selectedTab = it }
         }
 
         Spacer(Modifier.height(defaultPadding))
 
         when(selectedTab) {
-            Tab.TAB_PRICES -> PricesContainer(product.stores)
-            Tab.TAB_DETAILS -> DetailsContainer(
+            TabDetail.TAB_PRICES -> PricesContainer(product.stores)
+            TabDetail.TAB_DETAILS -> DetailsContainer(
                 measure = product.weight,
                 type = product.type,
                 measureType = product.measureType,
@@ -217,7 +217,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
     }
 }
 @Composable
-private fun TabItem(tab: Tab, selectedTab: Tab, onClick: (Tab) -> Unit) {
+private fun TabItem(tab: TabDetail, selectedTab: TabDetail, onClick: (TabDetail) -> Unit) {
     Tab(
         modifier = Modifier
             .padding(horizontal = 4.dp)
@@ -383,7 +383,7 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-enum class Tab(val label: String) {
+enum class TabDetail(val label: String) {
     TAB_PRICES("Preços"), TAB_DETAILS("Detalhes")
 }
 
