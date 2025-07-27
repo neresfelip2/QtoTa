@@ -8,14 +8,13 @@ import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.repository.ProductRepository
 import br.com.qtota.data.repository.StoreRespository
 import br.com.qtota.data.repository.UserRepository
-import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module
+@dagger.Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
