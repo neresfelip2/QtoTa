@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import br.com.qtota.R
 import br.com.qtota.data.remote.home_response.CategoryResponse
+import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.ui.components.ErrorComponent
 import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.components.LoadingComponent
@@ -69,7 +71,6 @@ internal fun SearchProductScreen(navController: NavHostController) {
     val loadState by viewModel.loadState.collectAsState()
 
     val listState = rememberLazyListState()
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(listState, listProductState.size) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
@@ -84,23 +85,16 @@ internal fun SearchProductScreen(navController: NavHostController) {
 
     Column {
         LazyColumn(state = listState) {
+
             item {
                 LocationComponent(
                     neighborhood,
-                    modifier = Modifier.padding(start = defaultPadding, top = defaultPadding)
+                    Modifier.padding(start = defaultPadding, top = defaultPadding)
                 )
             }
 
             viewModel.store?.let { store ->
-                item {
-                    Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
-                        Spacer(Modifier.width(defaultPadding))
-                        ImageComponent(store.urlLogo, R.drawable.outline_store_24, 24.dp)
-                        Spacer(Modifier.width(defaultPadding))
-                        HomeTitle(store.name)
-                    }
-                }
+                item { StoreSection(store) }
             }
 
             item {
@@ -109,42 +103,20 @@ internal fun SearchProductScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(defaultPadding),
                     viewModel.query,
-                    onDone = viewModel::performSearch
+                    viewModel::performSearch
                 )
             }
 
             stickyHeader {
-                when(categoryListState) {
-                    is UIState.Loading -> Box(Modifier.fillMaxSize()) {
-                        Row(Modifier
-                            .padding(defaultPadding)
-                            .fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator(color = DefaultColor)
-                            Spacer(Modifier.width(defaultPadding))
-                            Text(
-                                stringResource(R.string.loading_categories),
-                                color = DefaultColor
-                            )
-                        }
-                    }
-                    is UIState.Error -> Text("Não foi possível carregar as categorias")
-                    is UIState.Success -> {
-                        val categoryList = (categoryListState as UIState.Success).data
-                        CategoryTabs(categoryList, selectedIndex) { index, category ->
-                            selectedIndex = index
-                            viewModel.selectTab(category)
-                        }
-                    }
-                }
-
+                CategorySection(categoryListState, viewModel)
             }
 
             itemsIndexed(listProductState) { index, product ->
                 ProductListItem(
-                    product = product,
-                    navController = navController,
-                    viewModel = viewModel,
-                    modifier = Modifier.padding(
+                    product,
+                    navController,
+                    viewModel,
+                    Modifier.padding(
                         start = defaultPadding, end = defaultPadding,
                         top = if(index == 0) defaultPadding else defaultPadding/2,
                         bottom = if(index == listProductState.size - 1) defaultPadding else defaultPadding/2
@@ -152,61 +124,87 @@ internal fun SearchProductScreen(navController: NavHostController) {
                 )
             }
 
-            if(listProductState.isNotEmpty()) {
-
-                if (loadState == LoadMoreListState.LOADING) {
-                    item { Box(Modifier.fillMaxWidth()) { CircularProgressIndicator(Modifier
-                        .padding(defaultPadding)
-                        .align(Alignment.Center)) } }
-                    return@LazyColumn
-                } else if (loadState == LoadMoreListState.EMPTY) {
-                    item {
-                        Text(
-                            "Fim da lista",
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(defaultPadding),
-                            color = Color.Gray,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-
-            }
+            endListSection(listProductState, loadState)
 
         }
 
-        if(listProductState.isEmpty()) {
-            if (loadState == LoadMoreListState.LOADING) {
-                LoadingComponent(
+        EmptyListSection(listProductState, loadState)
+
+    }
+
+}
+
+private fun LazyListScope.endListSection(
+    listProductState: List<ProductResponse>,
+    loadState: LoadMoreListState,
+) {
+    if (listProductState.isNotEmpty()) {
+
+        if (loadState == LoadMoreListState.LOADING) {
+            item {
+                Box(Modifier.fillMaxWidth()) {
+                    CircularProgressIndicator(
+                        Modifier
+                            .padding(defaultPadding)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+            return
+        } else if (loadState == LoadMoreListState.EMPTY) {
+            item {
+                Text(
+                    "Fim da lista",
                     Modifier
-                        .fillMaxSize()
-                        .padding(defaultPadding)
-                )
-            } else if(loadState == LoadMoreListState.ERROR) {
-                ErrorComponent(
-                    stringResource(R.string.error_loading_message),
-                    Modifier.fillMaxSize()
-                )
-            } else if(loadState == LoadMoreListState.EMPTY) {
-                MessageContent(
-                    {
-                        Icon(
-                            painterResource(R.drawable.ic_empty_shopping_cart),
-                            null,
-                            Modifier.size(128.dp),
-                            tint = Color(0x59187270)
-                        )
-                    },
-                    stringResource(R.string.any_product_found),
-                    modifier = Modifier.fillMaxSize()
+                        .fillMaxWidth()
+                        .padding(defaultPadding),
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }
 
     }
+}
 
+@Composable
+private fun StoreSection(store: Store) {
+    Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
+        Spacer(Modifier.width(defaultPadding))
+        ImageComponent(store.urlLogo, R.drawable.outline_store_24, 24.dp)
+        Spacer(Modifier.width(defaultPadding))
+        HomeTitle(store.name)
+    }
+}
+
+@Composable
+private fun CategorySection(categoryListState: UIState<List<CategoryResponse>>, viewModel: SearchProductViewModel) {
+
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+
+    when(categoryListState) {
+        is UIState.Loading -> Box(Modifier.fillMaxSize()) {
+            Row(Modifier
+                .padding(defaultPadding)
+                .fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                CircularProgressIndicator(color = DefaultColor)
+                Spacer(Modifier.width(defaultPadding))
+                Text(
+                    stringResource(R.string.loading_categories),
+                    color = DefaultColor
+                )
+            }
+        }
+        is UIState.Error -> Text("Não foi possível carregar as categorias")
+        is UIState.Success -> {
+            CategoryTabs(categoryListState.data, selectedIndex) { index, category ->
+                selectedIndex = index
+                viewModel.selectTab(category)
+            }
+        }
+    }
 }
 
 @Composable
@@ -263,4 +261,46 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
             }
         }
     )
+}
+
+@Composable
+private fun EmptyListSection(
+    listProductState: List<ProductResponse>,
+    loadState: LoadMoreListState
+) {
+
+    if(listProductState.isEmpty()) {
+        when (loadState) {
+            LoadMoreListState.LOADING -> {
+                LoadingComponent(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(defaultPadding)
+                )
+            }
+            LoadMoreListState.ERROR -> {
+                ErrorComponent(
+                    stringResource(R.string.error_loading_message),
+                    Modifier.fillMaxSize()
+                )
+            }
+            LoadMoreListState.EMPTY -> {
+                MessageContent(
+                    {
+                        Icon(
+                            painterResource(R.drawable.ic_empty_shopping_cart),
+                            null,
+                            Modifier.size(128.dp),
+                            tint = Color(0x59187270)
+                        )
+                    },
+                    stringResource(R.string.any_product_found),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            LoadMoreListState.SUCCESS -> {}
+        }
+    }
+
 }
