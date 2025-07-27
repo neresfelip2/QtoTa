@@ -3,7 +3,6 @@ package br.com.qtota.ui.screen.main_navigation
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -36,10 +35,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
-import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
+import br.com.qtota.ui.screen.request_location.LoadingLocation
 import br.com.qtota.ui.screen.request_location.RequestLocationScreen
 import br.com.qtota.ui.screen.request_location.RequestLocationViewModel
 import br.com.qtota.ui.state_handler.UIState
@@ -54,13 +53,7 @@ internal fun MainNavigationScreen(navController: NavHostController) {
     val locationState by locationViewModel.locationUiState.collectAsState()
 
     when (locationState) {
-        is UIState.Loading -> Scaffold(topBar = { Toolbar(stringResource(R.string.app_name)) }) { innerPadding ->
-            LoadingComponent(Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-                stringResource(R.string.loading_location)
-            )
-        }
+        is UIState.Loading -> LoadingLocation()
         is UIState.Error -> RequestLocationScreen(locationViewModel)
         is UIState.Success -> Content(navController)
     }
