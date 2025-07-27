@@ -10,22 +10,28 @@ class StoreRespository(
     private val apiService: APIService,
 ) : RepositoryBase() {
 
-    suspend fun getNearbyStores(latitude: Double, longitude: Double): List<StoreResponse>? {
-        return performRequest({
-            apiService.getNearbyStores(latitude, longitude)
-        }) { it }
+    suspend fun getNearbyStores(location: Location, onError: (String) -> Unit, onSuccess: (List<StoreResponse>) -> Unit) {
+        return performRequest(
+            { apiService.getNearbyStores(location.latitude, location.longitude) },
+            { onError(it?.string() ?: "Erro desconhecido") },
+            onSuccess
+            )
     }
 
-    suspend fun getNearbyStoreBranches(storeId: Long?, latitude: Double, longitude: Double): List<StoreResponse>? {
-        return performRequest({
-            apiService.getNearbyStoreBranches(storeId, latitude, longitude)
-        }) { it }
+    suspend fun getNearbyStoreBranches(storeId: Long?, location: Location, onError: (String) -> Unit, onSuccess: (List<StoreResponse>) -> Unit) {
+        return performRequest(
+            { apiService.getNearbyStoreBranches(storeId, location.latitude, location.longitude) },
+            { onError(it?.string() ?: "Erro desconhecido") },
+            onSuccess
+            )
     }
 
-    suspend fun getStoreDetail(id: Long, location: Location): StoreDetail? {
-        return performRequest({
-            apiService.getStoreDetail(id, location.latitude, location.longitude)
-        }) { it.toStoreDetail() }
+    suspend fun getStoreDetail(id: Long, location: Location, onError: (String) -> Unit, onSuccess: (StoreDetail) -> Unit) {
+        return performRequest(
+            { apiService.getStoreDetail(id, location.latitude, location.longitude) },
+            { onError(it?.string() ?: "Erro desconhecido") },
+            { onSuccess(it.toStoreDetail()) }
+            )
     }
 
 }

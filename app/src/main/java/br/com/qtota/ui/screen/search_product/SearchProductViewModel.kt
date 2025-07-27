@@ -49,7 +49,7 @@ class SearchProductViewModel @Inject constructor(
     private var currentPage = 0
     private val limit = 10
 
-    private var request: Job? = null
+    private var activeRequest: Job? = null
 
     init {
         viewModelScope.launch { _neighborhoodState.value = locationRepository.getNeighborhood() }
@@ -59,49 +59,49 @@ class SearchProductViewModel @Inject constructor(
 
     internal fun getProducts(page: Int) {
 
-        if(request != null) {
-            request?.cancel()
+        if(activeRequest != null) {
+            activeRequest?.cancel()
         }
 
-        request = viewModelScope.launch {
+        activeRequest = viewModelScope.launch {
             _loadState.value = LoadMoreListState.LOADING
 
-            val result = productRepository.getProducts(
+            productRepository.getProducts(
                 location = locationRepository.location!!,
                 query = query,
                 storeId = store?.id,
                 categoryId = category?.id,
                 page = page,
-                limit = limit
-            )
+                limit = limit,
+                {
+                    _loadState.value = LoadMoreListState.ERROR
+                    activeRequest = null
+                }
+            ) { list ->
 
-            if (result == null) {
-                _loadState.value = LoadMoreListState.ERROR
-                return@launch
+                if (list.isEmpty()) {
+                    _loadState.value = LoadMoreListState.EMPTY
+                    return@getProducts
+                }
+
+                _loadState.value = LoadMoreListState.SUCCESS
+                _productListState.value = _productListState.value + list
+
+                currentPage = page
+                activeRequest = null
+
             }
 
-            if (result.isEmpty()) {
-                _loadState.value = LoadMoreListState.EMPTY
-                return@launch
-            }
-
-            _loadState.value = LoadMoreListState.SUCCESS
-            _productListState.value = _productListState.value + result
-
-            currentPage = page
-            request = null
         }
     }
 
     internal fun getCategoryList() {
         viewModelScope.launch {
-            val result = productRepository.getCategories()
-            if (result == null) {
-                _categoryListState.value = UIState.Error("")
-                return@launch
+            productRepository.getCategories(
+                { _categoryListState.value = UIState.Error(it) }
+            ) {
+                _categoryListState.value = UIState.Success(it)
             }
-
-            _categoryListState.value = UIState.Success(result)
         }
     }
 

@@ -36,15 +36,14 @@ class ProductDetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val productDetail = productRepository.getProductById(productId, locationRepository.location!!)
-            if(productDetail != null) {
+            productRepository.getProductById(productId, locationRepository.location!!,
+                {  _productDetails.value = UIState.Error(it) }
+            ) { productDetail ->
                 _productDetails.value = UIState.Success(productDetail)
                 savedProductsState.collectLatest { savedProduct ->
                     val savedIds = savedProduct.map { it.id }.toSet()
                     _savedProductState.value = UIState.Success(savedIds.contains(productId))
                 }
-            } else {
-                _productDetails.value = UIState.Error("Algo deu errado")
             }
         }
     }

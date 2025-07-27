@@ -20,7 +20,7 @@ import retrofit2.http.Query
 
 interface APIService {
 
-    @POST("login")
+    @POST("auth/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
     @GET("home")

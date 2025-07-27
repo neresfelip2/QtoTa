@@ -14,20 +14,34 @@ import kotlinx.coroutines.flow.map
 class UserRepository(
     private val apiService: APIService,
     private val dataStore: DataStore<Preferences>
-) {
+) : RepositoryBase() {
 
     val authTokenFlow: Flow<String?> = dataStore.data
         .map { prefs ->
             prefs[UserPreferencesKeys.AUTH_TOKEN]
         }
 
-    suspend fun login(request: LoginRequest): Result<LoginResponse> {
+
+    suspend fun login(request: LoginRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
+        performRequest(
+            executeRequest = { apiService.login(request)},
+            onError = {
+                onError(it?.string() ?: "Erro desconhecido")
+            }
+        ) {
+            saveAuthToken(it.accessToken)
+            setNotFirstAccess()
+            onSuccess(it)
+        }
+    }
+
+    /*suspend fun login(request: LoginRequest): Result<LoginResponse> {
         return try {
             val response = apiService.login(request)
 
             if (response.isSuccessful) {
                 response.body()?.let {
-                    saveAuthToken(it.authToken)
+                    saveAuthToken(it.accessToken)
                     setNotFirstAccess()
                     Result.success(it)
                 } ?: Result.failure(Exception("Corpo da resposta vazio"))
@@ -39,7 +53,7 @@ class UserRepository(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
+    }*/
 
     private suspend fun saveAuthToken(token: String) {
         dataStore.edit { prefs ->

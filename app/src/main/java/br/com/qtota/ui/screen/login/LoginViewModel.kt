@@ -43,13 +43,11 @@ class LoginViewModel @Inject constructor(
         if(validFields()) {
             _loginState.value = LoginState.Loading
             viewModelScope.launch {
-                val result = userRepository.login(LoginRequest(_emailState.value, _passwordState.value))
-                val response = result.getOrNull()
-                if (result.isSuccess && response != null) {
-                    _loginState.value = response.authToken.let { LoginState.Success(it) }
-                } else {
-                    _loginState.value = LoginState.Error("Não foi possível efetuar o login")
-                }
+                val request = LoginRequest(_emailState.value, _passwordState.value)
+                userRepository.login(request,
+                    { _loginState.value = LoginState.Error(it) },
+                    { result -> _loginState.value = result.accessToken.let { LoginState.Success(it) }
+                })
             }
         }
     }
