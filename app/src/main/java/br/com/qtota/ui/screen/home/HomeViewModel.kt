@@ -26,7 +26,9 @@ class HomeViewModel @Inject constructor(
     val localityNameState = _localityNameState.asStateFlow()
 
     init {
-        _localityNameState.value = locationRepository.getNeighborhood()
+        viewModelScope.launch {
+            _localityNameState.value = locationRepository.getNeighborhood()
+        }
         fetchHome(locationRepository.location!!)
     }
 

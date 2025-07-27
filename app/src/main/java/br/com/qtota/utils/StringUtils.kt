@@ -45,10 +45,12 @@ object StringUtils {
     fun LocalDate.stringDaysAfterNow(context: Context) : String {
         val difference = ChronoUnit.DAYS.between(LocalDate.now(), this) + 1
 
-        return if(difference == 0L) context.getString(R.string.today)
-            else if(difference == 1L) context.getString(R.string.tomorrow)
-            else if(difference > 1L) context.getString(R.string.diference_days, difference)
-            else context.getString(R.string.expired)
+        return when {
+            difference == 0L -> context.getString(R.string.today)
+            difference == 1L -> context.getString(R.string.tomorrow)
+            difference > 1L -> context.getString(R.string.diference_days, difference)
+            else -> context.getString(R.string.expired)
+        }
     }
 
 }

@@ -113,8 +113,3 @@ private fun MenuButton(title: String, icon: ImageVector, color: Color = DefaultC
 private fun MenuScreenPreview() {
     MenuScreen(rememberNavController())
 }
-
-@Composable @Preview(showBackground = true)
-private fun DialogLogoutPreview() {
-
-}

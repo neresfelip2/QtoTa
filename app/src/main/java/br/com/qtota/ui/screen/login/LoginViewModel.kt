@@ -72,7 +72,7 @@ class LoginViewModel @Inject constructor(
 
     internal fun navigateToNextScreen(navController: NavHostController) {
         if (navController.previousBackStackEntry == null) {
-            navController.navigate(AppRoute.RequestLocation.route) {
+            navController.navigate(AppRoute.Main.route) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 launchSingleTop = true
             }

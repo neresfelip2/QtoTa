@@ -13,7 +13,6 @@ import com.google.gson.Gson
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     /* Bottom Navigation Routes */
-    object MainNav: AppRoute("main_nav")
     object Home: AppRoute("home", Icons.Outlined.Home)
     object SearchProduct : AppRoute(
         "search_product?query={query}&store={store}",
@@ -47,8 +46,8 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
     object Menu: AppRoute("menu", Icons.Outlined.Menu)
-    object StoreList: AppRoute("home/store_list")
 
+    object StoreList: AppRoute("home/store_list")
     object StoreDetail: AppRoute("home/store_detail/{id}") {
         const val BASE_ROUTE = "home/store_detail"
         const val ARG_ID = "id"
@@ -59,17 +58,6 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     }
 
-
-    object RequestLocation: AppRoute("request_location")
-    object Login: AppRoute("login")
-    object ProductDetails: AppRoute("product_details/{productId}") {
-        internal const val ARG_PRODUCT_ID = "productId"
-
-        internal fun productId(id: Long): String {
-            return "product_details/$id"
-        }
-    }
-
     object Map: AppRoute("home/map/{store_id}") {
         const val BASE_ROUTE = "home/map"
         const val ARG_STORE_ID = "store_id"
@@ -78,6 +66,16 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
             return storeId?.let { "${BASE_ROUTE}/$it" } ?: "${BASE_ROUTE}/0"
         }
 
+    }
+
+    object Main: AppRoute("main")
+    object Login: AppRoute("login")
+    object ProductDetails: AppRoute("product_details/{productId}") {
+        internal const val ARG_PRODUCT_ID = "productId"
+
+        internal fun productId(id: Long): String {
+            return "product_details/$id"
+        }
     }
 
 }
