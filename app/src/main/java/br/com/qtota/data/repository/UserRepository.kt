@@ -7,6 +7,7 @@ import br.com.qtota.data.local.UserPreferencesKeys
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.login.LoginResponseError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -24,36 +25,15 @@ class UserRepository(
 
     suspend fun login(request: LoginRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
         performRequest(
-            executeRequest = { apiService.login(request)},
-            onError = {
-                onError(it?.string() ?: "Erro desconhecido")
-            }
+            { apiService.login(request) },
+            LoginResponseError::class.java,
+            { onError(it?.detail ?: "Erro desconhecido") }
         ) {
             saveAuthToken(it.accessToken)
             setNotFirstAccess()
             onSuccess(it)
         }
     }
-
-    /*suspend fun login(request: LoginRequest): Result<LoginResponse> {
-        return try {
-            val response = apiService.login(request)
-
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    saveAuthToken(it.accessToken)
-                    setNotFirstAccess()
-                    Result.success(it)
-                } ?: Result.failure(Exception("Corpo da resposta vazio"))
-            } else {
-                Result.failure(
-                    Exception("Erro ${response.code()}: ${response.message()}")
-                )
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }*/
 
     private suspend fun saveAuthToken(token: String) {
         dataStore.edit { prefs ->

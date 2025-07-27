@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -46,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.DefaultColorDark
 import br.com.qtota.ui.theme.ErrorColor
@@ -106,11 +108,11 @@ internal fun LoginScreen(navController: NavHostController) {
 
     when(loginState) {
         null -> Unit
-        is LoginState.Loading -> LoadingDialog()
-        is LoginState.Error -> ErrorDialog((loginState as LoginState.Error).description) {
+        is UIState.Loading -> LoadingDialog()
+        is UIState.Error -> ErrorDialog((loginState as UIState.Error).description) {
             viewModel.resetLoginState()
         }
-        is LoginState.Success -> viewModel.navigateToNextScreen(navController)
+        is UIState.Success -> viewModel.navigateToNextScreen(navController)
     }
 
 }
@@ -275,7 +277,7 @@ private fun ErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
             Column(Modifier.padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Outlined.Warning, null, tint = ErrorColor)
-                Text(errorMessage, color = ErrorColor)
+                Text(errorMessage, color = ErrorColor, textAlign = TextAlign.Center)
             }
         }
     }

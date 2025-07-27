@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.repository.UserRepository
 import br.com.qtota.ui.navigation.AppRoute
+import br.com.qtota.ui.state_handler.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +19,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _loginState = MutableStateFlow<LoginState?>(null)
+    private val _loginState = MutableStateFlow<UIState<String>?>(null)
     val loginState = _loginState.asStateFlow()
 
     private val _emailState = MutableStateFlow("")
@@ -41,12 +42,12 @@ class LoginViewModel @Inject constructor(
 
     fun submitLogin() {
         if(validFields()) {
-            _loginState.value = LoginState.Loading
+            _loginState.value = UIState.Loading
             viewModelScope.launch {
                 val request = LoginRequest(_emailState.value, _passwordState.value)
                 userRepository.login(request,
-                    { _loginState.value = LoginState.Error(it) },
-                    { result -> _loginState.value = result.accessToken.let { LoginState.Success(it) }
+                    { _loginState.value = UIState.Error(it) },
+                    { result -> _loginState.value = result.accessToken.let { UIState.Success(it) }
                 })
             }
         }

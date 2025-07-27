@@ -42,7 +42,7 @@ class ProductRepository(
     suspend fun getSavedProductsWithOffers(productList: List<SavedProductUI>, onError: (String) -> Unit, onSuccess: (List<SavedProductUI>) -> Unit) {
         performRequest(
             { apiService.getOffers(productList.map { it.product.id }) },
-            { onError(it?.string() ?: "Erro desconhecido")},
+            onError,
             {
                 val list = productList.map { product ->
                     product.copy(offersState = UIState.Success(it[product.product.id] ?: -1))
@@ -60,8 +60,8 @@ class ProductRepository(
     suspend fun getHome(location: Location, onError: (String) -> Unit, onSuccess: (HomeResponse) -> Unit) {
         performRequest(
             { apiService.getHome(location.latitude, location.longitude) },
-            { onError(it?.string() ?: "Erro desconhecido") },
-            onSuccess = onSuccess
+            onError,
+            onSuccess
         )
     }
 
@@ -69,15 +69,15 @@ class ProductRepository(
         performRequest({
             apiService.getProducts(location.latitude, location.longitude, if (query.isNullOrBlank()) null else query, storeId, categoryId, page, limit)
         },
-            { onError(it?.string() ?: "Erro desconhecido") },
-            onSuccess = onSuccess
+            onError,
+            onSuccess
         )
     }
 
     suspend fun getProductById(id: Long, location: Location, onError: (String) -> Unit, onSuccess: suspend (ProductDetail) -> Unit) {
         performRequest(
             { apiService.productDetail(id, location.latitude, location.longitude) },
-            { onError(it?.string() ?: "Erro desconhecido") },
+            onError,
             { productResponse -> onSuccess(productResponse.toProductDetail()) }
         )
 
@@ -86,7 +86,7 @@ class ProductRepository(
     suspend fun getCategories(onError: (String) -> Unit, onSuccess: (List<CategoryResponse>) -> Unit) {
         performRequest(
             { apiService.getCategories() },
-            { onError(it?.string() ?: "Erro desconhecido") },
+            onError,
             onSuccess
         )
     }

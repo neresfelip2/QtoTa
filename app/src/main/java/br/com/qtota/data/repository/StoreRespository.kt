@@ -13,25 +13,25 @@ class StoreRespository(
     suspend fun getNearbyStores(location: Location, onError: (String) -> Unit, onSuccess: (List<StoreResponse>) -> Unit) {
         return performRequest(
             { apiService.getNearbyStores(location.latitude, location.longitude) },
-            { onError(it?.string() ?: "Erro desconhecido") },
+            onError,
             onSuccess
-            )
+        )
     }
 
     suspend fun getNearbyStoreBranches(storeId: Long?, location: Location, onError: (String) -> Unit, onSuccess: (List<StoreResponse>) -> Unit) {
         return performRequest(
             { apiService.getNearbyStoreBranches(storeId, location.latitude, location.longitude) },
-            { onError(it?.string() ?: "Erro desconhecido") },
+            onError,
             onSuccess
-            )
+        )
     }
 
     suspend fun getStoreDetail(id: Long, location: Location, onError: (String) -> Unit, onSuccess: (StoreDetail) -> Unit) {
         return performRequest(
             { apiService.getStoreDetail(id, location.latitude, location.longitude) },
-            { onError(it?.string() ?: "Erro desconhecido") },
+            onError,
             { onSuccess(it.toStoreDetail()) }
-            )
+        )
     }
 
 }
