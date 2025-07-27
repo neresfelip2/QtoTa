@@ -4,14 +4,13 @@ import android.content.Context
 import androidx.room.Room
 import br.com.qtota.data.local.AppDatabase
 import br.com.qtota.data.local.dao.ProductDAO
-import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Module
+@dagger.Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 

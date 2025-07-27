@@ -7,7 +7,6 @@ import br.com.qtota.data.remote.adapters.MeasureTypeAdapter
 import br.com.qtota.data.remote.product.MeasureType
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -19,7 +18,7 @@ import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-@Module
+@dagger.Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
