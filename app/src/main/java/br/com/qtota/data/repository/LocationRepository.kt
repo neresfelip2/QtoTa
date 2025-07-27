@@ -52,7 +52,7 @@ class LocationRepository @Inject constructor(
                 // Modern API for Android 13+
                 val addresses = suspendCancellableCoroutine { continuation ->
                     geocoder.getFromLocation(location!!.latitude, location!!.longitude, 1) { result ->
-                        continuation.resume(result) { cause, _, _ ->
+                        continuation.resume(result) { _, _, _ ->
                             continuation.resume(emptyList())
                         }
                     }
