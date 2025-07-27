@@ -28,7 +28,8 @@ class SearchProductViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    val neighborhood = locationRepository.getNeighborhood()
+    private val _neighborhoodState = MutableStateFlow("Carregando...")
+    val neighborhood = _neighborhoodState.asStateFlow()
 
     val savedProductsState = productRepository.getSavedProducts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -51,6 +52,7 @@ class SearchProductViewModel @Inject constructor(
     private var request: Job? = null
 
     init {
+        viewModelScope.launch { _neighborhoodState.value = locationRepository.getNeighborhood() }
         getCategoryList()
         getProducts(1)
     }

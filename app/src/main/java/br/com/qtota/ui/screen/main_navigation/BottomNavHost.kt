@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.main_nav
+package br.com.qtota.ui.screen.main_navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.DrawerState

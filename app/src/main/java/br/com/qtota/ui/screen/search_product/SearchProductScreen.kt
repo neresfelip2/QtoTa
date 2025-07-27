@@ -62,6 +62,7 @@ internal fun SearchProductScreen(navController: NavHostController) {
 
     val viewModel: SearchProductViewModel = hiltViewModel()
 
+    val neighborhood by viewModel.neighborhood.collectAsState()
     val categoryListState by viewModel.categoryListState.collectAsState()
 
     val listProductState by viewModel.productListState.collectAsState()
@@ -85,7 +86,7 @@ internal fun SearchProductScreen(navController: NavHostController) {
         LazyColumn(state = listState) {
             item {
                 LocationComponent(
-                    viewModel.neighborhood,
+                    neighborhood,
                     modifier = Modifier.padding(start = defaultPadding, top = defaultPadding)
                 )
             }

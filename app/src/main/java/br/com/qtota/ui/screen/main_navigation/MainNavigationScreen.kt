@@ -1,8 +1,9 @@
-package br.com.qtota.ui.screen.main_nav
+package br.com.qtota.ui.screen.main_navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,15 +36,40 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.com.qtota.R
 import br.com.qtota.ui.components.ConfirmDialog
+import br.com.qtota.ui.components.LoadingComponent
 import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.navigation.BottomNavBar
+import br.com.qtota.ui.screen.request_location.RequestLocationScreen
+import br.com.qtota.ui.screen.request_location.RequestLocationViewModel
+import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 internal fun MainNavigationScreen(navController: NavHostController) {
+
+    val locationViewModel: RequestLocationViewModel = hiltViewModel()
+    val locationState by locationViewModel.locationUiState.collectAsState()
+
+    when (locationState) {
+        is UIState.Loading -> Scaffold(topBar = { Toolbar(stringResource(R.string.app_name)) }) { innerPadding ->
+            LoadingComponent(Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+                stringResource(R.string.loading_location)
+            )
+        }
+        is UIState.Error -> RequestLocationScreen(locationViewModel)
+        is UIState.Success -> Content(navController)
+    }
+
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+private fun Content(navController: NavHostController) {
 
     var showLoginDialog by remember { mutableStateOf(false) }
     var showSendFlyerDialog by remember { mutableStateOf(false) }
@@ -113,7 +140,7 @@ private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState) -> 
 @Composable
 private fun BottomBarScaffold(topBarPadding: PaddingValues, navController: NavHostController, drawerState: DrawerState, showLoginDialog: () -> Unit, showSendFlyerDialog: () -> Unit) {
 
-    val viewModel: MainNavViewModel = hiltViewModel()
+    val viewModel: MainNavigationViewModel = hiltViewModel()
     val bottomNavController = rememberNavController()
 
     Scaffold(
@@ -151,7 +178,7 @@ private fun BottomBarScaffold(topBarPadding: PaddingValues, navController: NavHo
 @Composable
 private fun LoginDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     ConfirmDialog(
         text = stringResource(R.string.send_flyer_dialog),

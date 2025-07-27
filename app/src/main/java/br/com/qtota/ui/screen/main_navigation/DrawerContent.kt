@@ -1,4 +1,4 @@
-package br.com.qtota.ui.screen.main_nav
+package br.com.qtota.ui.screen.main_navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
