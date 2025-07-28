@@ -3,8 +3,6 @@ package br.com.qtota.ui.components
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,6 +20,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import br.com.qtota.R
 import br.com.qtota.ui.theme.DefaultColor
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Search
 
 @Composable
 internal fun SearchTextField(modifier: Modifier = Modifier, initialText: String = "", onDone: (String) -> Unit) {
@@ -36,7 +36,7 @@ internal fun SearchTextField(modifier: Modifier = Modifier, initialText: String 
         },
         placeholder = { Text(stringResource(R.string.search_products)) },
         leadingIcon = {
-            Icon(imageVector = Icons.Outlined.Search, contentDescription = null)
+            Icon(imageVector = Lucide.Search, contentDescription = null)
         },
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = Color.Transparent,

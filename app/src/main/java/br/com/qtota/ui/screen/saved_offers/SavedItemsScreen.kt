@@ -55,6 +55,8 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.ShoppingCart
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,7 +172,7 @@ private fun SavedItemCard(savedProduct: SavedProductUI, navController: NavHostCo
             Modifier.padding(defaultPadding).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ImageComponent(savedProduct.product.pathImage, R.drawable.outline_shopping_cart_24, 128.dp)
+            ImageComponent(savedProduct.product.pathImage, Lucide.ShoppingCart, 128.dp)
             ProductTitle(savedProduct.product.name, modifier = Modifier.padding(defaultPadding))
             when (savedProduct.offersState) {
                 is UIState.Loading -> Row {

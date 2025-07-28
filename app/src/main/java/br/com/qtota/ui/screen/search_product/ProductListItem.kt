@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -56,6 +54,10 @@ import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.DateUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.ShoppingCart
+import com.composables.icons.lucide.Store
 import java.time.LocalDate
 
 @Composable
@@ -78,7 +80,7 @@ internal fun ProductListItem(
         ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ImageComponent(product.urlImage, R.drawable.outline_shopping_cart_24, 112.dp)
+            ImageComponent(product.urlImage, Lucide.ShoppingCart, 112.dp)
             Column {
                 if(viewModel.store == null) {
                     StoreHeader(product.store)
@@ -100,7 +102,7 @@ private fun StoreHeader(store: StoreResponse) {
             .padding(defaultPadding, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ImageComponent(store.logo, R.drawable.outline_store_24, 40.dp)
+        ImageComponent(store.logo, Lucide.Store, 40.dp)
         Spacer(Modifier.width(defaultPadding))
         Column(Modifier.weight(1f)) {
             Text(
@@ -136,7 +138,7 @@ private fun StoreHeader(store: StoreResponse) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Outlined.LocationOn,
+                Lucide.MapPin,
                 null,
                 Modifier.size(16.dp),
                 tint = Color(0xFF0015DF)

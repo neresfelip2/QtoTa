@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -27,6 +25,8 @@ import br.com.qtota.ui.components.Toolbar
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.defaultPadding
 import coil.compose.AsyncImage
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
 
 @Composable
 internal fun RequestLocationScreen(viewModel: RequestLocationViewModel) {
@@ -47,7 +47,7 @@ internal fun RequestLocationScreen(viewModel: RequestLocationViewModel) {
         )
         {
             MessageContent(
-                { Icons.Outlined.LocationOn },
+                { Lucide.MapPin },
                 stringResource(R.string.request_location_label)
             )
             Spacer(Modifier.height(defaultPadding))

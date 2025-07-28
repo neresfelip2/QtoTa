@@ -6,11 +6,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +31,12 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.defaultPadding
+import com.composables.icons.lucide.Info
+import com.composables.icons.lucide.LogIn
+import com.composables.icons.lucide.LogOut
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.ThumbsUp
+import com.composables.icons.lucide.UserCog
 
 @Composable
 internal fun MenuScreen(navController: NavHostController) {
@@ -54,19 +55,22 @@ internal fun MenuScreen(navController: NavHostController) {
 
         MenuGroup {
             if (isLogged) {
-                MenuButton(stringResource(R.string.logout), Icons.AutoMirrored.Outlined.ExitToApp, color = ErrorColor) {
+                MenuButton(stringResource(R.string.logout), Lucide.LogOut, color = ErrorColor) {
                     showDialogLogout = true
                 }
             } else {
-                MenuButton(stringResource(R.string.log_in), Icons.Outlined.Person) {
+                MenuButton(stringResource(R.string.log_in), Lucide.LogIn) {
                     navController.navigate(AppRoute.Login.route) { launchSingleTop = true }
                 }
+            }
+            MenuButton("Configurações da conta", Lucide.UserCog) {
+
             }
         }
 
         MenuGroup {
-            MenuButton(stringResource(R.string.rate_us), Icons.Outlined.ThumbUp) { viewModel.openPlayStore(context) }
-            MenuButton(stringResource(R.string.about),    Icons.Outlined.Info)     { /* … */ }
+            MenuButton(stringResource(R.string.rate_us), Lucide.ThumbsUp) { viewModel.openPlayStore(context) }
+            MenuButton(stringResource(R.string.about),    Lucide.Info)     { /* … */ }
         }
     }
 

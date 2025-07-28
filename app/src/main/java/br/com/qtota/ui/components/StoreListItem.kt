@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,11 +21,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import br.com.qtota.R
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toDistanceString
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Store
 
 @Composable
 internal fun StoreListItem(store: StoreResponse, navController: NavController) {
@@ -46,7 +46,7 @@ internal fun StoreListItem(store: StoreResponse, navController: NavController) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ImageComponent(store.logo, R.drawable.outline_store_24, 96.dp)
+            ImageComponent(store.logo, Lucide.Store, 96.dp)
             Spacer(Modifier.height(8.dp))
             Text(
                 store.name,
@@ -58,7 +58,7 @@ internal fun StoreListItem(store: StoreResponse, navController: NavController) {
                 lineHeight = 14.sp
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.LocationOn, null, Modifier.size(16.dp), tint = Color.Gray)
+                Icon(Lucide.MapPin, null, Modifier.size(16.dp), tint = Color.Gray)
                 Spacer(Modifier.width(4.dp))
                 Text(store.distance.toDistanceString(), fontSize = 12.sp, color = Color.Gray)
             }

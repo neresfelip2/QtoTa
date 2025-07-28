@@ -14,11 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,6 +55,13 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.DefaultColorDark
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.GradientBackground
+import com.composables.icons.lucide.AtSign
+import com.composables.icons.lucide.Eye
+import com.composables.icons.lucide.EyeOff
+import com.composables.icons.lucide.Lock
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.TriangleAlert
+import com.composables.icons.lucide.User
 
 @Composable
 internal fun AuthScreen(navController: NavHostController) {
@@ -216,7 +218,7 @@ private fun NameField(text: String, isError: Boolean = false, onValueChange: (St
         onValueChange = onValueChange,
         label = { Text(stringResource(R.string.name)) },
         placeholder = { Text(stringResource(R.string.type_in_here)) },
-        leadingIcon = { Icon(Icons.Outlined.Person, null) },
+        leadingIcon = { Icon(Lucide.User, null) },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DefaultColor,
             focusedLeadingIconColor = DefaultColor,
@@ -240,7 +242,7 @@ private fun EmailField(text: String, isError: Boolean = false, onValueChange: (S
         onValueChange = onValueChange,
         label = { Text(stringResource(R.string.email)) },
         placeholder = { Text(stringResource(R.string.type_in_here)) },
-        leadingIcon = { Icon(Icons.Outlined.Email, null) },
+        leadingIcon = { Icon(Lucide.AtSign, null) },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DefaultColor,
             focusedLeadingIconColor = DefaultColor,
@@ -276,16 +278,16 @@ private fun PasswordField(text: String, label: String = stringResource(R.string.
         onValueChange = onValueChange,
         label = { Text(label) },
         placeholder = { Text(stringResource(R.string.type_in_here)) },
-        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
+        leadingIcon = { Icon(Lucide.Lock, contentDescription = null) },
         trailingIcon = {
             val image = if (passwordVisible) {
-                painterResource(R.drawable.outline_remove_red_eye_24)
+                Lucide.Eye
             } else {
-                painterResource(R.drawable.outline_visibility_off_24)
+                Lucide.EyeOff
             }
 
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(painter = image, contentDescription = null)
+                Icon(image, contentDescription = null)
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
@@ -357,7 +359,7 @@ private fun ErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
         ) {
             Column(Modifier.padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Outlined.Warning, null, tint = ErrorColor)
+                Icon(Lucide.TriangleAlert, null, tint = ErrorColor)
                 Text(errorMessage, color = ErrorColor, textAlign = TextAlign.Center)
             }
         }

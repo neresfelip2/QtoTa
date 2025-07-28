@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +34,9 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.defaultPadding
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Map
+import com.composables.icons.lucide.Store
 
 @Composable
 internal fun StoreListScreen(bottomNavController: NavHostController) {
@@ -52,7 +54,7 @@ internal fun StoreListScreen(bottomNavController: NavHostController) {
                 MessageContent(
                     {
                         Icon(
-                            painterResource(R.drawable.outline_store_24),
+                            Lucide.Store,
                             null,
                             Modifier.size(128.dp),
                             tint = Color(0x59187270)
@@ -78,7 +80,7 @@ internal fun StoreListScreen(bottomNavController: NavHostController) {
                                 .align(Alignment.CenterEnd)
                         ) {
                             Icon(
-                                painterResource(R.drawable.outline_map_24),
+                                Lucide.Map,
                                 null,
                                 tint = DefaultColor
                             )

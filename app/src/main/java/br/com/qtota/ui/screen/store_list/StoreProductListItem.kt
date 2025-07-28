@@ -48,6 +48,8 @@ import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.DateUtils.toDDMM
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.ShoppingCart
 import java.time.LocalDate
 
 @Composable
@@ -72,7 +74,7 @@ internal fun StoreProductListItem(
         ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ImageComponent(product.urlImage, R.drawable.outline_shopping_cart_24, 112.dp)
+            ImageComponent(product.urlImage, Lucide.ShoppingCart, 112.dp)
             Column(Modifier.padding(defaultPadding)) {
                 ProductTitle(product.name)
                 Text(

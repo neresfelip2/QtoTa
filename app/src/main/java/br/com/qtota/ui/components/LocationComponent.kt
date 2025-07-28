@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -17,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.qtota.ui.theme.DefaultColor
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
 
 @Composable
 internal fun LocationComponent(localityName: String, modifier: Modifier = Modifier) {
@@ -29,7 +29,7 @@ internal fun LocationComponent(localityName: String, modifier: Modifier = Modifi
         ),
         contentPadding = PaddingValues(0.dp)
     ) {
-        Icon(Icons.Outlined.LocationOn, null, Modifier.size(20.dp), DefaultColor)
+        Icon(Lucide.MapPin, null, Modifier.size(20.dp), DefaultColor)
         Spacer(Modifier.width(8.dp))
         Text(
             localityName,

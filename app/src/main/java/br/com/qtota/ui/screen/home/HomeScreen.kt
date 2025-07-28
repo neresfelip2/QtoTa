@@ -49,6 +49,8 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.defaultPadding
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Store
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -116,7 +118,7 @@ private fun LazyListScope.nearestStoresSection(
             MessageContent(
                 {
                     Icon(
-                        painterResource(R.drawable.outline_store_24), null,
+                        Lucide.Store, null,
                         Modifier.size(128.dp),
                         tint = Color(0x59187270)
                     )
