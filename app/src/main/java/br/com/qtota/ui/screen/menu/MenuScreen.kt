@@ -113,6 +113,7 @@ internal fun MenuScreen(navController: NavHostController) {
             onConfirm = {
                 viewModel.logout()
                 showDialogLogout = false
+                navController.navigate(AppRoute.Login.route)
             }
         )
     }

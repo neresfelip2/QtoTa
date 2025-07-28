@@ -3,8 +3,10 @@ package br.com.qtota.ui.screen.auth
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.qtota.data.mapper.UserMapper.tokenToUser
 import br.com.qtota.data.remote.login.RegisterRequest
 import br.com.qtota.data.repository.UserRepository
+import br.com.qtota.ui.screen.menu.User
 import br.com.qtota.ui.state_handler.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +43,7 @@ class RegisterViewModel @Inject constructor(
     private val _validConfirmPassword = MutableStateFlow(true)
     val validConfirmPassword = _validConfirmPassword.asStateFlow()
 
-    private val _registerState = MutableStateFlow<UIState<String>?>(null)
+    private val _registerState = MutableStateFlow<UIState<User>?>(null)
     val registerState = _registerState.asStateFlow()
 
     fun setName(name: String) {
@@ -68,7 +70,7 @@ class RegisterViewModel @Inject constructor(
                 userRepository.register(request,
                     { _registerState.value = UIState.Error(it) }
                 ) {
-                    _registerState.value = UIState.Success(it.accessToken)
+                    _registerState.value = UIState.Success(it.accessToken.tokenToUser())
                 }
             }
         }

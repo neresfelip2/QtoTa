@@ -1,7 +1,9 @@
 package br.com.qtota.ui.screen.auth
 
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +48,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -55,6 +60,7 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.DefaultColorDark
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.GradientBackground
+import br.com.qtota.ui.theme.defaultPadding
 import com.composables.icons.lucide.AtSign
 import com.composables.icons.lucide.Eye
 import com.composables.icons.lucide.EyeOff
@@ -89,9 +95,11 @@ internal fun AuthScreen(navController: NavHostController) {
 
         Column(
             Modifier
-                .padding(vertical = 16.dp)
+                .fillMaxWidth()
+                .padding(64.dp, 24.dp)
                 .background(Color.White, shape = RoundedCornerShape(24.dp))
-                .padding(24.dp),
+                .padding(defaultPadding)
+                .animateContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -139,7 +147,7 @@ private fun LoginContainer(navController: NavHostController, newRegister: () -> 
         onValueChange = viewModel::setPassword
     )
     Spacer(Modifier.padding(vertical = 8.dp))
-    SubmitButton(viewModel::submitLogin)
+    SubmitButton(stringResource(R.string.enter),viewModel::submitLogin)
     Row {
         TextClickable(text = stringResource(R.string.i_forgot_my_password)) {}
         TextClickable(text = stringResource(R.string.new_register), color = DefaultColorDark, onClick = newRegister)
@@ -151,7 +159,10 @@ private fun LoginContainer(navController: NavHostController, newRegister: () -> 
         is UIState.Error -> ErrorDialog((loginState as UIState.Error).description) {
             viewModel.resetLoginState()
         }
-        is UIState.Success -> navigateToNextScreen(navController)
+        is UIState.Success -> {
+            navigateToNextScreen(navController)
+            showGreetingToast((loginState as UIState.Success).data.name, LocalContext.current)
+        }
     }
 
 }
@@ -175,6 +186,10 @@ private fun ColumnScope.NewRegisterContainer(navController: NavHostController, c
 
     val registerState by viewModel.registerState.collectAsState()
 
+    var successDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
     NameField(name, !validName, viewModel::setName)
     EmailField(email, !validEmail, viewModel::setEmail)
     PasswordField(
@@ -189,7 +204,7 @@ private fun ColumnScope.NewRegisterContainer(navController: NavHostController, c
         viewModel::setConfirmPassword
     )
     Spacer(Modifier.padding(vertical = 8.dp))
-    SubmitButton(viewModel::submitRegister)
+    SubmitButton(stringResource(R.string.register),viewModel::submitRegister)
     TextClickable(
         modifier = Modifier.align(Alignment.End),
         text = stringResource(R.string.cancel),
@@ -204,8 +219,42 @@ private fun ColumnScope.NewRegisterContainer(navController: NavHostController, c
             viewModel.resetRegisterState()
         }
         is UIState.Success -> {
-            navigateToNextScreen(navController)
-            Toast.makeText(LocalContext.current, "Usuário cadastrado com sucesso", Toast.LENGTH_LONG).show()
+            successDialog = true
+        }
+    }
+
+    if(successDialog) {
+        Dialog({}) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                tonalElevation = 8.dp
+            ) {
+
+                Column(
+                    Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "Usuário cadastrado com sucesso!",
+                        fontSize = 14.sp,
+                        color = Color.DarkGray
+                    )
+                    Text(
+                        "Um e-mail de confirmação foi enviado para: $email",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Row(Modifier.align(Alignment.End)) {
+                        Button({
+                            navigateToNextScreen(navController)
+                            showGreetingToast((registerState as UIState.Success).data.name, context)
+                        }) {
+                            Text("Entendido")
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -223,7 +272,8 @@ private fun NameField(text: String, isError: Boolean = false, onValueChange: (St
             focusedBorderColor = DefaultColor,
             focusedLeadingIconColor = DefaultColor,
             focusedLabelColor = DefaultColor,
-            focusedPlaceholderColor = Color.LightGray
+            focusedPlaceholderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
@@ -247,7 +297,8 @@ private fun EmailField(text: String, isError: Boolean = false, onValueChange: (S
             focusedBorderColor = DefaultColor,
             focusedLeadingIconColor = DefaultColor,
             focusedLabelColor = DefaultColor,
-            focusedPlaceholderColor = Color.LightGray
+            focusedPlaceholderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Email,
@@ -294,7 +345,8 @@ private fun PasswordField(text: String, label: String = stringResource(R.string.
             focusedBorderColor = DefaultColor,
             focusedLeadingIconColor = DefaultColor,
             focusedLabelColor = DefaultColor,
-            focusedPlaceholderColor = Color.LightGray
+            focusedPlaceholderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray
         ),
         shape = CircleShape,
         singleLine = true,
@@ -325,12 +377,12 @@ private fun TextClickable(modifier: Modifier = Modifier, text: String, color: Co
 }
 
 @Composable
-private fun SubmitButton(submit: () -> Unit) {
+private fun SubmitButton(text: String, submit: () -> Unit) {
     Button(
         submit,
         colors = ButtonDefaults.buttonColors(containerColor = DefaultColor)
     ) {
-        Text(stringResource(R.string.submit))
+        Text(text)
     }
 }
 
@@ -375,6 +427,14 @@ internal fun navigateToNextScreen(navController: NavHostController) {
     } else {
         navController.popBackStack()
     }
+}
+
+private fun showGreetingToast(name: String, context: Context) {
+    Toast.makeText(
+        context,
+        "Bem-vindo, $name!",
+        Toast.LENGTH_SHORT
+    ).show()
 }
 
 @Preview(showSystemUi = true)
