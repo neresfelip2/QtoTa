@@ -73,10 +73,12 @@ internal fun MenuScreen(navController: NavHostController) {
                     Lucide.User,
                     32.dp,
                     Color.White,
-                    Modifier.background(
-                        shape = CircleShape,
-                        color = Color.LightGray
-                    ).padding(defaultPadding)
+                    Modifier
+                        .background(
+                            shape = CircleShape,
+                            color = Color.LightGray
+                        )
+                        .padding(defaultPadding)
                 )
                 Spacer(Modifier.width(defaultPadding))
                 Column {
@@ -89,8 +91,8 @@ internal fun MenuScreen(navController: NavHostController) {
                     showDialogLogout = true
                 }
                 HorizontalDivider(Modifier.padding(horizontal = defaultPadding),0.5.dp, Color.LightGray)
-                MenuButton("Configurações da conta", Lucide.UserCog) {
-
+                MenuButton(stringResource(R.string.account_settings), Lucide.UserCog) {
+                    navController.navigate(AppRoute.AccountSettings.route)
                 }
             }
         } ?: MenuGroup {

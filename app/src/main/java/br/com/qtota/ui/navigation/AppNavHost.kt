@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navArgument
 import br.com.qtota.ui.screen.auth.AuthScreen
+import br.com.qtota.ui.screen.account_settings.AccountSettingsScreen
 import br.com.qtota.ui.screen.product_detail.ProductDetailsScreen
 import br.com.qtota.ui.screen.main_navigation.MainNavigationScreen
 
@@ -26,6 +27,10 @@ internal fun AppNavHost(navController: NavHostController, startDestination: Stri
                 }
             )
         ) { ProductDetailsScreen(navController) }
+
+        animatedComposable(AppRoute.AccountSettings.route) {
+            AccountSettingsScreen(navController)
+        }
 
     }
 }

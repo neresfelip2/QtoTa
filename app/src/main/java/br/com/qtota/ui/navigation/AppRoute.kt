@@ -77,5 +77,6 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
             return "product_details/$id"
         }
     }
+    object AccountSettings: AppRoute("edit_registration")
 
 }

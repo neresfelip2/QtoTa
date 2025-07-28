@@ -66,6 +66,7 @@ dependencies {
     implementation libs.androidx.navigation.compose.android
     implementation libs.play.services.location
     implementation libs.icons.lucide
+    implementation libs.java.jwt
 
     // Hilt
     implementation libs.hilt.android

@@ -71,6 +71,7 @@
     <string name="passwords_dont_match">As senhas não coincidem</string>
     <string name="name">Nome</string>
     <string name="register">Cadastrar</string>
+    <string name="account_settings">Configurações da conta</string>
 
     <plurals name="branch_in_your_region">
         <item quantity="one">1 unidade na sua região</item>
