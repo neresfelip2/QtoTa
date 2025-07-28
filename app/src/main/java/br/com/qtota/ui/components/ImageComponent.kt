@@ -12,7 +12,6 @@ import coil.compose.AsyncImage
 
 @Composable
 internal fun ImageComponent(url: String?, errorImage: ImageVector, size: Dp, color: Color? = null, modifier: Modifier = Modifier) {
-
     url?.let {
         AsyncImage(
             it,
@@ -26,5 +25,4 @@ internal fun ImageComponent(url: String?, errorImage: ImageVector, size: Dp, col
         modifier.size(size),
          color ?: Color.LightGray
     )
-
 }
