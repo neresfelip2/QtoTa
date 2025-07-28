@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,7 +59,6 @@ import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.DefaultColorDark
 import br.com.qtota.ui.theme.ErrorColor
 import br.com.qtota.ui.theme.GradientBackground
-import br.com.qtota.ui.theme.defaultPadding
 import com.composables.icons.lucide.AtSign
 import com.composables.icons.lucide.Eye
 import com.composables.icons.lucide.EyeOff
@@ -95,10 +93,9 @@ internal fun AuthScreen(navController: NavHostController) {
 
         Column(
             Modifier
-                .fillMaxWidth()
-                .padding(64.dp, 24.dp)
+                .padding( 24.dp)
                 .background(Color.White, shape = RoundedCornerShape(24.dp))
-                .padding(defaultPadding)
+                .padding(24.dp)
                 .animateContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
