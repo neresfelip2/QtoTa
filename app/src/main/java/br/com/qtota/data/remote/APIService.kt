@@ -4,6 +4,7 @@ import br.com.qtota.data.remote.home_response.CategoryResponse
 import br.com.qtota.data.remote.home_response.HomeResponse
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.login.RegisterRequest
 import br.com.qtota.data.remote.product.ProductDetailResponse
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store.StoreDetailResponse
@@ -22,6 +23,9 @@ interface APIService {
 
     @POST("auth/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
+
+    @POST("auth/register")
+    suspend fun register(@Body loginRequest: RegisterRequest): Response<LoginResponse>
 
     @GET("home")
     suspend fun getHome(

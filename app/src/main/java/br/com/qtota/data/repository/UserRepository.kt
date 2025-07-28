@@ -8,6 +8,7 @@ import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
 import br.com.qtota.data.remote.login.LoginResponseError
+import br.com.qtota.data.remote.login.RegisterRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -26,6 +27,18 @@ class UserRepository(
     suspend fun login(request: LoginRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
         performRequest(
             { apiService.login(request) },
+            LoginResponseError::class.java,
+            { onError(it?.detail ?: "Erro desconhecido") }
+        ) {
+            saveAuthToken(it.accessToken)
+            setNotFirstAccess()
+            onSuccess(it)
+        }
+    }
+
+    suspend fun register(request: RegisterRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
+        performRequest(
+            { apiService.register(request) },
             LoginResponseError::class.java,
             { onError(it?.detail ?: "Erro desconhecido") }
         ) {

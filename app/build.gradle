@@ -34,7 +34,7 @@ android {
         }
 
         debug {
-            // buildConfigField "String", "API_URL", "\"http://192.168.1.9:8000/\""
+            // buildConfigField "String", "API_URL", "\"http://192.168.1.8:8000/\""
             buildConfigField "String", "API_URL", "\"https://qtota-gbesfra0fsbwdhfe.canadacentral-01.azurewebsites.net/\""
         }
 
