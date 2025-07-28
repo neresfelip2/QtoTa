@@ -68,6 +68,8 @@
     <string name="other_nearest_branches">Outras unidades próximas</string>
     <string name="featured_offers">Ofertas em destaque</string>
     <string name="unavailable">Indisponível</string>
+    <string name="passwords_dont_match">As senhas não coincidem</string>
+    <string name="name">Nome</string>
 
     <plurals name="branch_in_your_region">
         <item quantity="one">1 unidade na sua região</item>

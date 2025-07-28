@@ -39,15 +39,17 @@ class ProductRepository(
         return dao.getAll()
     }
 
-    suspend fun getSavedProductsWithOffers(productList: List<SavedProductUI>): List<SavedProductUI>? {
-        return performRequest({
-            apiService.getOffers(productList.map { it.product.id })
-        }) {
-            productList.map { product ->
-                product.copy(offersState = UIState.Success(it[product.product.id] ?: -1))
+    suspend fun getSavedProductsWithOffers(productList: List<SavedProductUI>, onError: (String) -> Unit, onSuccess: (List<SavedProductUI>) -> Unit) {
+        performRequest(
+            { apiService.getOffers(productList.map { it.product.id }) },
+            onError,
+            {
+                val list = productList.map { product ->
+                    product.copy(offersState = UIState.Success(it[product.product.id] ?: -1))
+                }
+                onSuccess(list)
             }
-        }
-
+        )
     }
 
     suspend fun delete(id: Long) {
@@ -55,37 +57,38 @@ class ProductRepository(
         dao.delete(id)
     }
 
-    suspend fun getHome(latitude: Double, longitude: Double) : HomeResponse? {
-        return performRequest({
-            apiService.getHome(latitude, longitude)
-        }) { homeResponse ->
-            homeResponse
-        }
+    suspend fun getHome(location: Location, onError: (String) -> Unit, onSuccess: (HomeResponse) -> Unit) {
+        performRequest(
+            { apiService.getHome(location.latitude, location.longitude) },
+            onError,
+            onSuccess
+        )
     }
 
-    suspend fun getProducts(location: Location, query: String? = null, storeId: Long? = null, categoryId: Int? = null, page: Int = 1, limit: Int = 5): List<ProductResponse>? {
-        return performRequest({
+    suspend fun getProducts(location: Location, query: String? = null, storeId: Long? = null, categoryId: Int? = null, page: Int = 1, limit: Int = 5, onError: (String) -> Unit, onSuccess: (List<ProductResponse>) -> Unit) {
+        performRequest({
             apiService.getProducts(location.latitude, location.longitude, if (query.isNullOrBlank()) null else query, storeId, categoryId, page, limit)
-        }) { listProductResponse ->
-            listProductResponse
-        }
+        },
+            onError,
+            onSuccess
+        )
     }
 
-    suspend fun getProductById(id: Long, location: Location) : ProductDetail? {
-        return performRequest({
-            apiService.productDetail(id, location.latitude, location.longitude)
-        }) { productResponse ->
-            productResponse.toProductDetail()
-        }
+    suspend fun getProductById(id: Long, location: Location, onError: (String) -> Unit, onSuccess: suspend (ProductDetail) -> Unit) {
+        performRequest(
+            { apiService.productDetail(id, location.latitude, location.longitude) },
+            onError,
+            { productResponse -> onSuccess(productResponse.toProductDetail()) }
+        )
 
     }
 
-    suspend fun getCategories(): List<CategoryResponse>? {
-        return performRequest({
-            apiService.getCategories()
-        }) { categoryList ->
-            categoryList
-        }
+    suspend fun getCategories(onError: (String) -> Unit, onSuccess: (List<CategoryResponse>) -> Unit) {
+        performRequest(
+            { apiService.getCategories() },
+            onError,
+            onSuccess
+        )
     }
 
     /*suspend fun sendFlyer(imageUri: Uri, context: Context): List<Product>? {

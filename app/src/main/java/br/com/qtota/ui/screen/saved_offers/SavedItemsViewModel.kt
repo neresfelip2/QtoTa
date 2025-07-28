@@ -32,20 +32,23 @@ class SavedItemsViewModel @Inject constructor(
 
         viewModelScope.launch {
             productRepository.getSavedProducts().collectLatest {
+
                 _savedProducts.value = it.map { product ->
                     SavedProductUI(
                         product = product,
                         offersState = UIState.Loading
                     )
                 }
+
                 _savedProducts.value?.let { listProducts ->
-                    val response = productRepository.getSavedProductsWithOffers(listProducts)
-                    if (response != null) {
-                        _savedProducts.value = response
-                    } else {
-                        _savedProducts.value = listProducts.map { product ->
-                            product.copy(offersState = UIState.Error(""))
+                    productRepository.getSavedProductsWithOffers(listProducts,
+                        {
+                            _savedProducts.value = listProducts.map { product ->
+                                product.copy(offersState = UIState.Error(""))
+                            }
                         }
+                    ) { savedProducts ->
+                        _savedProducts.value = savedProducts
                     }
                 }
             }

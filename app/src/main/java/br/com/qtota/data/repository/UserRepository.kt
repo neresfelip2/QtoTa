@@ -7,6 +7,8 @@ import br.com.qtota.data.local.UserPreferencesKeys
 import br.com.qtota.data.remote.APIService
 import br.com.qtota.data.remote.login.LoginRequest
 import br.com.qtota.data.remote.login.LoginResponse
+import br.com.qtota.data.remote.login.LoginResponseError
+import br.com.qtota.data.remote.login.RegisterRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -14,30 +16,35 @@ import kotlinx.coroutines.flow.map
 class UserRepository(
     private val apiService: APIService,
     private val dataStore: DataStore<Preferences>
-) {
+) : RepositoryBase() {
 
     val authTokenFlow: Flow<String?> = dataStore.data
         .map { prefs ->
             prefs[UserPreferencesKeys.AUTH_TOKEN]
         }
 
-    suspend fun login(request: LoginRequest): Result<LoginResponse> {
-        return try {
-            val response = apiService.login(request)
 
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    saveAuthToken(it.authToken)
-                    setNotFirstAccess()
-                    Result.success(it)
-                } ?: Result.failure(Exception("Corpo da resposta vazio"))
-            } else {
-                Result.failure(
-                    Exception("Erro ${response.code()}: ${response.message()}")
-                )
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    suspend fun login(request: LoginRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
+        performRequest(
+            { apiService.login(request) },
+            LoginResponseError::class.java,
+            { onError(it?.detail ?: "Erro desconhecido") }
+        ) {
+            saveAuthToken(it.accessToken)
+            setNotFirstAccess()
+            onSuccess(it)
+        }
+    }
+
+    suspend fun register(request: RegisterRequest, onError: (message: String) -> Unit, onSuccess: (LoginResponse) -> Unit) {
+        performRequest(
+            { apiService.register(request) },
+            LoginResponseError::class.java,
+            { onError(it?.detail ?: "Erro desconhecido") }
+        ) {
+            saveAuthToken(it.accessToken)
+            setNotFirstAccess()
+            onSuccess(it)
         }
     }
 
