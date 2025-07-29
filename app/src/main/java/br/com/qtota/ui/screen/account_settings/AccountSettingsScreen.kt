@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -87,6 +88,7 @@ fun AccountSettingsScreen(navController: NavHostController) {
 
             AccountSettingsGroup {
                 AccountSettingsField(title = stringResource(R.string.name), value = "João da Silva")
+                HorizontalDivider(Modifier.padding(horizontal = defaultPadding), 0.5.dp, Color.LightGray)
                 AccountSettingsField(title = stringResource(R.string.email), value = "neresfelip@gmail.com", editable = false)
             }
 
@@ -94,7 +96,9 @@ fun AccountSettingsScreen(navController: NavHostController) {
 
             AccountSettingsGroup {
                 AccountSettingsPasswordField("Senha atual", "João da Silva")
+                HorizontalDivider(Modifier.padding(horizontal = defaultPadding), 0.5.dp, Color.LightGray)
                 AccountSettingsPasswordField("Nova senha", "João da Silva")
+                HorizontalDivider(Modifier.padding(horizontal = defaultPadding), 0.5.dp, Color.LightGray)
                 AccountSettingsPasswordField(
                     stringResource(R.string.confirme_your_password),
                     "João da Silva",
