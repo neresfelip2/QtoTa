@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -67,6 +65,9 @@ import br.com.qtota.utils.BitmapUtils
 import br.com.qtota.utils.BitmapUtils.cropToCircle
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.Utils.mapStyle
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Store
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -122,7 +123,7 @@ private fun StoreHeader(store: StoreDetail) {
     ) {
         ImageComponent(
             store.urlLogo,
-            errorImageRes = R.drawable.outline_store_24,
+            Lucide.Store,
             size = 96.dp
         )
         Spacer(Modifier.width(defaultPadding))
@@ -131,7 +132,7 @@ private fun StoreHeader(store: StoreDetail) {
             Spacer(Modifier.height(2.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painterResource(R.drawable.outline_store_24),
+                    Lucide.Store,
                     null,
                     Modifier.size(16.dp),
                     tint = Color.Gray
@@ -250,7 +251,7 @@ private fun NearestBranchSection(store: StoreDetail, bottomNavController: NavHos
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.LocationOn,
+                    Lucide.MapPin,
                     null,
                     Modifier.size(16.dp),
                     tint = Color.Gray
@@ -363,7 +364,7 @@ private fun OtherBranchesSection(branches: List<StoreDetailBranch>) {
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            Icons.Outlined.LocationOn,
+                            Lucide.MapPin,
                             null,
                             Modifier.size(16.dp),
                             tint = Color.Gray

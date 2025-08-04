@@ -20,13 +20,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import br.com.qtota.R
 import br.com.qtota.ui.components.ImageComponent
 import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.screen.store_detail.model.StoreDetailProduct
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import com.composables.icons.lucide.Image
+import com.composables.icons.lucide.Lucide
 
 @Composable
 internal fun StoreDetailProductItem(product: StoreDetailProduct, navController: NavHostController, modifier: Modifier = Modifier) {
@@ -44,7 +45,7 @@ internal fun StoreDetailProductItem(product: StoreDetailProduct, navController: 
         Column(Modifier.padding(defaultPadding).fillMaxWidth()) {
             ImageComponent(
                 product.urlImage,
-                R.drawable.outline_photo_24,
+                Lucide.Image,
                 144.dp,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)

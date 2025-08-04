@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import br.com.qtota.R
 import br.com.qtota.data.remote.product.ProductResponse
 import br.com.qtota.data.remote.store.StoreResponse
 import br.com.qtota.ui.components.ImageComponent
@@ -27,6 +26,8 @@ import br.com.qtota.ui.navigation.AppRoute
 import br.com.qtota.ui.theme.ProductTitle
 import br.com.qtota.ui.theme.defaultPadding
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import com.composables.icons.lucide.Image
+import com.composables.icons.lucide.Lucide
 import java.time.LocalDate
 
 @Composable
@@ -43,7 +44,7 @@ internal fun HomeProductItem(product: ProductResponse, navController: NavHostCon
     ) {
 
         Column(Modifier.padding(defaultPadding)) {
-            ImageComponent(product.urlImage, R.drawable.outline_photo_24, 128.dp, modifier = Modifier.align(Alignment.CenterHorizontally))
+            ImageComponent(product.urlImage, Lucide.Image, 128.dp, modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.height(defaultPadding/2))
             ProductTitle(product.name, maxLines = 2)
             Spacer(Modifier.height(defaultPadding/2))

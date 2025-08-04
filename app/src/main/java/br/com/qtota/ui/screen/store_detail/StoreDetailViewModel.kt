@@ -30,14 +30,12 @@ class StoreDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UIState.Loading
 
-            val result = storeRepository.getStoreDetail(id, locationRepository.location!!)
-
-            if(result == null) {
-                _uiState.value = UIState.Error("")
-                return@launch
+            storeRepository.getStoreDetail(id, locationRepository.location!!,
+                { _uiState.value = UIState.Error(it) }
+            ) {
+                _uiState.value = UIState.Success(it)
             }
 
-            _uiState.value = UIState.Success(result)
         }
     }
 

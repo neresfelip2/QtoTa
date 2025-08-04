@@ -53,7 +53,7 @@
     <string name="see_more_offers">Ver mais ofertas</string>
     <string name="see_more_stores">Ver mais lojas</string>
     <string name="send_flyer_dialog">Para enviar um encarte, é necessário fazer login</string>
-    <string name="submit">Entrar</string>
+    <string name="enter">Entrar</string>
     <string name="today">Hoje</string>
     <string name="tomorrow">Amanhã</string>
     <string name="type">Tipo</string>
@@ -68,6 +68,10 @@
     <string name="other_nearest_branches">Outras unidades próximas</string>
     <string name="featured_offers">Ofertas em destaque</string>
     <string name="unavailable">Indisponível</string>
+    <string name="passwords_dont_match">As senhas não coincidem</string>
+    <string name="name">Nome</string>
+    <string name="register">Cadastrar</string>
+    <string name="account_settings">Configurações da conta</string>
 
     <plurals name="branch_in_your_region">
         <item quantity="one">1 unidade na sua região</item>

@@ -56,6 +56,9 @@ import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
 import br.com.qtota.ui.theme.GrayColor
 import br.com.qtota.ui.theme.defaultPadding
+import com.composables.icons.lucide.LayoutGrid
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Store
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 
@@ -173,7 +176,7 @@ private fun StoreSection(store: Store) {
     Row(Modifier.padding(defaultPadding), verticalAlignment = Alignment.CenterVertically) {
         Text(stringResource(R.string.you_are_seeing_offers_in), fontSize = 13.sp, color = Color.DarkGray)
         Spacer(Modifier.width(defaultPadding))
-        ImageComponent(store.urlLogo, R.drawable.outline_store_24, 24.dp)
+        ImageComponent(store.urlLogo, Lucide.Store, 24.dp)
         Spacer(Modifier.width(defaultPadding))
         HomeTitle(store.name)
     }
@@ -244,7 +247,7 @@ private fun CategoryTabsItem(name: String, urlIcon: String?, selected: Boolean, 
         icon = {
             ImageComponent(
                 urlIcon,
-                R.drawable.outline_category_24,
+                Lucide.LayoutGrid,
                 24.dp,
                 if(selected) Color.White else DefaultColor
             )

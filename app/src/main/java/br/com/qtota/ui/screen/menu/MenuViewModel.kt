@@ -6,9 +6,11 @@ import android.content.Intent
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.qtota.data.mapper.UserMapper.tokenToUser
 import br.com.qtota.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -19,13 +21,13 @@ class MenuViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    internal val isLogged = userRepository.authTokenFlow.map{
-        !it.isNullOrEmpty()
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        false
-    )
+    internal val user: StateFlow<User?> = userRepository.authTokenFlow
+        .map{ token -> token?.tokenToUser() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            null
+        )
 
     fun logout() {
         viewModelScope.launch {

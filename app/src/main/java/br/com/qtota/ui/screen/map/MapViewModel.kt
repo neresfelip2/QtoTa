@@ -28,24 +28,20 @@ class MapViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val result = storeRepository.getNearbyStoreBranches(
-                storeId, locationRepository.location!!.latitude, locationRepository.location!!.longitude
-            )
-
-            if(result == null) {
-                _markersState.value = UIState.Error("")
-                return@launch
+            storeRepository.getNearbyStoreBranches(
+                storeId, locationRepository.location!!,
+                { _markersState.value = UIState.Error(it) }
+            ) { result ->
+                _markersState.value = UIState.Success(result.map { store ->
+                    StoreMarker(
+                        id = store.id,
+                        name = store.name,
+                        logo = store.logo,
+                        branch = store.branch,
+                        position = LatLng(store.latitude, store.longitude),
+                    )
+                })
             }
-
-            _markersState.value = UIState.Success(result.map { store ->
-                StoreMarker(
-                    id = store.id,
-                    name = store.name,
-                    logo = store.logo,
-                    branch = store.branch,
-                    position = LatLng(store.latitude, store.longitude),
-                )
-            })
         }
     }
 

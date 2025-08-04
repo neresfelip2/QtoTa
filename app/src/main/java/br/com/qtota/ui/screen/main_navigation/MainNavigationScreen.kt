@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FabPosition
@@ -43,6 +41,8 @@ import br.com.qtota.ui.screen.request_location.RequestLocationScreen
 import br.com.qtota.ui.screen.request_location.RequestLocationViewModel
 import br.com.qtota.ui.state_handler.UIState
 import br.com.qtota.ui.theme.DefaultColor
+import com.composables.icons.lucide.Bell
+import com.composables.icons.lucide.Lucide
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -103,7 +103,7 @@ private fun DrawerScaffold(content: @Composable (PaddingValues, DrawerState) -> 
             Toolbar(
                 stringResource(R.string.app_name),
                 backButtonEnabled = null,
-                Icons.Outlined.Notifications to {
+                Lucide.Bell to {
                     scope.launch {
                         if (drawerState.isClosed) {
                             drawerState.open()

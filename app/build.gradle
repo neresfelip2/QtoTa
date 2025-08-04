@@ -34,7 +34,7 @@ android {
         }
 
         debug {
-            // buildConfigField "String", "API_URL", "\"http://192.168.1.9:8000/\""
+            // buildConfigField "String", "API_URL", "\"http://192.168.1.8:8000/\""
             buildConfigField "String", "API_URL", "\"https://qtota-gbesfra0fsbwdhfe.canadacentral-01.azurewebsites.net/\""
         }
 
@@ -61,10 +61,14 @@ dependencies {
     implementation libs.androidx.ui.graphics
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
-    implementation libs.coil.compose
     implementation libs.androidx.media3.common.ktx
     implementation libs.androidx.navigation.compose.android
     implementation libs.play.services.location
+    implementation libs.icons.lucide
+    implementation libs.java.jwt
+
+    implementation libs.coil.compose
+    implementation libs.coil.gif
 
     // Hilt
     implementation libs.hilt.android

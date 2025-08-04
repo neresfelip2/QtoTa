@@ -23,16 +23,14 @@ class StoreListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val result = storeRepository.getNearbyStores(
-                locationRepository.location!!.latitude, locationRepository.location!!.longitude
-            )
-
-            if(result == null) {
-                _storeListState.value = UIState.Error("")
-                return@launch
+            storeRepository.getNearbyStores(
+                locationRepository.location!!,
+                {
+                    _storeListState.value = UIState.Error(it)
+                }
+            ) {
+                _storeListState.value = UIState.Success(it)
             }
-
-            _storeListState.value = UIState.Success(result)
         }
     }
 

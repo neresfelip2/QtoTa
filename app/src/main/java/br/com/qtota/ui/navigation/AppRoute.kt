@@ -1,22 +1,22 @@
 package br.com.qtota.ui.navigation
 
 import android.net.Uri
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import br.com.qtota.ui.screen.search_product.Store
+import com.composables.icons.lucide.Heart
+import com.composables.icons.lucide.House
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.Menu
+import com.composables.icons.lucide.Search
 import com.google.gson.Gson
 
 sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
 
     /* Bottom Navigation Routes */
-    object Home: AppRoute("home", Icons.Outlined.Home)
+    object Home: AppRoute("home", Lucide.House)
     object SearchProduct : AppRoute(
         "search_product?query={query}&store={store}",
-        Icons.Outlined.Search
+        Lucide.Search
     ) {
         const val BASE_ROUTE = "search_product"
         const val ARG_QUERY  = "query"
@@ -44,8 +44,8 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
         }
     }
 
-    object SavedOffers: AppRoute("saved_offers", Icons.Outlined.FavoriteBorder)
-    object Menu: AppRoute("menu", Icons.Outlined.Menu)
+    object SavedOffers: AppRoute("saved_offers", Lucide.Heart)
+    object Menu: AppRoute("menu", Lucide.Menu)
 
     object StoreList: AppRoute("home/store_list")
     object StoreDetail: AppRoute("home/store_detail/{id}") {
@@ -77,5 +77,6 @@ sealed class AppRoute(val route: String, val icon: ImageVector? = null) {
             return "product_details/$id"
         }
     }
+    object AccountSettings: AppRoute("edit_registration")
 
 }

@@ -19,9 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,6 +67,14 @@ import br.com.qtota.utils.StringUtils.stringDaysAfterNow
 import br.com.qtota.utils.StringUtils.toDistanceString
 import br.com.qtota.utils.StringUtils.toMeasureString
 import br.com.qtota.utils.StringUtils.toMonetaryString
+import com.composables.icons.lucide.Clock
+import com.composables.icons.lucide.Flag
+import com.composables.icons.lucide.Heart
+import com.composables.icons.lucide.Image
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
+import com.composables.icons.lucide.Share2
+import com.composables.icons.lucide.Store
 
 @Composable
 internal fun ProductDetailsScreen(navController: NavHostController) {
@@ -93,9 +97,9 @@ internal fun ProductDetailsScreen(navController: NavHostController) {
                         if ((savedProductState as UIState.Success).data)
                             Icons.Outlined.Favorite to { showDeleteProductDialog = true }
                         else
-                            Icons.Outlined.FavoriteBorder to { showSaveProductDialog = true },
+                            Lucide.Heart to { showSaveProductDialog = true },
 
-                        Icons.Outlined.Share to { }
+                        Lucide.Share2 to { }
                     )
                 } else {
                     arrayOf()
@@ -153,7 +157,7 @@ private fun ContainerSuccess(innerPadding: PaddingValues, product: ProductDetail
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        ImageComponent(product.urlImage, R.drawable.outline_photo_24, 160.dp)
+        ImageComponent(product.urlImage, Lucide.Image, 160.dp)
         ProductTitle(product.name, maxLines = 2, textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = defaultPadding))
         Column(
             Modifier
@@ -264,7 +268,7 @@ private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
 
                 Column(Modifier.padding(horizontal = defaultPadding)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ImageComponent(store.logo, R.drawable.outline_photo_24, 48.dp)
+                        ImageComponent(store.logo, Lucide.Store, 48.dp)
                         Spacer(Modifier.width(defaultPadding))
                         Column(Modifier.weight(1f)) {
                             Text(
@@ -274,7 +278,7 @@ private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    Icons.Outlined.Place,
+                                    Lucide.MapPin,
                                     null,
                                     Modifier.size(16.dp),
                                     tint = Color.Gray
@@ -302,7 +306,7 @@ private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painterResource(R.drawable.outline_nest_clock_farsight_analog_24),
+                                Lucide.Clock,
                                 null,
                                 Modifier.size(16.dp),
                                 tint = Color.Gray
@@ -318,7 +322,7 @@ private fun PricesContainer(stores: List<ProductDetailStoreResponse>) {
                             colors = ButtonDefaults.textButtonColors(contentColor = DefaultColor),
                             contentPadding = PaddingValues(vertical = 0.dp, horizontal = 8.dp)
                         ) {
-                            Icon(painterResource(R.drawable.outline_flag_2_24), null, Modifier.size(18.dp))
+                            Icon(Lucide.Flag, null, Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
                             Text(stringResource(R.string.report), fontSize = 12.sp)
                         }

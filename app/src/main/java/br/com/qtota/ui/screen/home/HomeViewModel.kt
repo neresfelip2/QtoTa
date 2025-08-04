@@ -33,17 +33,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun fetchHome(location: Location) {
-
         viewModelScope.launch {
-            val result = productRepository.getHome(location.latitude, location.longitude)
-
-            if(result == null) {
-                _homeUiState.value = UIState.Error("")
-                return@launch
+            productRepository.getHome(location,
+                { _homeUiState.value = UIState.Error(it) }
+            ) {
+                _homeUiState.value = UIState.Success(it)
             }
-
-            _homeUiState.value = UIState.Success(result)
-
         }
     }
 

@@ -37,9 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,9 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
-import br.com.qtota.R
 import br.com.qtota.ui.theme.DefaultColor
 import coil.compose.AsyncImage
+import com.composables.icons.lucide.Camera
+import com.composables.icons.lucide.FileArchive
+import com.composables.icons.lucide.Lucide
 import java.io.File
 
 @Composable
@@ -160,14 +162,14 @@ private fun InitContainer(onClickFromCamera: () -> Unit, onClickFromFileSystem: 
     Row(Modifier.padding(8.dp)) {
         DialogButton(
             "Tirar foto do encarte\n",
-            R.drawable.outline_add_a_photo_24,
+            Lucide.Camera,
             Modifier.weight(1f),
             onClick = onClickFromCamera
         )
         Column(Modifier.weight(1f)) {
             DialogButton(
                 "Enviar do sistema de arquivos",
-                R.drawable.outline_add_notes_24,
+                Lucide.FileArchive,
                 onClick = onClickFromFileSystem
             )
             Text(
@@ -183,7 +185,7 @@ private fun InitContainer(onClickFromCamera: () -> Unit, onClickFromFileSystem: 
 @Composable
 private fun DialogButton(
     title: String,
-    iconResource: Int,
+    imageVector: ImageVector,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -194,7 +196,7 @@ private fun DialogButton(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            painter = painterResource(iconResource),
+            imageVector,
             contentDescription = null,
             tint = Color.DarkGray,
             modifier = Modifier.size(64.dp)
